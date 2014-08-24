@@ -1,0 +1,7 @@
+"gamemode"
+{
+	"base"			"base"
+	"title"			"Scrap Match"
+	"maps"			"^sm_"
+	"menusystem"	"1"
+}

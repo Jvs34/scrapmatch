@@ -1,0 +1,12 @@
+{
+    "ignore": [
+        "logo.*",
+		"conflicted/*"
+    ], 
+    "tags": [
+        "fun"
+    ], 
+    "title": "Scrap Match", 
+    "type": "gamemode", 
+    "workshopid": 292157435
+}
