@@ -18,7 +18,7 @@ GM.Email 			= "N/A"
 GM.Website 		= "www.peniscorp.com"
 
 GM.WorkshopID 	= "292157435"								--used by the report bug command which opens the game overlay to the scrapmatch's workshop discussion
-GM.WorkshopBugThread = "35220951687232956"	--the thread to prompt users to
+GM.WorkshopBugThread = "35220951687232956"		--the thread to prompt users to
 
 GM.WorkshopLinkDirect = "http://steamcommunity.com/sharedfiles/filedetails/?id=%s"
 GM.WorkshopLinkForum = "http://steamcommunity.com/workshop/filedetails/discussion/%s/%s/"
@@ -61,7 +61,7 @@ else
 	GM.ConVars["CrossHairR"] =			CreateConVar( "sm_crosshair_r" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The red value of the crosshair color" )
 	GM.ConVars["CrossHairG"] =			CreateConVar( "sm_crosshair_g" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The green value of the crosshair color" )
 	GM.ConVars["CrossHairB"] =			CreateConVar( "sm_crosshair_b" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The blue value of the crosshair color" )
-	GM.ConVars["CrossHairScale"] =		CreateConVar( "sm_crosshair_scale" , "0.5", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The scale of the cursor. Set to -1 to automatically scale." )
+	GM.ConVars["CrossHairScale"] =		CreateConVar( "sm_crosshair_scale" , "0.5", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The scale of the cursor. Set to -1 to automatically scale." )
 	GM.ConVars["CrossHairShowAmmo"] =	CreateConVar( "sm_crosshair_ammo" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to show the ammo on the left and right sides of the crosshair." )
 	GM.ConVars["CrossHairHitSoundEnabled"] =	CreateConVar( "sm_crosshair_hitsound_enabled" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to enable the hitsound." )
 	GM.ConVars["CrossHairHitSoundPath"] =	CreateConVar( "sm_crosshair_hitsound_path" , "citadel.br_no", FCVAR_ARCHIVE + FCVAR_USERINFO , "String;The hitsound to use." )
@@ -115,7 +115,7 @@ for index , value in pairs( SA.Slots ) do
 			Value = 2 ^ value,
 			ConVar = cv,
 			Button = false,
-			Command = "slot"..value,
+			Command = "slot"..( value + 1),
 		}
 	end
 

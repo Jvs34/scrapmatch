@@ -153,11 +153,7 @@ function SWEP:Think()
 
 	--bring our think speed in line with the action controller
 	if IsValid( controller ) then
-		if SERVER then
-			self:NextThink( CurTime() + controller:GetTickRate() )
-		else
-			self:SetNextClientThink( CurTime() + controller:GetTickRate() )
-		end
+		self:NextThink( CurTime() + controller:GetTickRate() )
 		return true
 	end
 end
