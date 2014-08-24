@@ -208,7 +208,7 @@ if SERVER then
 	function GM:PlayerDeath( ply, inflictor, attacker ) end
 
 	function GM:PlayerDeathThink( ply )
-		if self:CanRespawn( ply ) then
+		if self:CanPlayerRespawn( ply ) then
 			ply:Spawn()
 		end
 	end
@@ -425,10 +425,10 @@ function GM:PlayerTraceAttack()
 	return false
 end
 
-function GM:CanRespawn( ply )
+function GM:CanPlayerRespawn( ply )
 	local rules = self:GetGameRules()
 
-	if IsValid( rules ) and rules:IsRoundFlagOn( self.RoundFlags.LASTMANSTANDING ) then return false end
+	if IsValid( rules ) and ( rules:IsRoundFlagOn( self.RoundFlags.LASTMANSTANDING ) or rules:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION )  ) then return false end
 
 	return ply:GetNextRespawn() <= CurTime()
 end
