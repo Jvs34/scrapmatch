@@ -5,7 +5,6 @@ local newsa = SA:New( "Circular saw" , "sa_circularsaw", "A quake style melee we
 function newsa:Initialize()
 	local weapon = self:GetEntity():GetCustomHandler()
 	if IsValid( weapon ) then
-		--I GOTTA FIX THIS +1 BULLFUCKING SHIT
 		weapon:SetMaxClip( self:GetEntity():GetSlot() , -1 )	--infinite ammo
 		weapon:SetClip( self:GetEntity():GetSlot() , -1 )		--infinite ammo
 	end

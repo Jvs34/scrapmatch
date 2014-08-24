@@ -6,7 +6,6 @@ function newsa:Initialize()
 	
 	local weapon = self:GetEntity():GetCustomHandler()
 	if IsValid( weapon ) then
-		--I GOTTA FIX THIS +1 BULLFUCKING SHIT
 		weapon:SetMaxClip( self:GetEntity():GetSlot() , 100 )
 		weapon:SetClip( self:GetEntity():GetSlot(), weapon:GetMaxClip( self:GetEntity():GetSlot() ) )
 	end

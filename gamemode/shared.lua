@@ -64,7 +64,7 @@ else
 	GM.ConVars["CrossHairScale"] =		CreateConVar( "sm_crosshair_scale" , "0.5", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The scale of the cursor. Set to -1 to automatically scale." )
 	GM.ConVars["CrossHairShowAmmo"] =	CreateConVar( "sm_crosshair_ammo" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to show the ammo on the left and right sides of the crosshair." )
 	GM.ConVars["CrossHairHitSoundEnabled"] =	CreateConVar( "sm_crosshair_hitsound_enabled" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to enable the hitsound." )
-	GM.ConVars["CrossHairHitSoundPath"] =	CreateConVar( "sm_crosshair_hitsound_path" , "citadel.br_no", FCVAR_ARCHIVE + FCVAR_USERINFO , "String;The hitsound to use." )
+	GM.ConVars["CrossHairHitSoundPath"] =	CreateConVar( "sm_crosshair_hitsound_path" , "Buttons.snd10", FCVAR_ARCHIVE + FCVAR_USERINFO , "String;The hitsound to use." )
 	GM.ConVars["CrossHairHitSoundDelay"] =	CreateConVar( "sm_crosshair_hitsound_delay" , "0.1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The minimum delay before emitting another hitsound. Set to 0 for no limit." )
 
 
@@ -115,7 +115,7 @@ for index , value in pairs( SA.Slots ) do
 			Value = 2 ^ value,
 			ConVar = cv,
 			Button = false,
-			Command = "slot"..( value + 1),
+			Command = "slot"..( value + 1 ),
 		}
 	end
 
