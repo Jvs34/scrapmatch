@@ -39,7 +39,7 @@ if SERVER then
 		ply:SetPlayedLeftFootstep( false )
 		ply:SetPlayedRightFootstep( false )
 		ply:SetModel("models/player/breen.mdl")		--base model
-
+		ply:SetBloodColor( DONT_BLEED )
 		ply:StripAmmo()
 		ply:StripWeapons()
 
@@ -92,7 +92,7 @@ if SERVER then
 
 		if IsValid( attacker ) and attacker:IsPlayer() and attacker ~= ply then
 			if attacker:Team() == ply:Team() then
-				local teament = self:GetTeamEnt()
+				local teament = self:GetTeamEnt( ply:Team() )
 				if IsValid( teament ) then
 					damageallowed = teament:GetTeamFriendlyFire()
 				end

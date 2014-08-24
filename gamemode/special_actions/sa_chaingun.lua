@@ -13,6 +13,38 @@ end
 
 function newsa:Attack( viewmodel )
 
+	local tracedata = {}
+	tracedata.start = self:GetEntity():GetOwner():GetShootPos()
+	tracedata.endpos = tracedata.start + self:GetEntity():GetOwner():GetAimVector() * 1024
+	tracedata.filter = self:GetEntity():GetOwner()
+	tracedata.mins =  Vector( -8, -8, -8 )
+	tracedata.maxs =  Vector( 8, 8, 8 )
+	
+	self:GetEntity():GetOwner():LagCompensation( true )
+	
+	local tr = util.TraceHull( tracedata )
+	
+	
+	
+	if tr.Hit then
+	
+		local dmg = DamageInfo()
+		dmg:SetAttacker( self:GetEntity():GetOwner() )
+		dmg:SetInflictor( self:GetEntity() )
+		dmg:SetDamage( 10 + util.SharedRandom("sa_circularsaw",2,10) )
+
+		dmg:SetDamageForce( self:GetEntity():GetOwner():GetAimVector() * dmg:GetDamage() * 500 )
+
+		dmg:SetDamagePosition(tr.HitPos)
+		dmg:SetDamageTypeFromName( "Bullet" )
+		
+		if tr.Entity then
+			tr.Entity:DispatchTraceAttack(dmg, tr)
+		end
+    end
+	
+	self:GetEntity():GetOwner():LagCompensation( false ) 
+	
 	self:GetEntity():EmitSound( "Weapon_AR2.Single" )
 	self:GetEntity():SetNextAction( CurTime() + 0.25 )
 	
