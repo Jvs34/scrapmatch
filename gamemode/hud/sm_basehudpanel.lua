@@ -41,7 +41,7 @@ function PANEL:LoadCvarSettings()
 			cvars.AddChangeCallback( cvar_obj:GetName() , function( convar_name, value_old, value_new )
 				if not IsValid( self ) then return end
 				self:HandleCvarCallback( GetConVar( convar_name ), value_old , value_new )
-			end, "CvarCallback:".. self:GetClassName() ..i )
+			end, "CvarCallback:".. self.ClassName ..i )
 			
 		end
 		

@@ -324,12 +324,15 @@ function GM:SetupMove( ply , mv , cmd )
 	--add or remove the bits used to show the scoreboard to the player, so the panel will automatically pop up
 	
 	--TODO: also force the scoreboard on if the game is over
+	
 	if mv:KeyDown( IN_SCORE ) then
 		ply:HUDAddBits( GAMEMODE.HUDBits.HUD_SCOREBOARD )
 	else
 		ply:HUDRemoveBits( GAMEMODE.HUDBits.HUD_SCOREBOARD )
 	end
 	
+	--disabled for now, this spams quite a bit
+	--[[
 	for i , v in pairs( self.CustomInputs ) do
 		local button = v.Value
 
@@ -345,6 +348,7 @@ function GM:SetupMove( ply , mv , cmd )
 		end
 
 	end
+	]]
 
 	--handle the player looking around cameras
 	if SERVER then

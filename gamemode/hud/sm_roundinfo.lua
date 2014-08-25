@@ -15,14 +15,15 @@ function PANEL:Init()
 	})
 	
 	self:SetSuggestedX( 0.5 )
-	self:SetSuggestedY( 0.06 )
+	self:SetSuggestedY( 0.03 )
 	self:SetSuggestedW( 0.3 )
-	self:SetSuggestedH( 0.1 )
+	self:SetSuggestedH( 0.05 )
 	
 	self.RoundInfo = self:Add( "DLabel" )
 	self.RoundInfo:Dock( TOP )
 	self.RoundInfo:SetFont( self.Font )
 	self.RoundInfo:SetText( "Lorem penis dick" )
+	self.RoundInfo:SetContentAlignment( 5 )
 	
 	self.Timer = self:Add( "DLabel" )
 	self.Timer:Dock( BOTTOM )
@@ -53,6 +54,19 @@ function PANEL:Think()
 			
 			self.Timer:SetText(pre.." "..value)
 		end
+		
+		local roundinfo = ""
+		
+		if GAMEMODE:GetGameRules():GetMaxRounds() ~= -1 then
+			roundinfo = roundinfo.."Round "..GAMEMODE:GetGameRules():GetCurrentRound().." of "..GAMEMODE:GetGameRules():GetMaxRounds().." "
+		end
+		
+		if GAMEMODE:GetGameRules():GetMaxScore() ~= -1 then
+			roundinfo = roundinfo.."Max Score "..GAMEMODE:GetGameRules():GetMaxScore()
+		end
+		
+		
+		self.RoundInfo:SetText( roundinfo )
 	end
 end
 

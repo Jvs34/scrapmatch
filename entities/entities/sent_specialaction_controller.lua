@@ -265,7 +265,7 @@ end
 
 function ENT:DoSpecialAction(actionstring , ... )
 	for i=0, SA.MaxSpecialActions - 1 do	
-		if IsValid(self:GetActionEntity(i)) and not self:GetActionEntity(i):GetHandledManually() then
+		if IsValid(self:GetActionEntity(i)) and self:GetActionEntity(i).dt and not self:GetActionEntity(i):GetHandledManually() then
 			self:GetActionEntity(i):DoSpecialAction(actionstring, ...)
 		end
 	end

@@ -53,7 +53,7 @@ function GM:GetMainHUD()
 	return self.HUDPanel
 end
 
-function GM:HudShouldDraw( element )
+function GM:HUDShouldDraw( element )
 	if self.HUDDisable[element] ~= nil then
 		return self.HUDDisable[element]
 	end

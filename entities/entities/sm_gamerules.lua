@@ -81,7 +81,7 @@ if SERVER then
 		if not IsValid( teament ) then return end
 		teament:SetTeamID( i )
 		teament:SetTeamName( name or "Team "..i )
-		teament:SetTeamDisabled( (disabled ~= nil) and disabled or true )
+		teament:SetTeamDisabled( false )
 		teament:SetTeamSpawnPoint( spawnpoint or "info_player_start" )
 		teament:SetTeamColor( color or Color( 255 , 255 , 255 ) )
 		teament:Spawn()

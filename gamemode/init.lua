@@ -70,7 +70,11 @@ function GM:InitPostEntity()
 	--setup the team entities
 	local spectator = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
 	
+	MsgN("team disabled" , spectator:GetTeamDisabled() )
+	
+	
 	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
+	MsgN("team disabled" , deathmatch:GetTeamDisabled() )
 	deathmatch:SetTeamFriendlyFire( true )
 	
 	local red = rules:CreateTeamEntity( self.TEAM_RED , "Red" , false , nil , Color( 255 , 120 , 120 ) )
@@ -90,7 +94,7 @@ function GM:InitPostEntity()
 	end
 
 	--this forces an intermission check and starts the round right away
-	rules:GoToIntermission( nil , true )
+	rules:GoToIntermission( 1 , true )
 
 end
 

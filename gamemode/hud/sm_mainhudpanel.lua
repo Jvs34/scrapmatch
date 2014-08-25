@@ -57,7 +57,6 @@ end
 
 
 function PANEL:PerformLayout( w , h )
-	
 	--self:SetSize( w , h )	--INVESTIGATE: is this causing infinite performlayouts or is it actually the docking on the gmod panel doing it?
 	
 	--perform our custom layout here based on the suggested positions of our hud elements

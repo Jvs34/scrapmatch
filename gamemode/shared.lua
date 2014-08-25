@@ -223,7 +223,7 @@ end
 function GM:CreateTeams() end
 
 function GM:GetGameRules()
-	if self.GameRules then return self.GameRules end
+	if self.GameRules and self.GameRules.dt then return self.GameRules end
 
 	for i,v in pairs( ents.FindByClass( "sm_gamerules" ) ) do
 		if IsValid( v ) then
@@ -231,8 +231,10 @@ function GM:GetGameRules()
 			break
 		end
 	end
-
-	return self.GameRules
+	
+	if self.GameRules and self.GameRules.dt then
+		return self.GameRules
+	end
 end
 
 function GM:GetVoteController()
