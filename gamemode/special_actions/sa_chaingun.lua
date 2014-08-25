@@ -24,8 +24,6 @@ function newsa:Attack( viewmodel )
 	
 	local tr = util.TraceHull( tracedata )
 	
-	
-	
 	if tr.Hit then
 	
 		local dmg = DamageInfo()
@@ -45,7 +43,7 @@ function newsa:Attack( viewmodel )
 	
 	self:GetEntity():GetOwner():LagCompensation( false ) 
 	
-	self:GetEntity():EmitSound( "Weapon_AR2.Single" )
+	self:GetEntity():EmitPredictedSound( "Weapon_AR2.Single" )
 	self:GetEntity():SetNextAction( CurTime() + 0.25 )
 	
 end

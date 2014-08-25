@@ -1,5 +1,6 @@
 include("sh_specialaction.lua")
 include("sh_player_meta.lua")
+include("sh_entity_meta.lua")
 include("sh_player.lua")
 include("shd_module_multimodel.lua")
 include("sh_teamoverride.lua")

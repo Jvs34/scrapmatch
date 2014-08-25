@@ -12,7 +12,7 @@ end
 
 function newsa:Attack( viewmodel )
 
-	self:GetEntity():EmitSound( "Weapon_AR2.Single" , nil , nil , nil , CHAN_ITEM )
+	self:GetEntity():EmitPredictedSound( "Weapon_AR2.Single" )
 	self:GetEntity():SetNextAction( CurTime() + 0.25 )
 	
 end
