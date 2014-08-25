@@ -70,6 +70,7 @@ else
 
 
 	GM.ConVars["HUDAnimations"]	= CreateConVar( "sm_hud_animations" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Enables or disables ALL onscreen animations applied to hud, scoreboard and such." )
+	GM.ConVars["HUDRenderInScreenshots"]	= CreateConVar( "sm_hud_renderinscreenshots" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Enables or disables whether to render the HUD in screenshots." )
 
 	GM.ConVars["DamageTimeOnScreen"]	= CreateConVar( "sm_damageinfo_time" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The time in seconds to how fast to decay the damage info." )
 

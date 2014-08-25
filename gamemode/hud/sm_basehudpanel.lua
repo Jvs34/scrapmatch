@@ -26,6 +26,10 @@ function PANEL:Spawn()
 	self:PerformLayout()
 end
 
+function PANEL:SetHUDRenderInScreenshots( bool )
+	self:SetRenderInScreenshots( bool )
+end
+
 function PANEL:LoadCvarSettings()
 	
 	for i , cvar_obj in pairs( GAMEMODE.ConVars ) do
