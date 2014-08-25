@@ -9,11 +9,12 @@ include( "hud/sm_scoreboard.lua" )
 include( "hud/sm_crosshair.lua" )
 include( "hud/sm_roundlog.lua" )
 include( "hud/sm_playerinfo.lua" )
+include( "hud/sm_votemenu.lua" )
 
 GM.HUDDisable = {
 	CHudDeathNotice = false,			--this isn't even used normally in gmod
---	CHudChat = false,					--still need this until I make an actual custom chat
-	CHudWeaponSelection = false,	--duh
+--	CHudChat = false,					--still need this until I make an actual custom chat , I think the default one is fine, I just don't want having to deal with the hacky shit of chat hooks
+	CHudWeaponSelection = false,	--duh , we only have one weapon anyway
 	CHudHealth	= false,					--duh
 	CHudBattery = false,				--duh
 	CHudSecondaryAmmo = false,	--duh
@@ -36,8 +37,8 @@ function GM:CreateHUD()
 
 	self.HUDPanel = vgui.Create( "SM_MainHUDPanel" )
 	self.HUDPanel:ParentToHUD()
-	self.HUDPanel:Dock(FILL)
-	--self.HUDPanel:SetSize( ScrW() , ScrH() )
+	--self.HUDPanel:Dock(FILL)	--dock causes performlayout to be called every frame?
+	self.HUDPanel:SetSize( ScrW() , ScrH() )
 	
 	net.Receive("sm_damageinfo", function( len ) 
 		self:OnLocalPlayerTakeDamage( len )
@@ -66,9 +67,6 @@ function GM:OnLocalPlayerTakeDamage( len )
 	local dmg = net.ReadUInt( 16 )
 	local dmgtype = net.ReadUInt( 16 )
 	local damagepos = net.ReadVector()
-	
-	--TODO: move this check to SM_DamageInfo:ReceiveDamage
-	--if not LocalPlayer():Alive() then return end	--shitty map logic might fuck up or the message might be delayed
 	
 	local hudpanel = self:GetMainHUD()
 	

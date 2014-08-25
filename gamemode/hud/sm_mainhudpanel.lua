@@ -4,7 +4,7 @@ local PANEL = {}
 PANEL.HUDPanels = {}
 
 function PANEL:Init()
-	--create all the other HUD panels
+	
 	--[[
 	self.TileLayout = self:Add( "DTileLayout" )
 	self.TileLayout:Dock( FILL )
@@ -16,8 +16,9 @@ function PANEL:Init()
 		dpanel:SetSize( 128 , 64 )
 	end
 	]]
-	self:CreateElements()
 	
+	--create all the other HUD panels
+	self:CreateElements()
 end
 
 function PANEL:CreateElements()
@@ -30,6 +31,7 @@ function PANEL:CreateElements()
 	self:AddHudPanel( "SM_Crosshair" )
 	self:AddHudPanel( "SM_RoundLog" )
 	self:AddHudPanel( "SM_PlayerInfo" )
+	self:AddHudPanel( "SM_VoteMenu" )
 end
 
 --TODO, add them to a custom layout instead of directly onto the panel
@@ -56,10 +58,10 @@ end
 
 function PANEL:PerformLayout( w , h )
 	
-	self:SetSize( w , h )	--is this causing infinite performlayouts or is it actually the docking on the gmod panel doing it?
+	--self:SetSize( w , h )	--INVESTIGATE: is this causing infinite performlayouts or is it actually the docking on the gmod panel doing it?
 	
 	--perform our custom layout here based on the suggested positions of our hud elements
-	--remember that they have to be dynamically scaled
+	--remember that they have to be dynamically scaled , so scale them on our size ( since it should be the same as the whole screen )
 	for i , v in pairs( self.HUDPanels ) do
 		if IsValid( v ) then
 			local w = self:GetWide() * v:GetSuggestedW()

@@ -54,7 +54,7 @@ end
 function PANEL:HitPlayer( victim , attacker , health )
 	if not IsValid( self:GetMyPlayer() ) then return end
 	
-	--don't care about hits we didn't do, or self damage
+	--don't care about hits we didn't do, or self damage or hits that happened outside of our PVS 
 	if not IsValid( attacker ) or not IsValid( victim ) then return end
 	
 	if attacker:UserID() ~=  self:GetMyPlayer():UserID() or victim:UserID() == LocalPlayer():UserID() then return end
@@ -62,7 +62,7 @@ function PANEL:HitPlayer( victim , attacker , health )
 	if self:GetCrossHairHitSoundEnabled() then
 		
 		if self:GetCrossHairHitSoundDelay() <= 0 or self.NextSound <= CurTime() then
-			self:GetMyPlayer():EmitSound( self:GetCrossHairHitSoundPath() )
+			self:GetMyPlayer():EmitSound( self:GetCrossHairHitSoundPath() )	--all the other emitsound functions play the sound on the local player anyway so it doesn't matter
 			self.NextSound = CurTime() + self:GetCrossHairHitSoundDelay()
 		end
 		
@@ -98,6 +98,8 @@ end
 function PANEL:Paint( w , h )
 	
 	surface.SetDrawColor( self:IsAnimationRunning( "CrosshairHitMarker" ) and self:GetColor() or self:GetMainColor() )
+	
+	--TODO: use some hl2 textures for the crosshair here , there's a few cool ones from the hl1 textures too I think
 	
 	surface.DrawLine( w / 2 , 0 , w / 2 , h / 3 )
 	surface.DrawLine( 0, h / 2 , w / 3, h / 2 )

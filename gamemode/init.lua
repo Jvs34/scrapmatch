@@ -22,6 +22,8 @@ AddCSLuaFile( "hud/sm_scoreboard.lua" )
 AddCSLuaFile( "hud/sm_crosshair.lua" )
 AddCSLuaFile( "hud/sm_roundlog.lua" )
 AddCSLuaFile( "hud/sm_playerinfo.lua" )
+AddCSLuaFile( "hud/sm_votemenu.lua" )
+
 
 include("shared.lua")
 
