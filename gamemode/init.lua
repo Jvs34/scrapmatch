@@ -70,33 +70,22 @@ function GM:InitPostEntity()
 	votecontroller:Spawn()
 
 	--setup the team entities
-
-	local spectatorteam = self:GetTeamEnt( self.TEAM_SPECTATORS	)
-	spectatorteam:SetTeamName( "Spectators" )
-	spectatorteam:SetTeamColor( Color( 80 , 80 , 80 ) )
-	spectatorteam:SetTeamDisabled( false )
-	spectatorteam:SetTeamSpawnPoint( "worldspawn" )	--this will be changed into the camera entity class soon
-
-	local deathmatch = self:GetTeamEnt( self.TEAM_DEATHMATCH )
-	deathmatch:SetTeamName( "Deathmatch" )
+	local spectator = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
+	rules:SetTeamEntity( self.TEAM_SPECTATORS , spectatorteam )
+	
+	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
 	deathmatch:SetTeamFriendlyFire( true )
-	deathmatch:SetTeamColor( Color( 120 , 255 , 120 ) )
-	deathmatch:SetTeamDisabled( false )
-
-	local redteam = self:GetTeamEnt( self.TEAM_RED )
-	redteam:SetTeamName( "Red" )
-	redteam:SetTeamFriendlyFire( false )
-	redteam:SetTeamColor( Color( 255 , 120 , 120 ) )
-	redteam:SetTeamDisabled( false )
-
-	local bluteam = self:GetTeamEnt( self.TEAM_BLU )
-	bluteam:SetTeamName( "Blu" )
-	bluteam:SetTeamFriendlyFire( false )
-	bluteam:SetTeamColor( Color( 120 , 120 , 255 ) )
-	bluteam:SetTeamDisabled( false )
-
+	rules:SetTeamEntity( self.TEAM_DEATHMATCH , deathmatch )
+	
+	local red = rules:CreateTeamEntity( self.TEAM_RED , "Red" , false , nil , Color( 255 , 120 , 120 ) )
+	red:SetTeamFriendlyFire( false )
+	rules:SetTeamEntity( self.TEAM_RED , red )
+	
+	local blu = rules:CreateTeamEntity( self.TEAM_BLU , "Blu" , false , nil , Color( 120 , 120 , 255 ) )
+	blu:SetTeamFriendlyFire( false )
+	rules:SetTeamEntity( self.TEAM_BLU , blu )	
 	--configure your custom teams here
-
+	
 	--debugging shit
 	for i = 1 , self.MAX_TEAMS do
 		local teament = self:GetTeamEnt( i )
@@ -108,7 +97,6 @@ function GM:InitPostEntity()
 
 	--this forces an intermission check and starts the round right away
 	rules:GoToIntermission( nil , true )
-	--rules:ToggleRoundFlag( self.RoundFlags.INTERMISSION )
 
 end
 

@@ -10,12 +10,6 @@ end
 function ENT:Initialize()
 	if SERVER then
 		self:SetNoDraw( true )
-		
-		for i = 1 , GAMEMODE.MAX_TEAMS do
-			local teament = self:CreateTeamEntity( i )
-			self:SetTeamEntity( i , teament )
-		end
-		
 		self:SetName( self:GetClass() )
 	end
 end
@@ -59,14 +53,16 @@ end
 
 function ENT:GetHighestScore()
 	local score = -1
+	local team = nil
 		for i = 1 , GAMEMODE.MAX_TEAMS do
 			local teament = self:GetTeamEntity( i )
 			if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then continue end
 			if teament:GetTeamScore() > score then
 				score = teament:GetTeamScore()
+				team = teament
 			end
 		end
-	return score
+	return score , team
 end
 
 function ENT:GetHighestScorerOnTeam( i )
