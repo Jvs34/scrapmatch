@@ -5,7 +5,7 @@ ENT.Base 			= "base_entity"
 
 function ENT:Initialize()
 	if SERVER then
-		--set the camera to the one used on the canals laboratory, the one which has a ragdoll should also have pose parameters
+		--set the camera to the one used on the canals laboratory during the inspect scene, the one which has a ragdoll should also have pose parameters
 		self:SetModel( "" )
 		self:SetCollisionBounds( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetSolid( SOLID_BBOX )
@@ -32,7 +32,7 @@ end
 function ENT:HandleTurningSound( moving )
 	if not self.TurnSound then
 		--recreate the sound here
-		self.TurnSound = CreateSound( self , "citadel.br_no" )
+		self.TurnSound = CreateSound( self , "citadel.br_no" )	--TODO: find a machinery sound, make it high pitched and make the volume really low
 	end
 	
 	if moving then
@@ -138,6 +138,9 @@ if SERVER then
 	end
 	
 	function ENT:Draw()
+	
+		--set the pose parameters based on the current aim vectors
+		
 		self:DrawModel()
 		
 		if self:GetActive() then

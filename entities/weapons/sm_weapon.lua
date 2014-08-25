@@ -118,10 +118,7 @@ function SWEP:PrimaryAttack()
 	if IsValid( ent ) then
 		if ent:GetNextAction() < CurTime() then
 			ent:DoSpecialAction( "Attack" , self:GetOwner():GetViewModel( 0 ) )
-			
-			--these are going to be moved to the action itself , so they can be prevented and shit
-			
-			self:SendVMAnim( self:GetOwner():GetViewModel( 0 ) , "fire" , 2 )
+			self:SendVMAnim( self:GetOwner():GetViewModel( 0 ) , "fire" , 1 )
 			self:GetOwner():DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_PRIMARY , 0 )
 		end
 	end
@@ -132,7 +129,7 @@ function SWEP:SecondaryAttack()
 	if IsValid( ent ) then
 		if ent:GetNextAction() < CurTime() then
 			ent:DoSpecialAction( "Attack" , self:GetOwner():GetViewModel( 1 ) )
-			self:SendVMAnim( self:GetOwner():GetViewModel( 1 ) , "fire" , 0.1 )
+			self:SendVMAnim( self:GetOwner():GetViewModel( 1 ) , "fire" , 1 )
 			self:GetOwner():DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_SECONDARY , 0 )
 		end
 	end
@@ -224,6 +221,13 @@ else
 	function SWEP:PreDrawViewModel( vm )
 		if not IsValid( self:GetOwner() ) or not self:GetOwner():Alive() then
 			return true
+		end
+		
+		--check if the special action in the slot of this viewmodel index is valid, 0 = left , 1 right , otherwise hide the viewmodel
+		local ent = self:GetActionEntity( vm:ViewModelIndex() )
+		
+		if not IsValid( ent ) then 
+			return true 
 		end
 	end
 

@@ -141,7 +141,7 @@ if SERVER then
 			
 			--we don't need to actually send a message to the attacker for hit sounds, we're gonna handle that with player_hurt
 			
-			local recipients = { ply }
+			local recipients = { ply }	--I miss recipient filter
 			
 			--go trough all the players that are spectating this player and send this message
 			

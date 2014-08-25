@@ -8,7 +8,6 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetNoDraw( true )
 	end
-	
 end
 
 function ENT:SetupDataTables()
@@ -22,6 +21,7 @@ function ENT:SetupDataTables()
 	
 	self:NetworkVar( "String" 	, 0 , "TeamName" )
 	self:NetworkVar( "String"	, 1 , "TeamSpawnPoint" )
+	self:NetworkVar( "String"	, 2 , "TeamLogo" )				--this is the workshop id for this team , which will be downloaded with steamworks.Download and applied with AddonMaterial
 	
 	self:NetworkVar( "Entity"	, 0 , "TeamMVP" )				--the player with the highest score
 end
