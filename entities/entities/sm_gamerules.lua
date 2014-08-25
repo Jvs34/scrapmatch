@@ -71,13 +71,7 @@ function ENT:GetHighestScorerOnTeam( i )
 	
 	if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then return end
 	
-	local plys = team.GetPlayers( i )
-	
-	table.sort( plys , function( a , b )
-		return b:Frags() > a:Frags()
-	end)
-	
-	return plys[1]
+	return teament:GetTeamMVP()
 end
 
 if SERVER then
@@ -91,6 +85,7 @@ if SERVER then
 		teament:SetTeamSpawnPoint( spawnpoint or "info_player_start" )
 		teament:SetTeamColor( color or Color( 255 , 255 , 255 ) )
 		teament:Spawn()
+		self:SetTeamEntity( i , teament )
 		return teament
 	end
 

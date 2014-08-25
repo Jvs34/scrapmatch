@@ -204,8 +204,7 @@ totalbits = nil
 
 --[[
 	you can have up to GMOD_MAX_DTVARS teams ( obviously limited to DT var entities , but please don't )
-	you can safely increase this without adding a tied GM.TEAM_ enum, that team will start disabled once it's created by the game rules until you configure it
-	in the gamemode's Initialize
+	you can safely increase this without adding a tied GM.TEAM_ enum, you'll need to create the team yourself with that ID during GM:InitPostEntity()
 ]]
 GM.MAX_TEAMS = 4
 

@@ -2,7 +2,8 @@ AddCSLuaFile()
 
 ENT.Type 			= "anim"
 ENT.Base 			= "base_entity"
-ENT.TeamColor = Color(255,255,255,255)
+ENT.TeamColor = Color( 255 , 255 , 255 , 255 )
+
 function ENT:Initialize()
 	if SERVER then
 		self:SetNoDraw( true )
@@ -22,17 +23,30 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String" 	, 0 , "TeamName" )
 	self:NetworkVar( "String"	, 1 , "TeamSpawnPoint" )
 	
-	self:NetworkVar( "Entity"	, 0 , "TeamMVP" )
+	self:NetworkVar( "Entity"	, 0 , "TeamMVP" )				--the player with the highest score
 end
 
 function ENT:Think()
-	if SERVER then
+	if self:GetTeamDisabled() then return end
 	
+	if SERVER then
+		--calculate the MVP for this team
+		
+		local plys = team.GetPlayers( self:GetTeamID() )
+		
+		table.sort( plys , function( a , b )
+			return b:Frags() > a:Frags()
+		end)
+		
+		self:SetTeamMVP( plys[1] )
+		
+		self:NextThink( CurTime() + 1 )	--update the mvp every second
+		return true
 	end
+	
 end
 
 if SERVER then
-	
 	
 	--always network to everyone
 	function ENT:UpdateTransmitState()

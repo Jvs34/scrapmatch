@@ -59,8 +59,6 @@ function GM:InitPostEntity()
 	rules:SetCameraCount( #ents.FindByClass( "sm_camera" ) )
 	rules:Spawn()
 
-
-
 	--create the announcer entity
 	local announcer = ents.Create( "sm_announcer" )
 	announcer:Spawn()
@@ -71,19 +69,15 @@ function GM:InitPostEntity()
 
 	--setup the team entities
 	local spectator = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
-	rules:SetTeamEntity( self.TEAM_SPECTATORS , spectatorteam )
 	
 	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
 	deathmatch:SetTeamFriendlyFire( true )
-	rules:SetTeamEntity( self.TEAM_DEATHMATCH , deathmatch )
 	
 	local red = rules:CreateTeamEntity( self.TEAM_RED , "Red" , false , nil , Color( 255 , 120 , 120 ) )
 	red:SetTeamFriendlyFire( false )
-	rules:SetTeamEntity( self.TEAM_RED , red )
 	
 	local blu = rules:CreateTeamEntity( self.TEAM_BLU , "Blu" , false , nil , Color( 120 , 120 , 255 ) )
 	blu:SetTeamFriendlyFire( false )
-	rules:SetTeamEntity( self.TEAM_BLU , blu )	
 	--configure your custom teams here
 	
 	--debugging shit
@@ -156,16 +150,17 @@ function GM:RoundStart( )
 
 	end
 
-	--force all the players to respawn , even spectators just in case
+	--force all the players to respawn , even spectators just in case , put players on the correct team if the mode changed or the team got removed
 
 	for i , v in pairs( player.GetAll() ) do
 		local teament = self:GetTeamEnt( v:Team() )
-		if IsValid( teament ) and teament:GetTeamDisabled() then
+		if not IsValid( teament ) or teament:GetTeamDisabled() then
 			self:JoinTeam( v , team.BestAutoJoinTeam() , false )
 		else
 			v:Spawn()
 		end
 	end
+	
 	--scramble the teams if we had the flag previously set
 
 	if self:GetGameRules():IsRoundFlagOn( self.RoundFlags.TEAM_SCRAMBLE ) then
@@ -255,7 +250,7 @@ function GM:JoinTeam( ply , id , fromcommand )
 		return false
 	end
 
-	ply:SetNextJoinTeam( CurTime() + 2 )	--just so people don't spam the join team command and expect to get away with it
+	ply:SetNextJoinTeam( CurTime() + 0.5 )	--just so people don't spam the join team command and expect to get away with it
 
 	if id == ply:Team() then return false end	--you wot
 
