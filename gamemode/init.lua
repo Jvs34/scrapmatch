@@ -168,7 +168,12 @@ function GM:RoundStart( )
 	--force all the players to respawn , even spectators just in case
 
 	for i , v in pairs( player.GetAll() ) do
-		v:Spawn()
+		local teament = self:GetTeamEnt( v:Team() )
+		if IsValid( teament ) and teament:GetTeamDisabled() then
+			self:JoinTeam( v , team.BestAutoJoinTeam() , false )
+		else
+			v:Spawn()
+		end
 	end
 	--scramble the teams if we had the flag previously set
 
