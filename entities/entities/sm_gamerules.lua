@@ -224,12 +224,6 @@ if SERVER then
 	
 	function ENT:StartRound()
 		--remove the intermission flag, call RoundStart
-		gamemode.Call( "RoundStart" )
-		
-		net.Start("sm_gamerules_roundupdate")
-		net.WriteUInt( 0 , 8 )
-		net.Broadcast()
-		
 		self:ToggleRoundFlag( GAMEMODE.RoundFlags.INTERMISSION )
 		self:SetCurrentRound( self:GetCurrentRound() + 1 )
 		
@@ -239,6 +233,11 @@ if SERVER then
 			self:SetRoundTime( CurTime() + self:GetRoundDuration() )
 		end
 		
+		gamemode.Call( "RoundStart" )
+		
+		net.Start("sm_gamerules_roundupdate")
+			net.WriteUInt( self:GetRoundFlags() , 32 )
+		net.Broadcast()
 	end
 	
 	function ENT:GoToIntermission( intermissiontime , silent )
@@ -250,7 +249,7 @@ if SERVER then
 			gamemode.Call( "RoundEnd" )
 			
 			net.Start("sm_gamerules_roundupdate")
-			net.WriteUInt( 1 , 8 )
+				net.WriteUInt( self:GetRoundFlags() , 32 )
 			net.Broadcast()
 		end
 	end
@@ -263,12 +262,12 @@ else
 
 	net.Receive( "sm_gamerules_roundupdate" , function( len )
 		
-		local updatetype = net.ReadUInt( 8 )
+		local roundflags = net.ReadUInt( 32 )
 		
-		if updatetype == 0 then
-			gamemode.Call( "RoundStart" )
-		elseif updatetype == 1 then
+		if bit.band( roundflags , GAMEMODE.RoundFlags.INTERMISSION ) ~= 0 then
 			gamemode.Call( "RoundEnd" )
+		else	
+			gamemode.Call( "RoundStart" )
 		end
 		
 	end)
