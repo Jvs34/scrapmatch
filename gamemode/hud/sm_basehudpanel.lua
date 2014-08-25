@@ -152,23 +152,36 @@ end
 function PANEL:EndAnimation( name )
 	if not self.m_AnimList then return end
 	
-	local anim = nil
+	local foundanim = nil
 	
 	for k, anim in pairs( self.m_AnimList ) do
 		if anim and anim.Name == name then
+			foundanim = self.m_AnimList[k]
 			self.m_AnimList[k] = nil
 			break
 		end
 	end
 	
-	if not anim then return end
+	if not foundanim then return end
 	
-	if anim.Think then
-		anim:Think( self, 1 )
+	if foundanim.Think then
+		foundanim:Think( self, 1 )
 	end
 
-	if anim.OnEnd then anim:OnEnd( self ) end
+	if foundanim.OnEnd then foundanim:OnEnd( self ) end
 	
+end
+
+function PANEL:IsAnimationRunning( name )
+	if not self.m_AnimList then return false end
+	
+	for k, anim in pairs( self.m_AnimList ) do
+		if anim and anim.Name == name then
+			return true
+		end
+	end
+	
+	return false
 end
 
 --this used to be done in panel think, and it was a really dumb idea since the panel doesn't think if it's not visible

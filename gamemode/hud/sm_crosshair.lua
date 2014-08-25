@@ -9,6 +9,7 @@ AccessorFunc(	PANEL	, "_CrossHairHitSoundEnabled"	,	"CrossHairHitSoundEnabled"	,
 AccessorFunc(	PANEL	, "_CrossHairHitSoundPath"	,	"CrossHairHitSoundPath"	,	FORCE_STRING	)
 AccessorFunc(	PANEL	, "_CrossHairHitSoundDelay"	,	"CrossHairHitSoundDelay"	,	FORCE_NUMBER	)
 
+
 function PANEL:Init()
 	self.BaseClass.Init( self )
 	self:AssociateHUDBits( GAMEMODE.HUDBits.HUD_CROSSHAIR )
@@ -22,6 +23,9 @@ function PANEL:Init()
 	self:SetSuggestedH( 0.1 * self:GetCrossHairScale() )
 	
 	self.NextSound = CurTime()
+	
+	self._MainColor = Color( self:GetCrossHairR(), self:GetCrossHairG(), self:GetCrossHairB() , 255 )
+	self._Color = self:GetMainColor()
 end
 
 
@@ -31,6 +35,20 @@ function PANEL:Think()
 	
 	self:SetSuggestedW( 0.06 * self:GetCrossHairScale() )
 	self:SetSuggestedH( 0.1 * self:GetCrossHairScale() )
+end
+
+local function CrossHairHitThink( self , panel , fraction )
+	if not self.CalculatedColor then
+		self.StartH , self.StartS , self.StartV = ColorToHSV( self.StartColor )
+		self.EndH , self.EndS , self.EndV = ColorToHSV( self.EndColor )
+		self.CalculatedColor = true
+	end
+	
+	self.CurH = Lerp( fraction , self.StartH , self.EndH )
+	self.CurS = Lerp( fraction , self.StartS , self.EndS )
+	self.CurV = Lerp( fraction , self.StartV , self.EndV )
+	
+	panel:SetColor( HSVToColor( self.CurH , self.CurS , self.CurV ) )
 end
 
 function PANEL:HitPlayer( victim , attacker , health )
@@ -49,11 +67,37 @@ function PANEL:HitPlayer( victim , attacker , health )
 		end
 		
 	end
+	
+	self:EndAnimation( "CrosshairHitMarker" )
+
+	local anim = self:NewAnimation( 1 )
+
+	anim.Name = "CrosshairHitMarker"
+	anim.Think = CrossHairHitThink
+	anim.StartColor = Color( 255 , 0 , 0 )
+	anim.EndColor = self:GetMainColor()
+end
+
+function PANEL:GetMainColor()
+	self._MainColor.r = self:GetCrossHairR()
+	self._MainColor.g = self:GetCrossHairG()
+	self._MainColor.b = self:GetCrossHairB()
+	return self._MainColor
+end
+
+function PANEL:SetColor( col )
+	self._Color.r = col.r
+	self._Color.g = col.g
+	self._Color.b = col.b
+end
+
+function PANEL:GetColor()
+	return self._Color
 end
 
 function PANEL:Paint( w , h )
 	
-	surface.SetDrawColor( self:GetCrossHairR(), self:GetCrossHairG(), self:GetCrossHairB(), 255 )
+	surface.SetDrawColor( self:IsAnimationRunning( "CrosshairHitMarker" ) and self:GetColor() or self:GetMainColor() )
 	
 	surface.DrawLine( w / 2 , 0 , w / 2 , h / 3 )
 	surface.DrawLine( 0, h / 2 , w / 3, h / 2 )
