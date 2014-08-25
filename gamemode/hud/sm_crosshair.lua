@@ -61,9 +61,9 @@ function PANEL:HitPlayer( victim , attacker , health )
 	--play a ding a ling sound
 	if self:GetCrossHairHitSoundEnabled() then
 		
-		if self:CrossHairHitSoundDelay() <= 0 or self.NextSound <= CurTime() then
+		if self:GetCrossHairHitSoundDelay() <= 0 or self.NextSound <= CurTime() then
 			self:GetMyPlayer():EmitSound( self:GetCrossHairHitSoundPath() )
-			self.NextSound = CurTime() + self:CrossHairHitSoundDelay()
+			self.NextSound = CurTime() + self:GetCrossHairHitSoundDelay()
 		end
 		
 	end

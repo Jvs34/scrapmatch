@@ -37,11 +37,13 @@ if CLIENT then
 			channel = nil
 		end
 		
-		ent:EmitPredictedSound( soundstring , level , pitch , volume , channel )
+		ent:EmitSound( soundstring , level , pitch , volume , channel )
 	end)
 	
 	function meta:EmitPredictedSound( ... )
-		self:EmitSound( ... )
+		if IsFirstTimePredicted() then
+			self:EmitSound( ... )
+		end
 	end
 else
 	function meta:EmitPredictedSound( soundstring , level , pitch , volume , channel )
