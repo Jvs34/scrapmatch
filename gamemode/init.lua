@@ -62,7 +62,8 @@ function GM:InitPostEntity()
 	votecontroller:Spawn()
 
 	--setup the team entities
-	local spectator = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
+	local spectators = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
+	spectators:SetTeamRoundsWon( -1 )
 	
 	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
 	deathmatch:SetTeamFriendlyFire( true )
@@ -132,7 +133,9 @@ function GM:RoundStart( )
 
 		if not IsValid( teament ) then continue end
 
-		if teament:GetTeamID() == self.TEAM_SPECTATORS then continue end
+		if teament:GetTeamID() == self.TEAM_SPECTATORS then 
+			continue 
+		end
 
 		teament:SetTeamScore( 0 )
 
@@ -165,11 +168,13 @@ function GM:RoundStart( )
 end
 
 function GM:RoundEnd( )
+	--get the team with the highest score, increase their round wins, and set their team entity on the game rules' roundwinner
 	local score , winnerteam = self:GetGameRules():GetHighestScore()
 	
 	--NOTE: during deathmatch this is always going to be the deathmatch team, the client will get the MVP's name instead of the team name for the round info winner
 	if IsValid( winnerteam ) then
 		self:GetGameRules():SetRoundWinner( winnerteam )
+		winnerteam:AddScore( 1 )
 	end
 	
 	if self:GetGameRules():IsRoundFlagOn( self.RoundFlags.GAMEOVER ) then
@@ -177,9 +182,6 @@ function GM:RoundEnd( )
 		self:GetVoteController():ResetVote() --TOO BAD, FUCK YOUR IN PROGRESS VOTE IF YOU HAD ANY
 		MsgN( "Game Over after intermission" )
 	end
-	
-	--get the team with the highest score, increase their round wins, and set their team entity on the game rules' roundwinner
-	
 
 end
 

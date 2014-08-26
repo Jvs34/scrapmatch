@@ -37,8 +37,7 @@ function GM:CreateHUD()
 
 	self.HUDPanel = vgui.Create( "SM_MainHUDPanel" )
 	self.HUDPanel:ParentToHUD()
-	--self.HUDPanel:Dock(FILL)	--dock causes performlayout to be called every frame?
-	self.HUDPanel:SetSize( ScrW() , ScrH() )
+	self.HUDPanel:Dock(FILL)
 	
 	net.Receive("sm_damageinfo", function( len ) 
 		self:OnLocalPlayerTakeDamage( len )
@@ -57,6 +56,7 @@ function GM:HUDShouldDraw( element )
 	if self.HUDDisable[element] ~= nil then
 		return self.HUDDisable[element]
 	end
+	
 	return true
 end
 
@@ -97,16 +97,3 @@ function GM:OnOtherPlayerTakeDamage( data )
 	--the victim might be nil because it could be out of our PVS , pass it anyway
 	dmgpanel:HitPlayer( victim , attacker , health )
 end
-
---TODO
---[[
-	Health panel
-	Armor panel
-	Ammo panel
-	Round status panel
-	Scoreboard panel
-	Crosshair panel
-	Round log panel ( aka killicons panel + other information like in tf2 )
-	Player info panel ( used for when we look at another player , be it enemy or friend , also used to show the killer during killcam )
-	Damage info panel ( used for when we take damage and we want to display where it's coming from etc )
-]]

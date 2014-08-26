@@ -40,11 +40,10 @@ function ENT:Think()
 		end)
 		
 		self:SetTeamMVP( plys[1] )
-		
-		self:NextThink( CurTime() + 1 )	--update the mvp every second
-		return true
 	end
 	
+	self:NextThink( CurTime() + 1 )	--update the mvp every second
+	return true	
 end
 
 if SERVER then

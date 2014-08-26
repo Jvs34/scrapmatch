@@ -36,10 +36,16 @@ function PANEL:Think()
 	for i = 1 , GAMEMODE.MAX_TEAMS do
 		local teament = GAMEMODE:GetTeamEnt( i )
 		
+		
 		if IsValid( teament ) and not teament:GetTeamDisabled() then
 			if not IsValid( self.TeamColumns[i] ) then
 				--create the team column here
-				self.TeamColumns[i] = self.TeamsLayout:Add( "SM_ScoreBoard_TeamColumn" )
+				if teament:GetTeamID() ~= GAMEMODE.TEAM_SPECTATORS then
+					self.TeamColumns[i] = self.TeamsLayout:Add( "SM_ScoreBoard_TeamColumn" )
+				else	--TODO: set the spectator panel to be small and attach it to the bottom
+					self.TeamColumns[i] = self.TeamsLayout:Add( "SM_ScoreBoard_TeamColumn" )
+				end
+				
 				self.TeamColumns[i]:SetTeam( teament )
 			end
 		else
@@ -76,6 +82,9 @@ end
 function PANEL:Think()
 	if IsValid( self:GetTeam() ) then
 		self.TeamName:SetText( self:GetTeam():GetTeamName() )
+		if self:GetTeam():GetTeamRoundsWon() ~= -1 then
+			self.TeamName:SetText( self.TeamName:GetText() .. " " ..self:GetTeam():GetTeamRoundsWon()  )
+		end
 	end
 end
 
