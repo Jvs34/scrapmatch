@@ -33,6 +33,8 @@ function ENT:SetupDataTables()
 	
 	self:NetworkVar( "String" , 0 , "NextMap" )			--the next map to switch when the game is over
 	
+	self:NetworkVar( "Entity" , 0 , "RoundWinner" )	--always a team entity, set when the round has ended and then set back to nil when the round starts
+	
 	for i = 1 , GAMEMODE.MAX_TEAMS do
 		self:NetworkVar( "Entity" , i , "Team" .. i )	--the team entity for that team
 	end
@@ -53,16 +55,16 @@ end
 
 function ENT:GetHighestScore()
 	local score = -1
-	local team = nil
+	local winnerteam = nil
 		for i = 1 , GAMEMODE.MAX_TEAMS do
 			local teament = self:GetTeamEntity( i )
 			if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then continue end
 			if teament:GetTeamScore() > score then
 				score = teament:GetTeamScore()
-				team = teament
+				teamwinner = teament
 			end
 		end
-	return score , team
+	return score , teamwinner
 end
 
 function ENT:GetHighestScorerOnTeam( i )

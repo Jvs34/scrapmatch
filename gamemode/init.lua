@@ -121,7 +121,7 @@ function GM:RoundStart( )
 
 	--cleanup the whole map, ignore the entities in the cleanupfilter
 	MsgN( "Round started" )
-
+	self:GetGameRules():SetRoundWinner( nil )
 	game.CleanUpMap( true , self.CleanupFilter )
 
 	--enable or disable the teams depending on the game type, also reset their score
@@ -165,11 +165,22 @@ function GM:RoundStart( )
 end
 
 function GM:RoundEnd( )
+	local score , winnerteam = self:GetGameRules():GetHighestScore()
+	
+	--NOTE: during deathmatch this is always going to be the deathmatch team, the client will get the MVP's name instead of the team name for the round info winner
+	if IsValid( winnerteam ) then
+		self:GetGameRules():SetRoundWinner( winnerteam )
+	end
+	
 	if self:GetGameRules():IsRoundFlagOn( self.RoundFlags.GAMEOVER ) then
 		--force a changelevel vote here
 		self:GetVoteController():ResetVote() --TOO BAD, FUCK YOUR IN PROGRESS VOTE IF YOU HAD ANY
 		MsgN( "Game Over after intermission" )
 	end
+	
+	--get the team with the highest score, increase their round wins, and set their team entity on the game rules' roundwinner
+	
+
 end
 
 --called after the game is over and the intermission ended
@@ -253,7 +264,9 @@ function GM:JoinTeam( ply , id , fromcommand )
 	--check if that team is actually valid or disabled
 
 	if not IsValid( teament ) or teament:GetTeamDisabled() then
-		ErrorNoHalt( tostring( ply ) .. " tried to join an invalid or disabled team!" )
+		if not fromcommand then	--don't show this message if the invalid team was set from the game logic, it probably tried to autobalance this
+			ErrorNoHalt( tostring( ply ) .. " tried to join an invalid or disabled team!" )
+		end
 		return false
 	end
 

@@ -13,8 +13,9 @@ end
 function ENT:SetupDataTables()
 
 	self:NetworkVar( "Int"		, 0 , "TeamID" )					--the team id
-	self:NetworkVar( "Int" 		, 1 , "TeamScore" )				--the team score
+	self:NetworkVar( "Int" 	, 1 , "TeamScore" )				--the team score
 	self:NetworkVar( "Int"		, 2 , "TeamColorHEX" )			--the team color in hex , thanks vinh dick
+	self:NetworkVar( "Int"		, 3 , "TeamRoundsWon" )
 	
 	self:NetworkVar( "Bool"		, 0 , "TeamFriendlyFire" )		--whether this team allows friendly fire
 	self:NetworkVar( "Bool"		, 1 , "TeamDisabled" )
