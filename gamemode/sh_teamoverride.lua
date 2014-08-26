@@ -1,13 +1,10 @@
 
 --[[
 	default team module overrides, I do this because I want to relay these calls to my team entities, so the whole thing can be a LITTLE more dynamic
-	oh look at me now, overriding hooks and functions just because I made a better ~system~ , good thing I'm not Acecool, this mention was used under fair use copyright
 	to be fair though the default team handling IS retarded, even valve uses entities for that ( although a single one with a set amount of networked vectors depending on the MAX_TEAMS)
 ]]
 
-team = {}
-
---dummy functions that aren't called at all in the gamemode. 
+--dummy functions that aren't called at all in the gamemode
 function team.SetUp() end
 function team.SetClass( id, classtable ) end
 function team.GetClass( id ) end
@@ -15,7 +12,7 @@ function team.GetClass( id ) end
 function team.GetSpawnPoint( id ) 
 	local teament = GAMEMODE:GetTeamEnt( id )
 	
-	--TODO: actually run some avoidance logic here
+	--TODO: actually run some avoidance logic here , copy it from the hl2:dm code in the sourcesdk2013
 	
 	if IsValid( teament ) then
 		return table.Random( ents.FindByClass( teament:GetTeamSpawnPoint() ) )
