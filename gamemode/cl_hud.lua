@@ -57,6 +57,7 @@ function GM:HUDShouldDraw( element )
 	if self.HUDDisable[element] ~= nil then
 		return self.HUDDisable[element]
 	end
+	return true
 end
 
 --relay the damage we've taken to the effect panel , and color the damage direction depending on the damage type
