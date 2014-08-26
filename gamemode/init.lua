@@ -40,12 +40,6 @@ GM.CleanupFilter = {
 }
 
 function GM:Initialize()
-
-	--why are these loaded in the first place , buzz off, these would be good if there was a way to configure them properly without having to remove and readding them
-	--but no, not even worth it
-	concommand.Remove( "gmod_cleanup" )
-	concommand.Remove( "gmod_admin_cleanup" )
-
 	--version check maybe?
 end
 
@@ -70,11 +64,7 @@ function GM:InitPostEntity()
 	--setup the team entities
 	local spectator = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
 	
-	MsgN("team disabled" , spectator:GetTeamDisabled() )
-	
-	
 	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
-	MsgN("team disabled" , deathmatch:GetTeamDisabled() )
 	deathmatch:SetTeamFriendlyFire( true )
 	
 	local red = rules:CreateTeamEntity( self.TEAM_RED , "Red" , false , nil , Color( 255 , 120 , 120 ) )
@@ -254,7 +244,7 @@ function GM:JoinTeam( ply , id , fromcommand )
 		return false
 	end
 
-	ply:SetNextJoinTeam( CurTime() + 0.5 )	--just so people don't spam the join team command and expect to get away with it
+	ply:SetNextJoinTeam( CurTime() + 0.1 )	--just so people don't spam the join team command and expect to get away with it
 
 	if id == ply:Team() then return false end	--you wot
 
@@ -301,7 +291,7 @@ concommand.Add("sm_jointeam", function(ply,command,args)
 
 	local team = tonumber( args[1] )
 
-	if not team then
+	if not team or team < 1 or team > GAMEMODE.MAX_TEAMS then
 		return
 	end
 
@@ -313,10 +303,10 @@ concommand.Add("sm_takedamage", function(ply,command,args)
 	if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
 	if not IsValid( ply ) then return end
 	local dmgname = args[1]
-	--[[
+	
 	ply:SetHealth( 100 )
 	ply:SetArmorBattery( 100 )
-	]]
+	
 	local dmginfo = DamageInfo()
 	dmginfo:SetDamage( 100 )
 	dmginfo:SetDamageTypeFromName( dmgname )

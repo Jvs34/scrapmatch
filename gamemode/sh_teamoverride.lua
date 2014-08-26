@@ -198,13 +198,13 @@ end
 
 function team.BestAutoJoinTeam()
 
-	local SmallestTeam = GAMEMODE.TEAM_DEATHMATCH
-	local SmallestPlayers = 1000
+	local SmallestTeam = - 1
+	local SmallestPlayers = game.MaxPlayers()
 
 	for id = 1 , GAMEMODE.MAX_TEAMS do
 		local teament = GAMEMODE:GetTeamEnt( id )
 		
-		if IsValid(teament) and id ~= GAMEMODE.TEAM_SPECTATORS and not teament:GetTeamDisabled() then
+		if IsValid( teament ) and id ~= GAMEMODE.TEAM_SPECTATORS and not teament:GetTeamDisabled() then
 
 			local PlayerCount = team.NumPlayers( id )
 			if PlayerCount < SmallestPlayers or (PlayerCount == SmallestPlayers and id < SmallestTeam ) then
