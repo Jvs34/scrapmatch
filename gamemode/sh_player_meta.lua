@@ -123,15 +123,17 @@ end
 
 function meta:HandleFootsteps()
 	if not self:Alive() then return end
-	if self:GetObserverMode() ~ OBS_MODE_NONE then return end
+	if self:GetObserverMode() ~= OBS_MODE_NONE then return end
 	
-	self:SetupBones()
+	if CLIENT then
+		self:SetupBones()
+	end
 	
-	local leftfootbonename = ""	--whatever
-	local rightfootbonename	= ""	--
+	local leftfootbonename = "ValveBiped.Bip01_L_Foot"	--whatever
+	local rightfootbonename	= "ValveBiped.Bip01_R_Foot"	--
 	
-	local leftfootbone = self:LookupBone( leftfootbonename )
-	local rightfootbone = self:LookupBone( rightfootbonename )
+	local leftfootbone = self:LookupBone( leftfootbonename ) or -1
+	local rightfootbone = self:LookupBone( rightfootbonename ) or -1
 	
 	local leftfoottrace = nil
 	local rightfoottrace = nil
@@ -147,13 +149,13 @@ function meta:HandleFootsteps()
 	
 	leftfoottrace = {
 		startpos = leftfootbonematrix:GetTranslation(),
-		endpos = leftfootbonematrix:GetTranslation() - Vector( 0 , 0 , 5 ),
+		endpos = leftfootbonematrix:GetTranslation() - Vector( 0 , 0 , 10 ),
 		filter = self,
 	}
 	
 	rightfoottrace = {
 		startpos = rightfootbonematrix:GetTranslation(),
-		endpos = rightfootbonematrix:GetTranslation() - Vector( 0 , 0 , 5 ),
+		endpos = rightfootbonematrix:GetTranslation() - Vector( 0 , 0 , 10 ),
 		filter = self,
 	}
 	
@@ -183,7 +185,7 @@ meta.SoundInfos = {
 	SPAWN = {
 		SoundName = "citadel.br_youneedme",
 		SoundChannel = CHAN_BODY,
-	}
+	},
 	PAIN = {
 		SoundName = "citadel.br_ohshit",	--replace this with a generic metal noise sound
 		SoundChannel = CHAN_VOICE,
@@ -199,22 +201,26 @@ meta.SoundInfos = {
 	LEFTFOOT = {
 		SoundName = "NPC_CombineS.RunFootstepLeft",			--fine for now
 		SoundChannel = CHAN_BODY,
-	}
+	},
 	RIGHTFOOT = {
 		SoundName = "NPC_CombineS.RunFootstepRight",		--fine for now
 		SoundChannel = CHAN_BODY,
-	}
+	},
 	FALLDAMAGE = {
 		SoundName = "Player.FallDamage",		--fine for now
 		SoundChannel = CHAN_BODY,
-	}
+	},
 }
 
-function meta:PlaySound( soundtype )
+function meta:PlaySound( soundtype , predicted )
 	local tb = self.SoundInfos[soundtype]
 	--everything but the sound name is optional
 	if tb and tb.SoundName then
-		self:EmitSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
+		if predicted then
+			self:EmitSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
+		else
+			self:EmitPredictedSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
+		end
 	end
 end
 
