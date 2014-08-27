@@ -25,9 +25,7 @@ function PANEL:Init()
 	self.TeamsLayout = self:Add( "SM_ScoreBoard_TeamLayout" )
 	self.TeamsLayout:Dock( FILL )
 	
-	
 end
-
 
 function PANEL:Think()
 	
@@ -69,7 +67,9 @@ derma.DefineControl( "SM_ScoreBoard", "Scoreboard containing all teams.", PANEL,
 
 local PANEL = {}
 AccessorFunc(	PANEL	, "_Team"	,	"Team"	)
+
 PANEL.PlayerRows = {}
+
 function PANEL:Init()
 	self.TeamName = self:Add( "DLabel" )
 	self.TeamName:Dock( TOP )
@@ -86,6 +86,16 @@ function PANEL:Think()
 			self.TeamName:SetText( self.TeamName:GetText() .. " " ..self:GetTeam():GetTeamRoundsWon()  )
 		end
 	end
+	
+	for i , v in ipairs( self.PlayerRows ) do
+		local ply = v:GetPlayer()
+		
+		--TODO: set the Z value like garry does on his scoreboard so we can order by score
+		if not IsValid( ply ) then
+			self.PlayerRows[i]:Remove()
+			self.PlayerRows[i] = nil
+		end
+	end
 end
 
 function PANEL:HandlePlayer( ply )
@@ -100,7 +110,7 @@ function PANEL:Paint()
 
 end
 
-derma.DefineControl( "SM_ScoreBoard_TeamColumn", "Scoreboard containing all teams.", PANEL, "DPanel" )
+derma.DefineControl( "SM_ScoreBoard_TeamColumn", "Shows a specific team in this column", PANEL, "DPanel" )
 
 
 
@@ -128,29 +138,20 @@ function PANEL:Paint()
 
 end
 
-derma.DefineControl( "SM_ScoreBoard_TeamLayout", "A scoreboard layout.", PANEL, "DPanel" )
+derma.DefineControl( "SM_ScoreBoard_TeamLayout", "Sizes all the children to fit vertically in the scoreboard.", PANEL , "DPanel" )
 
 local PANEL = {}
 AccessorFunc(	PANEL	, "_Player"	,	"Player"	)
+
 function PANEL:Init()
-	
+	--create avatar , dock to the left , increase the left margin
+	--create name, dock to fill
+	--create score label , dock to the right
+	--create deaths label, dock to the right
+	--create ping label, dock to the right
 end
 
 function PANEL:Think()
-	if self:IsMarkedForDeletion() then return end
-	if not IsValid( self:GetPlayer() ) then 
-		self:Remove()
-		return
-	end
-	
-	if IsValid( self:GetParent():GetTeam() ) then
-		if self:GetPlayer():Team() ~= self:GetParent():GetTeam():GetTeamID() then
-			self:Remove()
-			return
-		end
-	end
 end
 
-derma.DefineControl( "SM_ScoreBoard_PlayerRow", "A player row", PANEL, "DPanel" )
-
-
+derma.DefineControl( "SM_ScoreBoard_PlayerRow", "A player row, shows name , avatar , score , deaths and ping", PANEL, "DPanel" )

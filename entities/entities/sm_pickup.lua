@@ -28,8 +28,8 @@ ENT.PickupValues = {
 	[ENT.PickupType.SPECIAL_ACTION] 		= {
 		Respawn = 30,
 	--	Effect = nil,
-		Sound = "Player.PickupWeapon",
-	--	SoundOnPlayer = true,
+	--	Sound = "Player.PickupWeapon",
+		SoundOnPlayer = true,
 	},
 	
 	[ENT.PickupType.SMALL_REPAIR_KIT] 		= {
@@ -372,10 +372,12 @@ if SERVER then
 		
 		if not ret then return false end
 		
-		local effect = EffectData()
-		effect:SetOrigin( self:GetPos() )
-		effect:SetScale( self.PickupValues[ptype].Percent )
-		util.Effect( effectstr , effect )
+		if effectstr then
+			local effect = EffectData()
+			effect:SetOrigin( self:GetPos() )
+			effect:SetScale( self.PickupValues[ptype].Percent )
+			util.Effect( effectstr , effect )
+		end
 		
 		return true
 	end

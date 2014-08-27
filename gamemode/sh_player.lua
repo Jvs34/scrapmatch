@@ -52,6 +52,7 @@ if SERVER then
 				ply:GiveSpecialAction( "sa_circularsaw" )
 				ply:GiveSpecialAction( "sa_chaingun" )
 			end
+			ply:PlaySound( "SPAWN" )
 		else
 			ply:HUDRemoveBits( bit.bor( GAMEMODE.HUDBits.HUD_HEALTH ,GAMEMODE.HUDBits.HUD_ARMOR , GAMEMODE.HUDBits.HUD_AMMO , GAMEMODE.HUDBits.HUD_CROSSHAIR ) )
 		end
@@ -160,6 +161,7 @@ if SERVER then
 				net.WriteVector( dmginfo:GetDamagePosition() )	--send the damage position so the client knows where it was attacked from and can show the damage marker
 			net.Send( recipients )
 			
+			ply:PlaySound( "PAIN" )
 		end
 
 		--returning true here avoids the player from actually taking the damage
@@ -200,7 +202,7 @@ if SERVER then
 		end
 
 		--handle the Kill reasons here
-		
+		ply:PlaySound( "DEATH" )
 		ply.LastAttacker = nil
 	end
 
@@ -373,12 +375,14 @@ function GM:SetupMove( ply , mv , cmd )
 end
 
 function GM:Move( ply , mv )
+	
 end
 
 function GM:PlayerTick( ply , mv )
 end
 
 function GM:FinishMove( ply , mv )
+	ply:HandleFootsteps()
 end
 
 function GM:PlayerDriveAnimate( ply )
@@ -452,7 +456,7 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 		if SERVER then
 			ply:TakeDamageInfo( dmginfo )
 		end
-		ply:EmitSound( "Player.FallDamage" )
+		ply:PlaySound( "FALLDAMAGE" )
 		ply:ViewPunchReset()
 		ply:ViewPunch( Angle( 1 * mult , 0 , 0 ) )
 		

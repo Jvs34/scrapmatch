@@ -121,13 +121,101 @@ function meta:GetTeamEnt()
 	return GAMEMODE:GetTeamEnt( self:Team() )
 end
 
+function meta:HandleFootsteps()
+	if not self:Alive() then return end
+	if self:GetObserverMode() ~ OBS_MODE_NONE then return end
+	
+	self:SetupBones()
+	
+	local leftfootbonename = ""	--whatever
+	local rightfootbonename	= ""	--
+	
+	local leftfootbone = self:LookupBone( leftfootbonename )
+	local rightfootbone = self:LookupBone( rightfootbonename )
+	
+	local leftfoottrace = nil
+	local rightfoottrace = nil
+	
+	local leftfoottraceresult = nil
+	local rightfoottraceresult = nil
+	
+	
+	local leftfootbonematrix = self:GetBoneMatrix( leftfootbone )
+	local rightfootbonematrix = self:GetBoneMatrix( rightfootbone )
+	
+	if not leftfootbonematrix or not rightfootbonematrix then return end
+	
+	leftfoottrace = {
+		startpos = leftfootbonematrix:GetTranslation(),
+		endpos = leftfootbonematrix:GetTranslation() - Vector( 0 , 0 , 5 ),
+		filter = self,
+	}
+	
+	rightfoottrace = {
+		startpos = rightfootbonematrix:GetTranslation(),
+		endpos = rightfootbonematrix:GetTranslation() - Vector( 0 , 0 , 5 ),
+		filter = self,
+	}
+	
+	leftfoottraceresult = util.TraceLine( leftfoottrace )
+	rightfoottraceresult = util.TraceLine( rightfoottrace )
+	
+	if leftfoottraceresult.Hit then
+		if not self:GetPlayedLeftFootstep() then
+			self:PlaySound( "LEFTFOOT" )
+			self:SetPlayedLeftFootstep( true )
+		end
+	else
+		self:SetPlayedLeftFootstep( false )
+	end
+	
+	if rightfoottraceresult.Hit then
+		if not self:GetPlayedRightFootstep() then
+			self:PlaySound( "RIGHTFOOT" )
+			self:SetPlayedRightFootstep( true )
+		end
+	else
+		self:SetPlayedRightFootstep( false )
+	end
+end
 
---still haven't decided on this
---"PAIN" , "DEATH" , "SPAWN" , "ITEMPICKUP" , "LEFTFOOT" , "RIGHTFOOT"
+meta.SoundInfos = {
+	SPAWN = {
+		SoundName = "citadel.br_youneedme",
+		SoundChannel = CHAN_BODY,
+	}
+	PAIN = {
+		SoundName = "citadel.br_ohshit",	--replace this with a generic metal noise sound
+		SoundChannel = CHAN_VOICE,
+	},
+	DEATH = {
+		SoundName = "citadel.br_youneedme",	--replace this with one of the scanner's death sounds
+		SoundChannel = CHAN_VOICE,
+	},
+	ITEMPICKUP = {
+		SoundName = "citadel.br_no",				--replace this with a generic ammo pickup sound
+		SoundChannel = CHAN_ITEM,
+	},
+	LEFTFOOT = {
+		SoundName = "NPC_CombineS.RunFootstepLeft",			--fine for now
+		SoundChannel = CHAN_BODY,
+	}
+	RIGHTFOOT = {
+		SoundName = "NPC_CombineS.RunFootstepRight",		--fine for now
+		SoundChannel = CHAN_BODY,
+	}
+	FALLDAMAGE = {
+		SoundName = "Player.FallDamage",		--fine for now
+		SoundChannel = CHAN_BODY,
+	}
+}
+
 function meta:PlaySound( soundtype )
-	--play the PAIN , DEATH sounds on CHAN_VOICE
-	--play SPAWN , LEFTFOOT and RIGHTFOOT on CHAN_BODY
-	--play ITEMPICKUP on CHAN_ITEM
+	local tb = self.SoundInfos[soundtype]
+	--everything but the sound name is optional
+	if tb and tb.SoundName then
+		self:EmitSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
+	end
 end
 
 function meta:CreateGibs( dmginfo )
