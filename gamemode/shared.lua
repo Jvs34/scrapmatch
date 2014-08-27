@@ -55,7 +55,7 @@ else
 	--this is clientside because each player has its own preference
 
 	GM.ConVars["AnnouncerMute"] =		CreateConVar( "sm_announcer_mute" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Mutes the announcer" )
-	GM.ConVars["AnnouncerVolume"] =		CreateConVar( "sm_announcer_volume" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;The volume the announcer should be played at" )
+	GM.ConVars["AnnouncerVolume"] =		CreateConVar( "sm_announcer_volume" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The volume the announcer should be played at" )
 
 	--the convar index helps set that variable on the corresponding variable on the panel and the type at the start of the description helps for the conversion
 
