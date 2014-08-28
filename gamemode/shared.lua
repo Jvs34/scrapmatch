@@ -172,6 +172,7 @@ GM.DamageTypes = {
 	[DMG_BLAST] = {
 		Name = "Explosive",
 		ArmorEfficiency = 0.375,
+		ForceMultiplier = 2,
 		Flags = bit.bor( DMG_BLAST , DMG_ALWAYSGIB ),
 	},
 	[DMG_CLUB] = {

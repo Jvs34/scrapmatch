@@ -45,7 +45,8 @@ ENT.DefaultKeys={
 }
 
 
-
+ENT.Actions = {}
+ENT.DebugKeys = {}
 
 function ENT:Initialize()
 	
@@ -72,8 +73,7 @@ function ENT:Initialize()
 	end
 	
 	self:SetTransmitWithParent( true )
-	self.Actions = {}
-	self.DebugKeys = {}
+	
 end
 
 function ENT:CreateSpecialaction( id , slot )

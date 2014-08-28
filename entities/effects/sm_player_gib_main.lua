@@ -38,7 +38,7 @@ function EFFECT:Init( data )
 	local bonecount = 0
 	
 	local gibcount = 0
-	
+	--[[
 	for i = 0 , owner:GetBoneCount() - 1 do
 		
 		local bm = owner:GetBoneMatrix( i )
@@ -74,6 +74,7 @@ function EFFECT:Init( data )
 		end
 	
 	end
+	]]
 	
 end
 

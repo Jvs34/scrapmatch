@@ -189,8 +189,7 @@ if SERVER then
 		end
 
 		ply:SetNextRespawn( CurTime() + rules:GetRespawnTime() )
-
-		
+	
 
 		if not IsValid( attacker ) and IsValid( ply.LastAttacker ) then
 			--check if someone hit us a few seconds before dying
@@ -382,7 +381,8 @@ function GM:PlayerTick( ply , mv )
 end
 
 function GM:FinishMove( ply , mv )
-	ply:HandleFootsteps()
+	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area
+	--ply:HandleFootsteps()
 end
 
 function GM:PlayerDriveAnimate( ply )
@@ -435,7 +435,9 @@ end
 
 function GM:CanPlayerRespawn( ply )
 	local rules = self:GetGameRules()
-
+	
+	if ply:Team() == GAMEMODE.TEAM_SPECTATORS then return true end	--this might get exploited I think
+	
 	if IsValid( rules ) and ( rules:IsRoundFlagOn( self.RoundFlags.LASTMANSTANDING ) or rules:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION )  ) then return false end
 
 	return ply:GetNextRespawn() <= CurTime()
@@ -450,7 +452,7 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 		dmginfo:SetDamage( mult * 2 )
 		dmginfo:SetDamageTypeFromName( "Crush" )
 		dmginfo:SetDamageForce( vector_origin )
-		dmginfo:SetDamagePosition( ply:WorldSpaceCenter() )
+		dmginfo:SetDamagePosition( ply:GetPos() )
 		dmginfo:SetAttacker( game.GetWorld() )
 		dmginfo:SetInflictor( game.GetWorld() )
 		if SERVER then
@@ -459,13 +461,15 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 		ply:PlaySound( "FALLDAMAGE" )
 		ply:ViewPunchReset()
 		ply:ViewPunch( Angle( 1 * mult , 0 , 0 ) )
-		
+		--ply:DoCustomAnimEvent( PLAYERANIMEVENT_JUMP , 0 )	--this only triggers the jump animation, not the landing one , gotta look into it
 	end
-	--ply:DoCustomAnimEvent( PLAYERANIMEVENT_JUMP , 0 )	--this only triggers the jump animation, not the landing one , gotta look into it
 	return true
 end
 
+--I may end up actually using this hook due to the problems I'm having right now
+
 function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
+	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" )
 	return true
 end
 

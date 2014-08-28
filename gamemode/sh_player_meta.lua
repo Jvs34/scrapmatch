@@ -78,12 +78,18 @@ if SERVER then
 	
 	function meta:HandleAmmoPickup( percent )
 		local controller = SA:GetController( self )
-		
+		local ret = false
 		if IsValid( controller ) then
-			v:DoSpecialAction( "HandleAmmoPickup" , percent )
+			for i , v in pairs( controller:GetAllActions() ) do
+				if IsValid( v ) then
+					local appliedammo =	v:DoSpecialAction( "HandleAmmoPickup" , percent )
+					if appliedammo then
+						ret = true
+					end
+				end
+			end
 		end
-		
-		return true	--always return true for now, we're gonna need a way to return values from a special action later on
+		return ret
 	end
 	
 end
@@ -121,16 +127,19 @@ function meta:GetTeamEnt()
 	return GAMEMODE:GetTeamEnt( self:Team() )
 end
 
+--unused for now, there's a fuckup on EmitSound when changing PVS for some reason, I guess GM:Move isn't the best hook for this?
 function meta:HandleFootsteps()
 	if not self:Alive() then return end
 	if self:GetObserverMode() ~= OBS_MODE_NONE then return end
 	
 	if CLIENT then
-		self:SetupBones()
+		if self == LocalPlayer() and not self:ShouldDrawLocalPlayer() then
+			self:SetupBones()
+		end
 	end
 	
-	local leftfootbonename = "ValveBiped.Bip01_L_Foot"	--whatever
-	local rightfootbonename	= "ValveBiped.Bip01_R_Foot"	--
+	local leftfootbonename = "ValveBiped.Bip01_L_Foot"
+	local rightfootbonename	= "ValveBiped.Bip01_R_Foot"
 	
 	local leftfootbone = self:LookupBone( leftfootbonename ) or -1
 	local rightfootbone = self:LookupBone( rightfootbonename ) or -1
