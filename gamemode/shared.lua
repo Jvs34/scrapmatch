@@ -103,7 +103,7 @@ GM.CustomInputs = {
 
 for index , value in pairs( SA.Slots ) do
 
-	--since we're skipping undefined, which its value is 0 , decrease all the other values by 1, so that the first is 2 ^ 0, and we don't waste any bits
+	--skip undefined, we don't want to add a binding for it
 	if value ~= SA.Slots.UNDEFINED then
 		local cv = nil
 
@@ -209,12 +209,14 @@ totalbits = nil
 ]]
 GM.MAX_TEAMS = 4
 
+--TODO: find a better way for this , this is still too hardcoded for my likings
 --eventually we're going to remove the RED and BLU names and make them more generic like TEAM_1 etc
 GM.TEAM_SPECTATORS 	= 1	--used for players still connecting or spectating
 GM.TEAM_DEATHMATCH	= 2	--deathmatch team, friendly fire allowed
 GM.TEAM_RED					= 3	--red team
 GM.TEAM_BLU					= 4	--blu team
 
+--TODO:
 
 function GM:RegisterCommand( str , ... )
 
