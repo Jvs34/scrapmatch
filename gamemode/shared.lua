@@ -338,3 +338,30 @@ function dmginfometa:SetDamageTypeFromName( name )
 end
 
 dmginfometa = nil
+
+--receives ( argtocheck1, argtype1, argtocheck2 , argtype2 ) etc etc
+
+function CheckFunctionArguments( ... )
+	local skipnext = false
+	local lastval = nil
+	for i , v in pairs( {...} ) do
+		if not skipnext then
+			skipnext = true
+			lastval = v
+			continue
+		else
+			if v ~= TypeID( lastval ) then
+				error( "Received wrong type at argument #"..i , -3 )
+			end
+			skipnext = false
+			lastval = nil
+		end
+	end
+end
+
+
+
+
+
+
+
