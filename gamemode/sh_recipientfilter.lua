@@ -4,7 +4,7 @@
 	local filter = NewRecipientFilter( ply )	--the predicting player , can be nil
 	filter:AddAllPlayers()
 	
-	net.Start( "whatever"
+	net.Start( "whatever" )
 		net.WriteString( "im gay" )
 	net.Send( filter() )
 	
@@ -12,7 +12,7 @@
 	effectdata:SetOrigin( vector_origin )
 	effectdata:SetScale( 69 )
 	
-	util.Effect( "cum_explosion" , effectdata , true , filter( true )
+	util.Effect( "cum_explosion" , effectdata , true , filter( true ) )
 	
 	made by Alessio 'Jvs' Malato
 	no copyright on this stuff because I don't give a shit, do whatever you want, see if I care
@@ -58,6 +58,9 @@ function recipientmeta:AddPlayer( ply )
 			return false
 		end
 	end
+	
+	table.insert( self.Recipients , ply )
+	return true
 end
 
 function recipientmeta:AddPlayersByTeam( teamid )
