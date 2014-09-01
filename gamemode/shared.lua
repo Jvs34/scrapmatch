@@ -1,3 +1,4 @@
+include("sh_recipientfilter.lua")
 include("sh_specialaction.lua")
 include("sh_player_meta.lua")
 include("sh_entity_meta.lua")

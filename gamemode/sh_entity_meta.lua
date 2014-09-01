@@ -11,6 +11,8 @@ end
 --I have to do this because it's the cleanest way to do it, and since EmitSound checks for an hardcoded variable in the entity itself to apply the prediction filter
 --I gotta ask _Kilburn to add support for custom recipient filters in all the EmitSound functions, so this hack can go away
 
+--technically it's not that MUCH of a hack, since the normal emitsound pretty much does this
+
 if CLIENT then
 	net.Receive("sm_predicted_sound", function( len )
 		local ent = net.ReadEntity()
