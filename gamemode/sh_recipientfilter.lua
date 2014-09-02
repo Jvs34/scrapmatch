@@ -20,15 +20,6 @@
 
 local recipientmeta = {}
 
-function NewRecipientFilter( predictingplayer )
-	local filter = {}
-	
-	setmetatable( filter , {
-		__index = recipientmeta,
-	} )
-	filter.PredictingPlayer
-	filter.Recipients = {}
-end
 
 function recipientmeta:__call( useoldfiltertype )
 	--compatibility for util.Effect which doesn't use a table for the recipients
@@ -52,9 +43,9 @@ function recipientmeta:AddPlayer( ply )
 	for i ,v in pairs( self.Recipients ) do
 		if v == ply then return false end
 	end
-	
-	if IsValid( self.PredictingPlayer ) then
-		if ply == self.PredictingPlayer and IsFirstTimePredicted() then
+
+	if IsValid( self.PredictingPlayer ) and IsFirstTimePredicted() then
+		if ply == self.PredictingPlayer then
 			return false
 		end
 	end
@@ -92,4 +83,16 @@ function recipientmeta:RemovePlayersByTeam( teamid )
 			self:RemovePlayer( v )
 		end
 	end
+end
+
+function NewRecipientFilter( predictingplayer )
+	local filter = {}
+	
+	setmetatable( filter , {
+		__index = recipientmeta,
+		__call = recipientmeta.__call,
+	} )
+	filter.PredictingPlayer = predictingplayer
+	filter.Recipients = {}
+	return filter
 end

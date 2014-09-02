@@ -50,9 +50,18 @@ if CLIENT then
 else
 	function meta:EmitPredictedSound( soundstring , level , pitch , volume , channel )
 		local owner = self:GetOwner()
+		
+		if self:IsPlayer() then
+			owner = self
+		end
+		
 		if not IsValid( owner ) or not owner:IsPlayer() then
 			self:EmitSound( soundstring , level , pitch , volume , channel )
+			return
 		end
+		
+		local filter = NewRecipientFilter( owner )
+		filter:AddAllPlayers()
 		
 		net.Start("sm_predicted_sound")
 			net.WriteEntity( self )
@@ -61,7 +70,7 @@ else
 			net.WriteInt( pitch or -1 , 16 )
 			net.WriteInt( volume or -1 , 16 )
 			net.WriteInt( channel or -1 , 16 )
-		net.SendOmit( owner )
+		net.Send( filter() )
 	end
 	
 end
