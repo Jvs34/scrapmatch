@@ -226,9 +226,9 @@ function meta:PlaySound( soundtype , predicted )
 	--everything but the sound name is optional
 	if tb and tb.SoundName then
 		if predicted then
-			self:EmitSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
-		else
 			self:EmitPredictedSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
+		else
+			self:EmitSound( tb.SoundName , tb.SoundLevel , tb.SoundPitch , tb.SoundVolume , tb.SoundChannel )
 		end
 	end
 end

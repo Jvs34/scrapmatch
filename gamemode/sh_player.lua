@@ -469,7 +469,7 @@ end
 --I may end up actually using this hook due to the problems I'm having right now
 
 function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
-	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" )
+	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
 	return true
 end
 

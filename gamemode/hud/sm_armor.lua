@@ -65,7 +65,7 @@ function PANEL:Think()
 		end
 		
 		if self:GetMyPlayer():GetArmorBattery() ~= self.LastArmor then
-			print(self.LastArmor)
+			
 			local val = math.Round( self:GetMyPlayer():GetArmorBattery() )
 			
 			self.ArmorLabel:SetText( tostring( val ) )
