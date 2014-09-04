@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) {{{year}}} Alessio 'Jvs' Malato
+Copyright (c) 2014 Alessio 'Jvs' Malato
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
