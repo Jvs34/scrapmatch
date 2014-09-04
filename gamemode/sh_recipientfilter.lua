@@ -20,8 +20,17 @@
 
 local recipientmeta = {}
 
+function recipientmeta:ToString()
+	local str = ""
+	
+	if self.Recipients then
+		str = str.."["..#self.Recipients.."]"
+	end
+	
+	return Format( "LuaRecipientFilter %s" , str )
+end
 
-function recipientmeta:__call( useoldfiltertype )
+function recipientmeta:GetPlayers( useoldfiltertype )
 	--compatibility for util.Effect which doesn't use a table for the recipients
 	if useoldfiltertype then
 		local oldfilter = RecipientFilter()
@@ -90,7 +99,8 @@ function NewRecipientFilter( predictingplayer )
 	
 	setmetatable( filter , {
 		__index = recipientmeta,
-		__call = recipientmeta.__call,
+		__call = recipientmeta.GetPlayers,
+		__tostring = recipientmeta.ToString,
 	} )
 	filter.PredictingPlayer = predictingplayer
 	filter.Recipients = {}
