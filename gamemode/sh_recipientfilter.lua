@@ -48,7 +48,15 @@ function recipientmeta:AddAllPlayers()
 	end
 end
 
+function recipientmeta:RemoveAllPlayers()
+	for i , v in pairs( self.Recipients ) do
+		self.Recipients[i] = nil
+	end
+end
+
 function recipientmeta:AddPlayer( ply )
+	if not IsValid( ply ) or not ply:IsPlayer() then return false end
+	
 	for i ,v in pairs( self.Recipients ) do
 		if v == ply then return false end
 	end
@@ -63,25 +71,19 @@ function recipientmeta:AddPlayer( ply )
 	return true
 end
 
-function recipientmeta:AddPlayersByTeam( teamid )
-	for i , v in pairs( player.GetAll() ) do
-		if v:Team() == teamid then
-			self:AddPlayer( v )
-		end
-	end
-end
-
-function recipientmeta:RemoveAllPlayers()
-	for i , v in pairs( self.Recipients ) do
-		self.Recipients[i] = nil
-	end
-end
-
 function recipientmeta:RemovePlayer( ply )
 	for i ,v in pairs( self.Recipients ) do
 		if v == ply then 
 			self.Recipients[i] = nil
 			return true
+		end
+	end
+end
+
+function recipientmeta:AddPlayersByTeam( teamid )
+	for i , v in pairs( player.GetAll() ) do
+		if v:Team() == teamid then
+			self:AddPlayer( v )
 		end
 	end
 end
@@ -92,6 +94,30 @@ function recipientmeta:RemovePlayersByTeam( teamid )
 			self:RemovePlayer( v )
 		end
 	end
+end
+
+function recipientmeta:AddPlayersByCallback( callbackfunction )
+	if not callbackfunction then return false end
+	
+	for i , v in pairs( player.GetAll() ) do
+		local ret = callbackfunction( self , v )
+		if ret then
+			self:AddPlayer( v )
+		end
+	end
+	return true
+end
+
+function recipientmeta:RemovePlayersByCallback( callbackfunction )
+	if not callbackfunction then return false end
+	
+	for i , v in pairs( player.GetAll() ) do
+		local ret = callbackfunction( self , v )
+		if ret then
+			self:RemovePlayer( v )
+		end
+	end
+	return false
 end
 
 function NewRecipientFilter( predictingplayer )

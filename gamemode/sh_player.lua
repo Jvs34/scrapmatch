@@ -141,25 +141,25 @@ if SERVER then
 			ply:SetArmorBattery( currentbattery )
 			
 			--we don't need to actually send a message to the attacker for hit sounds, we're gonna handle that with player_hurt
-			
-			local recipients = { ply }	--I miss recipient filter
-			
 			--go trough all the players that are spectating this player and send this message
-			
-			for i , v in pairs( player.GetAll() ) do
-				if v == ply then continue end
-				--don't do a team check for spectator , because we might spectate this player for all kind of reasons
-				if v:GetObserverTarget() == ply then
-					table.insert( recipients , v )
+			local filter = NewRecipientFilter()
+			filter:AddPlayersByCallback( 
+				function( self , v )
+					if ply == v then return false end
+					
+					if v:GetObserverTarget() == ply then
+						return true
+					end
 				end
-			end
-			
+			)
+			filter:AddPlayer( ply )
+
 			net.Start( "sm_damageinfo" )
 				net.WriteBit( attacker == ply )
-				net.WriteUInt( damage , 16 )
-				net.WriteUInt( dmgtype , 16 )	--we send the pre converted damage type because it's easier to index on the client, plus we don't care about the other ones
+				net.WriteFloat( damage )
+				net.WriteUInt( dmgtype , 32 )	--we send the pre converted damage type because it's easier to index on the client, plus we don't care about the other ones
 				net.WriteVector( dmginfo:GetDamagePosition() )	--send the damage position so the client knows where it was attacked from and can show the damage marker
-			net.Send( recipients )
+			net.Send( filter() )
 			
 			ply:PlaySound( "PAIN" )
 		end

@@ -65,8 +65,8 @@ end
 function GM:OnLocalPlayerTakeDamage( len )
 
 	local selfdamage = tobool( net.ReadBit() )
-	local dmg = net.ReadUInt( 16 )
-	local dmgtype = net.ReadUInt( 16 )
+	local dmg = net.ReadFloat()
+	local dmgtype = net.ReadUInt( 32 )
 	local damagepos = net.ReadVector()
 	
 	local hudpanel = self:GetMainHUD()
