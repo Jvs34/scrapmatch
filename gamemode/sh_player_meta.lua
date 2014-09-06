@@ -192,7 +192,7 @@ end
 
 meta.SoundInfos = {
 	SPAWN = {
-		SoundName = "citadel.br_youneedme",
+		SoundName = "Item.Materialize",
 		SoundChannel = CHAN_BODY,
 	},
 	PAIN = {
@@ -200,7 +200,7 @@ meta.SoundInfos = {
 		SoundChannel = CHAN_VOICE,
 	},
 	DEATH = {
-		SoundName = "citadel.br_youneedme",	--replace this with one of the scanner's death sounds
+		SoundName = "NPC_Manhack.Die",	--replace this with one of the scanner's death sounds
 		SoundChannel = CHAN_VOICE,
 	},
 	ITEMPICKUP = {

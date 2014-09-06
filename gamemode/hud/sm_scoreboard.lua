@@ -86,8 +86,9 @@ function PANEL:Think()
 			self.TeamName:SetText( self.TeamName:GetText() .. " " ..self:GetTeam():GetTeamRoundsWon()  )
 		end
 	end
-	
-	for i , v in ipairs( self.PlayerRows ) do
+		
+	for i , v in pairs( self.PlayerRows ) do
+		if not IsValid( v ) then self.PlayerRows[i] = nil continue end
 		local ply = v:GetPlayer()
 		
 		--TODO: set the Z value like garry does on his scoreboard so we can order by score
@@ -103,6 +104,7 @@ function PANEL:HandlePlayer( ply )
 		self.PlayerRows[ply:UserID()] = self:Add( "SM_ScoreBoard_PlayerRow" )
 		self.PlayerRows[ply:UserID()]:Dock( TOP )
 		self.PlayerRows[ply:UserID()]:SetPlayer( ply )
+		self:InvalidateLayout()
 	end
 end
 
@@ -144,6 +146,21 @@ local PANEL = {}
 AccessorFunc(	PANEL	, "_Player"	,	"Player"	)
 
 function PANEL:Init()
+	self:DockPadding( 5 , 0 , 0 , 	1 )
+	self:DockMargin( 10 , 5 , 10 , 5 )
+	
+	self.PlayerAvatar = self:Add( "AvatarImage" )
+	self.PlayerAvatar:SetSize( 32, 32 )
+	self.PlayerAvatar:DockMargin( 5 , 0 , 0 , 0 )
+	self.PlayerAvatar:Dock( LEFT )
+	
+	self.PlayerName = self:Add( "DLabel" )
+	self.PlayerName:Dock( FILL )
+	self.PlayerName:SetFont( self:GetParent():GetParent():GetParent().Font )
+	self.PlayerName:SetText( "Team" )
+	self.PlayerName:DockMargin( 15 , 0 , 0 , 0 )
+	--self.PlayerName:SetContentAlignment( 5 )
+	
 	--create avatar , dock to the left , increase the left margin
 	--create name, dock to fill
 	--create score label , dock to the right
@@ -152,6 +169,22 @@ function PANEL:Init()
 end
 
 function PANEL:Think()
+	if self:IsMarkedForDeletion() then return end
+	
+	if not IsValid( self:GetPlayer() ) then
+		self:Remove()
+		return
+	end
+	
+	if not IsValid( self:GetParent():GetTeam() ) then return end
+	
+	if self:GetParent():GetTeam():GetTeamID() ~= self:GetPlayer():Team() then
+		self:Remove()
+		return
+	end
+	
+	self.PlayerAvatar:SetPlayer( self:GetPlayer(), 32 )
+	self.PlayerName:SetText( self:GetPlayer():Nick() )
 end
 
 derma.DefineControl( "SM_ScoreBoard_PlayerRow", "A player row, shows name , avatar , score , deaths and ping", PANEL, "DPanel" )

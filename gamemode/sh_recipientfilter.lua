@@ -67,6 +67,8 @@ function recipientmeta:AddPlayer( ply )
 		end
 	end
 	
+	if ply:IsBot() then return false end
+	
 	table.insert( self.Recipients , ply )
 	return true
 end
