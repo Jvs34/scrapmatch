@@ -15,13 +15,15 @@ ENT.VoteTypes = {
 	MODECHANGE = 2,
 	TEAMSCRAMBLE = 3,
 	ROUNDFLAGS = 4,
-	LAST = 5,
+	KICK = 5,
+	LAST = 6,
 }
 
 ENT.VoteData = {
 	[ENT.VoteTypes.NONE] = nil,
 	[ENT.VoteTypes.NEXTMAP] = {
 		Type = "String",	--contains the next map name
+	--	MaxCharacters = 16,
 	},
 	[ENT.VoteTypes.MODECHANGE] = {
 		Type = "Int",	--contains the id of the mode we want to play
@@ -40,6 +42,11 @@ ENT.VoteData = {
 			GAMEMODE.RoundFlags.TEAM_SCRAMBLE,
 		},
 		BitCounts = 16,
+	},
+	[ENT.VoteTypes.KICK] = {
+		Type = "Entity",
+		ClassName = "player",	--can only cast this vote on entities of classname player
+		CastOnSelf = false,		--the user can't kick himself ( in case the vote can be cast on players )
 	},
 	[ENT.VoteTypes.LAST] = nil,
 }
@@ -61,7 +68,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Int" , 1 , "VoteDataInt" )
 	self:NetworkVar( "Float" , 2 , "VoteDataFloat" )
 	self:NetworkVar( "Bool" , 0 , "VoteDataBool" )
-	self:NetworkVar( "Entity" , 0 , "VoteDataEnt" )
+	self:NetworkVar( "Entity" , 0 , "VoteDataEntity" )
 	self:NetworkVar( "String" , 0 , "VoteDataString" )
 	
 	self:NetworkVar( "Int" , 2 , "VoteAgreeCount" )
@@ -108,7 +115,7 @@ if SERVER then
 		
 		self:SetVoteDataInt( 0 )
 		self:SetVoteDataFloat( 0 )
-		self:SetVoteDataEnt( nil )
+		self:SetVoteDataEntity( nil )
 		self:SetVoteDataString( "" )
 		
 		self:SetVoteDisagreeCount( 0 )
@@ -142,22 +149,21 @@ if SERVER then
 					end
 					
 					if self.VoteData[votetype].Exclude then
-					
 						--remove excluded flags here, because some cheeky bastards might still add them manually and fuck shit up
-						
 						for i , v in pairs( self.VoteData[votetype].Exclude ) do
-							
 							if bit.band( value , v ) ~= 0 then
 								value = bit.bxor( value , v )
 							end
-						
 						end
-					
 					end
 					
 					self:SetVoteDataInt( value )
 				elseif typ == "String" then
 					local value = net.ReadString()
+					
+					if self.VoteData[votetype].MaxCharacters then
+						value = value:Left( self.VoteData[votetype].MaxCharacters )
+					end
 					
 					self:SetVoteDataString( value )
 				elseif typ == "Bool" then
@@ -165,20 +171,35 @@ if SERVER then
 					
 					self:SetVoteDataBool( value )
 				elseif typ == "Float" then
-					local value = net.ReadFloat( )
+					local value = net.ReadFloat()
 					if self.VoteData[votetype].Min and self.VoteData[votetype].Max then
 						value = math.Clamp( value , self.VoteData[votetype].Min , self.VoteData[votetype].Max )
 					end
 					self:SetVoteDataFloat( value )
+				elseif typ = "Entity" then
+					local value = net.ReadEntity()
+					
+					--the user gave us something that is clientside only (like gibs that he can fire trace on?) or that was deleted soon before he sent the message
+					if not IsValid( value ) then
+						return
+					end
+					
+					if self.VoteData[votetype].ClassName and value:GetClass():lower() ~= self.VoteData[votetype].ClassName then
+						return
+					end
+					
+					if value == ply and not self.VoteData[votetype].CastOnSelf then
+						return
+					end
+					
+					self:SetVoteDataEntity( value )
 				end
-				
-				
+								
 			end
-			
 
 			self:SetVoteStarter( ply )
 			self:SetVoteType( votetype )
-			self:SetVoteExpiresTime( CurTime() + 15 )
+			self:SetVoteExpiresTime( CurTime() + self:GetVoteDuration() )
 			
 			--this is the player that started the vote, always make him agree with his vote, duh
 			if IsValid( ply ) then
@@ -195,6 +216,8 @@ if SERVER then
 		if not self:IsVoteInProgress() or not gamemode.Call("CanCastVote", ply ) then return end
 		
 		local vote = tobool( net.ReadBit() )
+		
+		if vote == nil then return end
 		
 		if vote then
 			self:IncreaseAgree()

@@ -60,6 +60,7 @@ function GM:InitPostEntity()
 
 	--create the votecontroller
 	local votecontroller = ents.Create( "sm_votecontroller" )
+	votecontroller:SetVoteDuration( 15 )
 	votecontroller:Spawn()
 
 	--setup the team entities
