@@ -9,9 +9,7 @@ end
 
 --what this whole thing does is to simulate the recipient filter prediction, which excludes serverside the currently predicting player
 --I have to do this because it's the cleanest way to do it, and since EmitSound checks for an hardcoded variable in the entity itself to apply the prediction filter
---I gotta ask _Kilburn to add support for custom recipient filters in all the EmitSound functions, so this hack can go away
-
---technically it's not that MUCH of a hack, since the normal emitsound pretty much does this
+--I created a Lua recipient filter, so this is all nice and dandy in the end
 
 if CLIENT then
 	net.Receive("sm_predicted_sound", function( len )

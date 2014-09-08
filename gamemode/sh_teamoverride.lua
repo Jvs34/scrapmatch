@@ -37,6 +37,7 @@ function team.SetSpawnPoint( id, ent_name )
 end
 
 local returnedTeams = {}
+--Try to return the info as closely as this as possible, to keep compatibility, even though I think only one panel in base uses this
 --TeamInfo[TEAM_CONNECTING] 	= { Name = "Joining/Connecting", 	Color = DefaultColor, 	Score = 0, 	Joinable = false }
 
 function team.GetAllTeams()
@@ -46,17 +47,9 @@ function team.GetAllTeams()
 		local teament = GAMEMODE:GetTeamEnt( id )
 		
 		if not IsValid( teament ) then
-			
-			--[[
-				if a team used to be here, clear out the details, shh it's ok, it never existed, OH HERE IT GOES AGAIN I WAS JUST LAGGING JK
-				that's probably the only problem with this system, they're still entities and if they don't exist on the client for some time things MIGHT fuck up
-				but it's ok, since this system is supposed to be dynamic I'm gonna add fail safes anyway
-			]]
-			
 			if returnedTeams[id] then
 				returnedTeams[id] = nil
 			end
-			
 			continue 
 		end
 		
@@ -66,30 +59,24 @@ function team.GetAllTeams()
 		returnedTeams[id].Color = teament:GetTeamColor()
 		returnedTeams[id].Score = teament:GetTeamScore()
 		returnedTeams[id].Joinable = teament:GetTeamDisabled()
-		
 	end
 	
 	return returnedTeams
 end
 
 function team.Valid( id )
-
 	return IsValid( GAMEMODE:GetTeamEnt( id ) )
-
 end
 
 function team.Joinable( id )
-	
 	local teament = GAMEMODE:GetTeamEnt( id )
 	
 	if IsValid( teament ) then
 		return not teament:GetTeamDisabled()
 	end
-
 end
 
 function team.TotalDeaths( index )
-
 	local score = 0
 	for id,pl in pairs( player.GetAll() ) do
 		if (pl:Team() == index) then
@@ -97,11 +84,9 @@ function team.TotalDeaths( index )
 		end
 	end
 	return score
-
 end
 
 function team.TotalFrags( index )
-
 	local score = 0
 	for id,pl in pairs( player.GetAll() ) do
 		if pl:Team() == index then
@@ -109,17 +94,13 @@ function team.TotalFrags( index )
 		end
 	end
 	return score
-
 end
 
 function team.NumPlayers( index )
-
 	return #team.GetPlayers( index )
-
 end
 
 function team.GetPlayers( index )
-
 	local TeamPlayers = {}
 
 	for id,pl in pairs( player.GetAll() ) do
@@ -127,9 +108,7 @@ function team.GetPlayers( index )
 			table.insert(TeamPlayers, pl)
 		end
 	end
-
 	return TeamPlayers
-
 end
 
 function team.GetScore( index )
@@ -139,11 +118,10 @@ function team.GetScore( index )
 		return teament:GetTeamScore()
 	end
 	
-	return 0	--sigh?
+	return 0
 end
 
 function team.GetName( index )
-
 	local teament = GAMEMODE:GetTeamEnt( index )
 	
 	if IsValid( teament ) then
@@ -154,50 +132,41 @@ function team.GetName( index )
 end
 
 function team.SetColor( index, color )
-
 	local teament = GAMEMODE:GetTeamEnt( index )
 	
 	if IsValid( teament ) then
 		teament:SetTeamColor( color )
 	end
-
 end
 
 function team.GetColor( index )
-
 	local teament = GAMEMODE:GetTeamEnt( index )
 	
 	if IsValid( teament ) then
 		return teament:GetTeamColor()
 	end
 	
-	return color_white	--fail safe because the default chat system bullshit / killicons don't even check SHIT
-
+	return color_white
 end
 
 function team.SetScore( index , score)
-
 	local teament = GAMEMODE:GetTeamEnt( index )
 	
 	if IsValid( teament ) then
 		teament:SetTeamScore( score )
 	end
-	
 end
 
 function team.AddScore( index , score)
-
 	local teament = GAMEMODE:GetTeamEnt( index )
 	
 	if IsValid( teament ) then
 		teament:SetTeamScore( teament:GetTeamScore() + score )
 	end
-
 end
 
 
 function team.BestAutoJoinTeam()
-
 	local SmallestTeam = - 1
 	local SmallestPlayers = game.MaxPlayers()
 
@@ -217,5 +186,4 @@ function team.BestAutoJoinTeam()
 	end
 
 	return SmallestTeam
-
 end

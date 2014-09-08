@@ -13,7 +13,7 @@ end
 function ENT:SetupDataTables()
 
 	self:NetworkVar( "Int"		, 0 , "TeamID" )					--the team id
-	self:NetworkVar( "Int" 	, 1 , "TeamScore" )				--the team score
+	self:NetworkVar( "Int" 		, 1 , "TeamScore" )				--the team score
 	self:NetworkVar( "Int"		, 2 , "TeamColorHEX" )			--the team color in hex , thanks vinh dick
 	self:NetworkVar( "Int"		, 3 , "TeamRoundsWon" )
 	
@@ -23,7 +23,8 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String" 	, 0 , "TeamName" )
 	self:NetworkVar( "String"	, 1 , "TeamSpawnPoint" )
 	self:NetworkVar( "String"	, 2 , "TeamLogo" )				--this is the workshop id for this team , which will be downloaded with steamworks.Download and applied with AddonMaterial
-	
+																--this is the best way than having to use HTML for this
+																
 	self:NetworkVar( "Entity"	, 0 , "TeamMVP" )				--the player with the highest score
 end
 
