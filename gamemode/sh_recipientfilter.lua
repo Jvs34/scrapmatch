@@ -1,7 +1,7 @@
 --[[
 	usage:
 	
-	local filter = NewRecipientFilter( ply )	--the predicting player , can be nil
+	local filter = LuaRecipientFilter( ply )	--the predicting player , can be nil
 	filter:AddAllPlayers()
 	
 	net.Start( "whatever" )
@@ -28,6 +28,10 @@ function recipientmeta:ToString()
 	end
 	
 	return Format( "LuaRecipientFilter %s" , str )
+end
+
+function recipientmeta:Length()
+	return self.Recipients and #self.Recipients or 0
 end
 
 function recipientmeta:GetPlayers( useoldfiltertype )
@@ -122,13 +126,30 @@ function recipientmeta:RemovePlayersByCallback( callbackfunction )
 	return false
 end
 
-function NewRecipientFilter( predictingplayer )
+--TODO: I can't handle this PVS crap because it's defined in the engine , sending this shit to everyone is fine, it'll get culled by the entity not existing or some other shit
+function recipientmeta:AddPlayersByPVS( origin )
+	self:AddAllPlayers()
+end
+
+function recipientmeta:RemovePlayersByPVS( origin )
+	self:RemoveAllPlayers()
+end
+
+--TODO
+function recipientmeta:AddPlayersByBitmask( bitmask )
+end
+
+function recipientmeta:RemovePlayersByBitmask( bitmask )
+end
+
+function LuaRecipientFilter( predictingplayer )
 	local filter = {}
 	
 	setmetatable( filter , {
 		__index = recipientmeta,
 		__call = recipientmeta.GetPlayers,
 		__tostring = recipientmeta.ToString,
+		__len = recipientmeta.Length,
 	} )
 	filter.PredictingPlayer = predictingplayer
 	filter.Recipients = {}

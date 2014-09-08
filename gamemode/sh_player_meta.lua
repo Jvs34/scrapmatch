@@ -72,7 +72,7 @@ if SERVER then
 		--prevent the user from regenerating armor after getting this applied
 		
 		self:SetArmorBattery( math.Clamp( curbattery + maxbattery * percent , 1 , maxbattery ) )
-		self:SetNextBatteryRecharge( CurTime() + 5 )
+		self:SetNextBatteryRecharge( CurTime() + self:GetBatteryRechargeTime() )
 		return true
 	end
 	

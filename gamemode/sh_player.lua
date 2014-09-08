@@ -142,7 +142,7 @@ if SERVER then
 			
 			--we don't need to actually send a message to the attacker for hit sounds, we're gonna handle that with player_hurt
 			--go trough all the players that are spectating this player and send this message
-			local filter = NewRecipientFilter()
+			local filter = LuaRecipientFilter()
 			filter:AddPlayersByCallback( 
 				function( self , v )
 					if ply == v then return false end

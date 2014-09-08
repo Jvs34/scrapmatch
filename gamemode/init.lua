@@ -119,7 +119,7 @@ function GM:Think()
 
 end
 
-function GM:RoundStart( )
+function GM:RoundStart()
 
 	--cleanup the whole map, ignore the entities in the cleanupfilter
 	MsgN( "Round started" )
@@ -168,7 +168,7 @@ function GM:RoundStart( )
 
 end
 
-function GM:RoundEnd( )
+function GM:RoundEnd()
 	--get the team with the highest score, increase their round wins, and set their team entity on the game rules' roundwinner
 	local score , winnerteam = self:GetGameRules():GetHighestScore()
 	

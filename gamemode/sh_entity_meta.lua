@@ -60,7 +60,7 @@ else
 			return
 		end
 		
-		local filter = NewRecipientFilter( owner )
+		local filter = LuaRecipientFilter( owner )
 		filter:AddAllPlayers()
 		
 		net.Start("sm_predicted_sound")

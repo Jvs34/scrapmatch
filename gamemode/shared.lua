@@ -204,6 +204,14 @@ GM.HUDBits.HUD_ALLBITS = totalbits
 
 totalbits = nil
 
+GM.PlayerStatus = {
+	FROZEN_MOVEMENT = 2 ^ 0,
+	SLOWED_MOVEMENT = 2 ^ 1,
+	WEAPONS_DISABLED = 2 ^ 2,
+	ACTIONS_DISABLED = 2 ^ 3,
+	
+}
+
 --[[
 	you can have up to GMOD_MAX_DTVARS teams ( obviously limited to DT var entities , but please don't )
 	you can safely increase this without adding a tied GM.TEAM_ enum, you'll need to create the team yourself with that ID during GM:InitPostEntity()
