@@ -314,6 +314,15 @@ function GM:GetCameraInSequence( ply , i )
 	--VINH'LL FIX IT @@@@@
 
 	if SERVER and IsValid( newcam ) then
+		
+		if currentcamera:GetControllingPlayer() == ply then
+			currentcamera:SetControllingPlayer( nil )
+		end
+		
+		if not IsValid( newcam:GetControllingPlayer() ) then
+			newcam:SetControllingPlayer( ply )
+		end
+		
 		ply:SpectateEntity( newcam )
 	end
 end

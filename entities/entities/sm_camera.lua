@@ -6,10 +6,16 @@ ENT.Base 			= "base_entity"
 function ENT:Initialize()
 	if SERVER then
 		--set the camera to the one used on the canals laboratory during the inspect scene, the one which has a ragdoll should also have pose parameters
+		--nope, no pose paratemers, just force the deployed sequence and then set the camera angle using manipulateboneangle
+		
 		self:SetModel( "models/props_lab/labturret.mdl" )
 		self:SetCollisionBounds( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetSolid( SOLID_BBOX )
-		
+		self:SetKeyValue( "view_ofs" , "0 0 0" )	--set to whatever the eye position of the camera ends up to be
+		self:SetTurnSpeed( 5 )
+		self:SetActive( true )
+		self:SetZoomLevel( 1 )
+		self:SetAimVector( Vector( 0 , 1 , 0 ) )
 	else
 		self.Predictable = false
 		self.LastAimVector = nil
@@ -20,13 +26,19 @@ end
 
 function ENT:SetupDataTables()
 	self:NetworkVar( "Int"	, 0 , "CameraIndex" )
+	
 	self:NetworkVar( "Bool" , 0 , "Active" )					--this camera is currently active, and can be used!
+	
 	self:NetworkVar( "Ent" , 0 , "ControllingPlayer" )	--this is set for the first player spectating this entity, allows him to control it
+	self:NetworkVar( "Ent" , 1 , "TrackedEntity" )		--only for auto camera mode when there's no controlling player
+	
+	
 	self:NetworkVar( "Float" , 0 , "TurnSpeed" )			--the turn speed to apply when the player / AI looks around
-	self:NetworkVar( "Vector" , 0 , "AimVector" )			--the aim vector normal the camera is looking at, better than using the entity angles for sure
 	self:NetworkVar( "Float" , 1 , "ZoomLevel" )			--the current camera zoom, goes from 0 to 1
-	self:NetworkVar( "Ent" , 1 , "TrackedEntity" )
 	self:NetworkVar( "Float" , 1 , "DisabledTime" )
+	
+	self:NetworkVar( "Vector" , 0 , "AimVector" )			--the aim vector normal the camera is looking at, better than using the entity angles for sure
+	
 end
 
 function ENT:HandleTurningSound( moving )
@@ -62,12 +74,9 @@ function ENT:Think()
 		
 		self.LastAimVector = self:GetAimVector()
 	
-	end
-	
-	if SERVER then
+	else
 		
 		if self:GetDisabledTime() ~= -1 and self:GetDisabledTime() <= CurTime() and not self:GetActive() then
-			
 			self:SetDisabledTime( -1 )
 			self:SetActive( true )
 		end
@@ -75,8 +84,8 @@ function ENT:Think()
 		--we don't have a player currently, randomly look around!
 		if self:GetActive() and not IsValid( self:GetControllingPlayer() ) then
 			self:AutoControlCamera()
-			self:NextThink( CurTime() + 0.2 )
-			return true
+		--	self:NextThink( CurTime() + 0.2 )
+		--	return true
 		end
 	
 	end
@@ -102,16 +111,18 @@ function ENT:AutoControlCamera()
 
 	--do a small hull trace in front of our aim vector , if we hit an entity then we're going to track that around until we lose sight!
 	
-	
 	if IsValid( self:GetTrackedEntity() ) then
 		
-
+		
+		
+		--we have a tracked entity, rotate towards its eyepos
+		--self:ClampAimVectorTo( destinationvec )
 	else
-	
-	
+		--look in front of us, see if we hit a player that is alive and is doing something interesting
+		--set that to our tracked entity
 	
 	end
-	
+
 	
 end
 
@@ -120,26 +131,46 @@ end
 --called during prediction in SetupMove, allows the player to control the camera
 
 function ENT:ControlCamera( ply , mv , cmd )
-	
 	--can't control it if we're disabled!
 	if not self:GetActive() then return end
+	if ply ~= self:GetControllingPlayer() then return end
+	
+	--check if the player used the mouse wheel, then either increase or decrease the zoom level
 	
 	--check the difference from our current aim to the player's, then clamp it 
+	self:ClampAimVectorTo( ply:GetAimVector() )
 	
-	--for now just set our aim vector to theirs
-	self:SetAimVector( ply:GetAimVector() )
+	ply:SetFOV( self:GetZoomFOV() , 0 )
+end
+
+--translate the current zoom level to an FOV level the player can use , since the level goes from 0 to 1, we interp
+
+function ENT:ClampAimVectorTo( destinationaimvec )
+	
+	--TODO:check the difference and then clamp the vector, use FrameTime for the smoothing I think
+	--self:GetTurnSpeed()
+	self:SetAimVector( destinationaimvec )
+end
+
+function ENT:GetZoomFOV()
+	return Lerp( self:GetZoomLevel() , 90 , 50 )
 end
 
 if SERVER then
-
+	--TODO: map inputs
+	
 	--transmit to all the players
 	function ENT:UpdateTransmitState()
 		return TRANSMIT_ALWAYS
 	end
 	
+	ENT.DotLightMat = Material("")
+	
 	function ENT:Draw()
 	
-		--set the pose parameters based on the current aim vectors
+		--the lab turrent doesn't actually use pose parameters , but rather sequences
+		--since we don't care for that shit, we just use the deployed sequence and then move the actual camera shared
+		--( which we're going to do either during Think and during prediction when a player is controlling us with manipulateboneangle )
 		
 		self:DrawModel()
 		
@@ -153,8 +184,6 @@ if SERVER then
 	function ENT:OnTakeDamage( dmginfo )
 		
 		--don't let players reset the disabled time by continuosly shooting at the camera
-		
-		
 		if self:GetDisabledTime() ~= -1 then return end
 		
 		local dmg = dmginfo:GetDamage()

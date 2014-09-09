@@ -250,10 +250,12 @@ function GM:StartCommand( ply , cmd )
 	if IsValid( camera ) and camera:GetClass() == "sm_camera" then
 		if not camera:GetActive() or camera:GetControllingPlayer() ~= ply then
 			cmd:SetViewAngles( camera:GetAimVector():Angle() )
-			
-			--TODO: also set the FOV here
-			
+			ply:SetFOV( camera:GetZoomFOV() , 0 )
 		end
+	end
+	
+	if not IsValid( camera ) then
+		ply:SetFOV( 0 , 0 )
 	end
 	
 	--[[
@@ -352,24 +354,27 @@ function GM:SetupMove( ply , mv , cmd )
 	]]
 
 	--handle the player looking around cameras
-	if SERVER then
-		if not ply:Alive() or ply:Team() == self.TEAM_SPECTATORS then
-			--TODO: we still need to have a working map for this to happen
-			--[[
-				if mv:KeyPressed( IN_ATTACK ) or mv:KeyPressed( IN_ATTACK2 ) then
-
-					local incr = 0
-
-					if mv:KeyPressed( IN_ATTACK ) and not mv:KeyPressed( IN_ATTACK2 ) then
-						incr = 1
-					elseif mv:KeyPressed( IN_ATTACK2 ) and not mv:KeyPressed( IN_ATTACK ) then
-						incr = -1
-					end
-
-					self:GetCameraInSequence( ply , incr )
-				end
-			]]
+	if not ply:Alive() or ply:Team() == self.TEAM_SPECTATORS then
+		
+		local currentcamera = ply:GetObserverTarget()
+		
+		if currentcamera:GetClass() == "sm_camera" then
+			mv:SetOrigin( currentcamera:EyePos() )
+			currentcamera:ControlCamera( ply , mv , cmd )
 		end
+		
+		if mv:KeyPressed( IN_ATTACK ) or mv:KeyPressed( IN_ATTACK2 ) then
+			local incr = 0
+
+			if mv:KeyPressed( IN_ATTACK ) and not mv:KeyPressed( IN_ATTACK2 ) then
+				incr = 1
+			elseif mv:KeyPressed( IN_ATTACK2 ) and not mv:KeyPressed( IN_ATTACK ) then
+				incr = -1
+			end
+
+			--self:GetCameraInSequence( ply , incr )
+		end
+		return true
 	end
 end
 

@@ -306,14 +306,14 @@ end
 concommand.Add("sm_jointeam", function(ply,command,args)
 	if not IsValid( ply ) then return end
 
-	local team = tonumber( args[1] )
+	local teamn = tonumber( args[1] )
 
-	if not team or team < 1 or team > GAMEMODE.MAX_TEAMS then
+	if not teamn or teamn < 1 or teamn > GAMEMODE.MAX_TEAMS then
 		return
 	end
 
-	--TODO: replace this with a gamemode.Call so people can hook into it
-	GAMEMODE:JoinTeam( ply , team , true )
+	gamemode.Call( "JoinTeam" , ply , teamn , true )
+	--GAMEMODE:JoinTeam( ply , teamn , true )
 end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <teamid>" , 0 )
 
 concommand.Add("sm_takedamage", function(ply,command,args)
@@ -327,7 +327,11 @@ concommand.Add("sm_takedamage", function(ply,command,args)
 	local dmginfo = DamageInfo()
 	dmginfo:SetDamage( 100 )
 	dmginfo:SetDamageTypeFromName( dmgname )
-	dmginfo:SetDamageForce( vector_origin )
+	if not dmginfo:IsDamageType( DMG_PREVENT_PHYSICS_FORCE ) then
+		dmginfo:SetDamageForce( Vector( 0 , 0 , 600 ) )
+	else
+		dmginfo:SetDamageForce( vector_origin )
+	end
 	dmginfo:SetDamagePosition( ply:WorldSpaceCenter() )
 	dmginfo:SetAttacker( ply )
 	dmginfo:SetInflictor( ply )
