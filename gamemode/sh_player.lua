@@ -65,7 +65,8 @@ if SERVER then
 
 		--TEMPORARY , later on we'll make the player control cameras
 		if IsValid(teament) and teament:GetTeamID() == self.TEAM_SPECTATORS then
-			ply:Spectate( OBS_MODE_ROAMING )	--TODO: convert to OBS_MODE_IN_EYE
+			ply:Spectate( OBS_MODE_ROAMING )
+			--TODO:Replace this with self:PlayerSpectateCameras( ply )
 		else
 			ply:UnSpectate()
 		end
@@ -82,8 +83,20 @@ if SERVER then
 	function GM:PlayerSelectSpawn( ply )
 		return ply
 	end
-
-
+	
+	function GM:PlayerSpectateCameras( ply )
+		if ply:GetObserverMode() ~= OBS_MODE_NONE then return end
+		--find the first camera
+		ply:Spectate( OBS_MODE_IN_EYE )
+		
+		local foundcamera = self:GetCameraInSequence( ply )
+		
+		if IsValid( foundcamera ) then
+			ply:SpectateEntity( foundcamera )
+		end
+		
+	end
+	
 	function GM:PlayerTakeDamage( ply , dmginfo )
 		local attacker = dmginfo:GetAttacker()
 
@@ -173,8 +186,7 @@ if SERVER then
 
 		ply:HUDRemoveBits( bit.bor( GAMEMODE.HUDBits.HUD_HEALTH ,GAMEMODE.HUDBits.HUD_ARMOR , GAMEMODE.HUDBits.HUD_AMMO , GAMEMODE.HUDBits.HUD_CROSSHAIR ) )
 
-		local attacker = dmginfo:GetAttacker()
-
+		
 		ply:StripAmmo()
 		ply:StripWeapons()
 		SA:RemoveController( ply )
@@ -202,15 +214,37 @@ if SERVER then
 
 		--handle the Kill reasons here
 		ply:PlaySound( "DEATH" )
-		ply.LastAttacker = nil
+		ply.LastAttacker = attacker
 	end
-
-	--override it to remove the default killicons bullshit
+	
+	function GM:OnPlayerDisconnected( ply )
+		local announcer = self:GetAnnouncer()
+		
+		if not ply:Alive() then
+			local nextresp = ply:GetNextRespawn() - CurTime()
+			if nextresp < 3 then
+				if ply.LastAttacker == ply then return end
+				if IsValid( announcer ) then
+					announcer:OnPlayerRagequit( ply , ply.LastAttacker )
+				end
+			end
+		end
+	end
+	
+	--override it to remove the default killicons bullshit, AFAIK this is called from some bullshit game rules internal hook
 	function GM:PlayerDeath( ply, inflictor, attacker ) end
 
 	function GM:PlayerDeathThink( ply )
 		if self:CanPlayerRespawn( ply ) then
 			ply:Spawn()
+		else
+			--TODO: 1 second after death, put the player on the camera system
+			--[[
+				if ( ply:GetNextRespawn() - CurTime() ) > 1 then
+					self:PlayerSpectateCameras( ply )
+				end
+			]]
+			--self:PlayerSpectateCameras( ply )
 		end
 	end
 
@@ -224,7 +258,7 @@ if SERVER then
 
 	--we can't start votes if we just joined the server!
 	function GM:CanStartVote( ply , voteentity )
-		return ply:TimeConnected( ) >= self:GetVoteController():GetVoteDuration()
+		return ply:TimeConnected() >= self:GetVoteController():GetVoteDuration()
 	end
 	
 	-- I already cast my vote or I connected too late to be able to vote
@@ -232,12 +266,15 @@ if SERVER then
 	function GM:CanCastVote( ply , voteentity )
 		if ply:GetHasVoted() then return false end
 		
-		return ply:TimeConnected( ) >= self:GetVoteController():GetVoteDuration()
+		return ply:TimeConnected() >= self:GetVoteController():GetVoteDuration()
 	end
 	
 	--TODO: can't suicide if we're using the Plan B
 	
 	function GM:CanPlayerSuicide( ply )
+		if ply:HasStatus( self.PlayerStatus.PLANB ) then
+			return false
+		end
 		return ply:Team() ~= self.TEAM_SPECTATORS
 	end
 end
@@ -379,7 +416,6 @@ function GM:SetupMove( ply , mv , cmd )
 end
 
 function GM:Move( ply , mv )
-	
 end
 
 function GM:PlayerTick( ply , mv )
@@ -409,14 +445,11 @@ function GM:PlayerPostThink( ply , mv )
 			end
 
 			if canrecharge and ply:GetArmorBattery() < ply:GetMaxArmorBattery() and ply:GetNextBatteryRecharge() < CurTime() then
-
 				local charge = ply:GetMaxArmorBattery()  / ( ply:GetBatteryRechargeTime() / engine.TickInterval() )
 				local amount = math.Clamp( ply:GetArmorBattery() + charge , 0 , ply:GetMaxArmorBattery() )
 				ply:SetArmorBattery( amount )
 				ply:SetNextBatteryRecharge( CurTime() + engine.TickInterval() )
 			end
-
-
 		end
 
 		--forget our last attacker after 5 seconds that we've been hit
@@ -472,6 +505,7 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 end
 
 --I may end up actually using this hook due to the problems I'm having right now
+--this is also temporary
 
 function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
 	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
@@ -479,6 +513,7 @@ function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
 end
 
 function GM:DoAnimationEvent( ply , event , data )
+	--handle the dual wielding animations of the base weapon
 	if event == PLAYERANIMEVENT_ATTACK_PRIMARY then
 		local seq = ply:LookupSequence( "range_dual_l" )
 		ply:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD , seq , 0 , true )

@@ -1,3 +1,7 @@
+DeriveGamemode("base")
+
+DEFINE_BASECLASS( "gamemode_base" )
+
 include("sh_recipientfilter.lua")
 include("sh_specialaction.lua")
 include("sh_player_meta.lua")
@@ -10,9 +14,7 @@ include( "special_actions/sa_chaingun.lua" )
 include( "special_actions/sa_circularsaw.lua" )
 
 
-DeriveGamemode("base")
 
-DEFINE_BASECLASS( "gamemode_base" )
 
 GM.Name 			= "Scrap Match"
 GM.Author 			= "Jvs"
@@ -78,11 +80,11 @@ else
 end
 
 GM.RoundFlags = {
-	INTERMISSION		= 2 ^ 0,			--set as the round ended or we're about to change map
-	TEAM_SCRAMBLE		= 2 ^ 1,			--this is checked at the end of the round
-	INFINITE_AMMO		= 2 ^ 2,			--all weapons and items don't waste ammo, they're still subject to reload speeds though
-	INSTAGIB 			= 2 ^ 3,			--any damage is fatal and gibs the user
-	LASTMANSTANDING	= 2 ^ 4,			--once you die you won't respawn, the round ends only when one guy is alive, pretty much like tf2's arena mode or whatever
+	INTERMISSION			= 2 ^ 0,			--set as the round ended or we're about to change map
+	TEAM_SCRAMBLE			= 2 ^ 1,			--this is checked at the end of the round
+	INFINITE_AMMO			= 2 ^ 2,			--all weapons and items don't waste ammo, they're still subject to reload speeds though
+	INSTAGIB 				= 2 ^ 3,			--any damage is fatal and gibs the user
+	LASTMANSTANDING			= 2 ^ 4,			--once you die you won't respawn, the round ends only when one guy is alive, pretty much like tf2's arena mode or whatever
 	GAMEOVER				= 2 ^ 5,			--the game is over, the level will be changed after the intermission is over , this also forces the scoreboard on and stops players' movement
 }
 
@@ -205,11 +207,11 @@ GM.HUDBits.HUD_ALLBITS = totalbits
 totalbits = nil
 
 GM.PlayerStatus = {
-	FROZEN_MOVEMENT = 2 ^ 0,
-	SLOWED_MOVEMENT = 2 ^ 1,
-	WEAPONS_DISABLED = 2 ^ 2,
-	ACTIONS_DISABLED = 2 ^ 3,
-	
+	FROZEN_MOVEMENT 	= 2 ^ 0,
+	SLOWED_MOVEMENT 	= 2 ^ 1,
+	WEAPONS_DISABLED 	= 2 ^ 2,
+	ACTIONS_DISABLED 	= 2 ^ 3,
+	PLANB				= 2 ^ 4,
 }
 
 --[[
@@ -220,14 +222,14 @@ GM.MAX_TEAMS = 4
 
 --TODO: find a better way for this , this is still too hardcoded for my likings
 --eventually we're going to remove the RED and BLU names and make them more generic like TEAM_1 etc
-GM.TEAM_SPECTATORS 	= 1	--used for players still connecting or spectating
-GM.TEAM_DEATHMATCH	= 2	--deathmatch team, friendly fire allowed
+GM.TEAM_SPECTATORS			= 1	--used for players still connecting or spectating
+GM.TEAM_DEATHMATCH			= 2	--deathmatch team, friendly fire allowed
 GM.TEAM_RED					= 3	--red team
 GM.TEAM_BLU					= 4	--blu team
 
---TODO:
+--TODO: a way to keep track of the commands we register in the gamemode
 
-function GM:RegisterCommand( str , ... )
+function GM:RegisterCommand( str , ... , isdebugcommand )
 
 end
 
@@ -298,8 +300,12 @@ function GM:GetCameraInSequence( ply , i )
 		index = currentcamera:GetCameraIndex()
 	end
 
-	index = index + i
-
+	if i then
+		index = index + i
+	else
+		index = math.random( i , self:GetGameRules():GetCameraCount() )
+	end
+	
 	if index < 1 then
 		index = self:GetGameRules():GetCameraCount()
 	end
@@ -360,7 +366,7 @@ end
 dmginfometa = nil
 
 --receives ( argtocheck1, argtype1, argtocheck2 , argtype2 ) etc etc
-
+--TODO: test this shit
 function CheckFunctionArguments( ... )
 	local skipnext = false
 	local lastval = nil
@@ -378,10 +384,3 @@ function CheckFunctionArguments( ... )
 		end
 	end
 end
-
-
-
-
-
-
-

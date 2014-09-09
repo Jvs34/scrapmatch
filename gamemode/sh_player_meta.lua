@@ -17,11 +17,11 @@ function meta:SetupDataTables()
 	self:NetworkVar( "Bool"		, 2 , "HasVoted" )				--this player has already voted and won't be able to cast more votes
 	
 	self:NetworkVar( "Float"	, 0 , "NextJoinTeam" )				--we won't be able to change team until this expires
-	self:NetworkVar( "Float" , 1 , "NextRespawn" )				--we won't be able to respawn until this expires
+	self:NetworkVar( "Float"	, 1 , "NextRespawn" )				--we won't be able to respawn until this expires
 	self:NetworkVar( "Float"	, 2 , "LastDamageTaken" )		--this is the last time we took damage
-	self:NetworkVar( "Float" , 3 , "NextBatteryRecharge" )	--we won't be able to recharge the battery until this expires
-	self:NetworkVar( "Float" , 4 , "BatteryRechargeTime" )	--the time in seconds for the battery to fully recharge from 0 to 100
-	self:NetworkVar( "Float" , 5 , "ArmorBattery" )				--our current armor battery
+	self:NetworkVar( "Float"	, 3 , "NextBatteryRecharge" )	--we won't be able to recharge the battery until this expires
+	self:NetworkVar( "Float"	, 4 , "BatteryRechargeTime" )	--the time in seconds for the battery to fully recharge from 0 to 100
+	self:NetworkVar( "Float"	, 5 , "ArmorBattery" )				--our current armor battery
 	
 end
 
@@ -120,6 +120,16 @@ end
 
 function meta:HUDResetBits()
 	self:SetHUDBits( GAMEMODE.HUDBits.HUD_ALLBITS )
+end
+
+function meta:AddStatus( bits )
+	if bit.band( self:GetStatus() , bits ) == 0 then
+		self:SetStatus( bit.bor( self:GetStatus() , bits ))
+	end
+end
+
+function meta:HasStatus( bits )
+	return bit.band( self:GetStatus() , bits ) ~= 0
 end
 
 --unused but might be useful later on
@@ -234,31 +244,10 @@ function meta:PlaySound( soundtype , predicted )
 end
 
 function meta:CreateGibs( dmginfo )
-	--we don't really need to send the sequence / cycle to the client when dispatching the gib effect
-	--the client can just call SetupBones once on that entity and then do everything on those bones
-	
-	--this shatter percentage will be sent clientside and will be used when creating the gibs, a higher one means that
-	--the body parts will be shattered more ( for instance, 1 means that we're going to create a gib for each physics bone the player has )
-	--( while 0 means that there's going to be like 5 gibs , 4 for each limb and 1 for the torso + head )
 	local shatterperc = dmginfo:GetDamage() / self:GetMaxHealth()
 	
 	local effect = EffectData()
 	effect:SetEntity( self )
 	effect:SetScale( shatterperc )
 	util.Effect( "sm_player_gib_main" , effect )
-	--sm_player_gib_main
-		--call setupbones on the player
-		--check the percentage of shattering , get the max number of physical bones that player model has ( example, 15 )
-		--depending on the percentage, ( 15 * 0.5 ) , each gib will contain N bones ( 8 in this case )
-		--check the convar if we can create that gib
-		--loop trough all the bones , collect them into a bitflag container and feed it to the gib and relay the entity
-			--sm_player_gib
-				--get the bones we're going to get the mesh of from the bitflag
-				--add all the meshes into a table, then use the physicsinitmulticonvexes or whatever the fuck it's called to initialize our physics
-				--set our collision group depending on the cvar
-				--increase our render bounds depending on our actual mesh size
-				--set our despawn rate depending on the cvar
-				--
-		
-	ErrorNoHalt( "IMPLEMENT GIBS!!" )
 end

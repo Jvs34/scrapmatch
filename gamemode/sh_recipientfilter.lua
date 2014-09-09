@@ -71,6 +71,10 @@ function recipientmeta:AddPlayer( ply )
 		end
 	end
 	
+	if SERVER then
+		if not ply:IsConnected() then return false end
+	end
+	
 	if ply:IsBot() then return false end
 	
 	table.insert( self.Recipients , ply )
@@ -107,7 +111,7 @@ function recipientmeta:AddPlayersByCallback( callbackfunction )
 	
 	for i , v in pairs( player.GetAll() ) do
 		local ret = callbackfunction( self , v )
-		if ret then
+		if ret ~= false then
 			self:AddPlayer( v )
 		end
 	end
@@ -119,7 +123,7 @@ function recipientmeta:RemovePlayersByCallback( callbackfunction )
 	
 	for i , v in pairs( player.GetAll() ) do
 		local ret = callbackfunction( self , v )
-		if ret then
+		if ret ~= false then
 			self:RemovePlayer( v )
 		end
 	end

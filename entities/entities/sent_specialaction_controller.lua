@@ -192,7 +192,7 @@ function ENT:GetDebugInfo(actionid)
 	end
 end
 
-function ENT:GetActionByClass(classname)
+function ENT:GetActionByClass( classname )
 	for i=0, SA.MaxSpecialActions - 1 do	
 		if IsValid(self:GetActionEntity(i)) then
 			if self:GetActionEntity(i):GetType() == classname then
@@ -202,16 +202,20 @@ function ENT:GetActionByClass(classname)
 	end
 end
 
-function ENT:ReplaceAction(ent,number)
+function ENT:ReplaceAction( ent , number )
 	if not number then	number = 0 end
 	if not self:GetActionEntity(number) then
 		MsgN("can't find function GetActionEntity"..number.." ! Gee I wonder why")
 		return
 	end
 	
-	if IsValid(self:GetActionEntity(number)) then
-		MsgN("replacing "..self:GetActionEntity(number):GetType().." with "..ent:GetType().." on slot "..number)
-		self:GetActionEntity(number):Remove()
+	if IsValid( self:GetActionEntity( number ) ) then
+		if IsValid( ent ) then
+			MsgN("replacing "..self:GetActionEntity(number):GetType().." with "..ent:GetType().." on slot "..number)
+		end
+		if SERVER then
+			self:GetActionEntity(number):Remove()
+		end
 	end
 	
 	self:SetAvailableKey( number , self.DefaultKeys[number+1] )
@@ -220,19 +224,6 @@ end
 
 function ENT:GetKey(ent)
 	return self:GetAvailableKey( ent:GetSlot() )
-end
-
-function ENT:GetSaAndKeys()
-	
-	for i=0,SA.MaxSpecialActions - 1 do	
-		if IsValid(self:GetActionEntity(i)) then
-			if not self.DebugKeys[i] then self.DebugKeys[i] = {} end
-			self.DebugKeys[i][1] = self:GetActionEntity( i )
-			self.DebugKeys[i][2] = self:GetAvailableKey( i )
-		end
-	end
-	
-	return self.DebugKeys
 end
 
 function ENT:ResetKeys()

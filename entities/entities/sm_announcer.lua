@@ -51,8 +51,13 @@ if SERVER then
 	}
 else
 	ENT.Sounds = {
-
+		[ENT.Notices.FIRSTBLOOD] = {
+			SoundPath = "",	--internet path
+			SoundChannel = nil,	--the sound channel will be created and stored here
+		}
 	}
+	
+	ENT.CurrentChannel = nil	--stores the currently playing channel, which will be then stopped and replaced with another one to play
 end
 
 function ENT:Initialize()
@@ -60,21 +65,15 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetNoDraw( true )
 		self:SetName( self:GetClass() )
+	else
+		--cache all the bass sounds here and store them on the same table
+		self:CacheSounds()
 	end
 	
 end
 
 function ENT:SetupDataTables()
 
-end
-
---called when the round starts , not when it ends because a player might still go on a rampage
-
-function ENT:RoundReset()
-	self.PlayerInfo = {}
-	for i , v in pairs( self.GlobalFlags ) do
-		v.Achieved = false
-	end
 end
 
 function ENT:Think()
@@ -86,5 +85,88 @@ if SERVER then
 	function ENT:UpdateTransmitState()
 		return TRANSMIT_ALWAYS
 	end
+	
+	--called when the round starts , not when it ends because a player might still go on a rampage
 
+	function ENT:RoundReset()
+		self.PlayerInfo = {}
+		for i , v in pairs( self.GlobalFlags ) do
+			v.Achieved = false
+		end
+	end
+	
+	--called from DoPlayerDeath
+	function ENT:OnPlayerKill( ply , victim , dmginfo )
+		
+	end
+
+	--called from OnPlayerDisconnected , we keep track of the attacker so we can track ragequits
+	function ENT:OnPlayerRagequit( ply , attacker )
+		if ply:IsBot() then return end	--bots will be added/removed at anytime, so don't spam shit when they leave
+		
+		if not IsValid( attacker ) or not attacker:IsPlayer() then return end
+		
+		--the ragequit must be real! it's only considered a ragequit if that attacker had a spree which would've been worth recording
+		
+		if not self.PlayerInfo[attacker:UserID()] then return end
+		
+		if self.PlayerInfo[attacker:UserID()].Flags < self.Notices.FIRSTBLOOD then return end
+		
+		local message = {
+			message.Notice = self.Notices.RAGEQUIT,
+			message.Player = ply,
+		}
+		
+		self:SendMessage( message )
+	end
+	
+	function ENT:SendMessage( contentstab )
+		--[[
+			{
+				Notices = the notice
+				Player = player entity that caused this notice, nil if it's not valid
+				Duration = duration of the notice in seconds, uses the duration of the kill reasons by default
+			}
+		]]
+		local filter = LuaRecipientFilter()
+		filter:AddAllPlayers()
+		
+		net.Start( "sm_announcer_message" )
+			net.WriteUInt( contentstab.Notice , 16 )
+			net.WriteEntity( contentstab.Player )
+			net.WriteFloat( contentstab.Duration or 0 )
+		net.Send( filter() )
+	end
+else
+	
+	function ENT:ReceiveMessage( len )
+		if GAMEMODE.ConVars["AnnouncerMute"]:GetBool() then
+			return
+		end
+		
+		if IsValid( self.CurrentChannel ) then
+			self.CurrentChannel:Stop()
+			self.CurrentChannel = nil
+		end
+		
+		--TODO
+	end
+	
+	net.Receive( "sm_announcer_message" , function( len )
+		local announcer = GAMEMODE:GetAnnouncer()
+		if not IsValid( announcer ) then return end
+		
+		announcer:ReceiveMessage( len )
+	end)
+	
+	function ENT:CacheSounds()
+		for i , v in pairs( self.Sounds ) do
+			if not IsValid( v.SoundChannel ) then
+				sound.PlayURL( v.SoundPath , "noplay mono" , function( channel , errorid )
+					if not IsValid( channel ) then return end
+					v.SoundChannel = channel
+				end)
+			end
+		end
+	end
 end
