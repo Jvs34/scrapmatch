@@ -74,18 +74,6 @@ function GM:OnEntityCreated( ent )
 		ent:InstallDataTable()
 		ent:SetupDataTables()
 	end
-	
-	--because the player entity overrides the createclientsideragdoll hook we need to do it this way
-	--turn all ragdolls into metal
-	
-	if IsValid( ent ) and ent:IsRagdoll() then
-		for i = 0 , rag:GetPhysicsObjectCount() -1 do
-			local physobj = rag:GetPhysicsObjectNum( i )
-			if IsValid( physobj ) then
-				physobj:SetMaterial( "metal" )
-			end
-		end
-	end
 end
 
 --called from a net message from the server , these are probably not going to be used but it's nice to have them here

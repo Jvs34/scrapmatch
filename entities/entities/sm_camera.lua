@@ -11,7 +11,7 @@ function ENT:Initialize()
 		self:SetModel( "models/props_lab/labturret.mdl" )
 		self:SetCollisionBounds( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetSolid( SOLID_BBOX )
-		self:SetKeyValue( "view_ofs" , "0 0 0" )	--set to whatever the eye position of the camera ends up to be
+		--self:SetKeyValue( "view_ofs" , "0 0 0" )	--set to whatever the eye position of the camera ends up to be
 		self:SetTurnSpeed( 5 )
 		self:SetActive( true )
 		self:SetZoomLevel( 1 )
@@ -29,8 +29,8 @@ function ENT:SetupDataTables()
 	
 	self:NetworkVar( "Bool" , 0 , "Active" )					--this camera is currently active, and can be used!
 	
-	self:NetworkVar( "Ent" , 0 , "ControllingPlayer" )	--this is set for the first player spectating this entity, allows him to control it
-	self:NetworkVar( "Ent" , 1 , "TrackedEntity" )		--only for auto camera mode when there's no controlling player
+	self:NetworkVar( "Entity" , 0 , "ControllingPlayer" )	--this is set for the first player spectating this entity, allows him to control it
+	self:NetworkVar( "Entity" , 1 , "TrackedEntity" )		--only for auto camera mode when there's no controlling player
 	
 	
 	self:NetworkVar( "Float" , 0 , "TurnSpeed" )			--the turn speed to apply when the player / AI looks around
@@ -55,14 +55,25 @@ function ENT:HandleTurningSound( moving )
 			self.TurnSound:FadeOut( 1 )
 		end
 	end
+end
 
+function ENT:HandleAnimations()
+	local seq = self:LookupSequence( "aim1" )
+	if seq then
+		self:SetSequence( seq )
+	end
+	self:ManipulateBonePosition( 0 , Vector( 0, 18 ,0 ) )
+	self:ManipulateBoneAngles( 0 , Angle( -15,0,0 ) )
+	
 end
 
 function ENT:Think()
-
+	
+	self:HandleAnimations()
+	
 	if CLIENT then
 		--enables prediction on this entity if the localplayer is the same as the controlling one
-		if self:ControllingPlayer() == LocalPlayer() then
+		if self:GetControllingPlayer() == LocalPlayer() then
 			self:EnablePrediction()
 		else
 			self:DisablePrediction()
@@ -75,7 +86,6 @@ function ENT:Think()
 		self.LastAimVector = self:GetAimVector()
 	
 	else
-		
 		if self:GetDisabledTime() ~= -1 and self:GetDisabledTime() <= CurTime() and not self:GetActive() then
 			self:SetDisabledTime( -1 )
 			self:SetActive( true )
@@ -84,10 +94,7 @@ function ENT:Think()
 		--we don't have a player currently, randomly look around!
 		if self:GetActive() and not IsValid( self:GetControllingPlayer() ) then
 			self:AutoControlCamera()
-		--	self:NextThink( CurTime() + 0.2 )
-		--	return true
 		end
-	
 	end
 end
 
@@ -164,21 +171,6 @@ if SERVER then
 		return TRANSMIT_ALWAYS
 	end
 	
-	ENT.DotLightMat = Material("")
-	
-	function ENT:Draw()
-	
-		--the lab turrent doesn't actually use pose parameters , but rather sequences
-		--since we don't care for that shit, we just use the deployed sequence and then move the actual camera shared
-		--( which we're going to do either during Think and during prediction when a player is controlling us with manipulateboneangle )
-		
-		self:DrawModel()
-		
-		if self:GetActive() then
-			--draw a blinking dot on the attachment to signal we're active
-		end
-	end
-	
 	--disable the camera for a few seconds, denying any movement
 	
 	function ENT:OnTakeDamage( dmginfo )
@@ -195,5 +187,19 @@ if SERVER then
 		end
 		
 	end
-
+else
+	ENT.DotLightMat = Material("")
+	
+	function ENT:Draw()
+	
+		--the lab turrent doesn't actually use pose parameters , but rather sequences
+		--since we don't care for that shit, we just use the deployed sequence and then move the actual camera shared
+		--( which we're going to do either during Think and during prediction when a player is controlling us with manipulateboneangle )
+		
+		self:DrawModel()
+		
+		if self:GetActive() then
+			--draw a blinking dot on the attachment to signal we're active
+		end
+	end
 end

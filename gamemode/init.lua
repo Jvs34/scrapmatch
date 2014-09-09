@@ -47,7 +47,11 @@ end
 function GM:InitPostEntity()
 
 	--these entities are never going to be deleted, so it's safe to create them in InitPostEntity
-
+	local camera = ents.Create( "sm_camera" )
+	camera:SetPos( vector_origin )
+	camera:SetActive( true )
+	camera:Spawn()
+	
 	--create the game rules entity
 	local rules = ents.Create( "sm_gamerules" )
 	rules:LoadCvarSettings()
@@ -88,6 +92,7 @@ function GM:InitPostEntity()
 
 	--this forces an intermission check and starts the round right away
 	rules:GoToIntermission( 1 , true )
+
 
 end
 

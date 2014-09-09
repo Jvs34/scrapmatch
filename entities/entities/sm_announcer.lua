@@ -113,8 +113,8 @@ if SERVER then
 		if self.PlayerInfo[attacker:UserID()].Flags < self.Notices.FIRSTBLOOD then return end
 		
 		local message = {
-			message.Notice = self.Notices.RAGEQUIT,
-			message.Player = ply,
+			Notice = self.Notices.RAGEQUIT,
+			Player = ply,
 		}
 		
 		self:SendMessage( message )

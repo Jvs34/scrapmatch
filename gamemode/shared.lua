@@ -1,6 +1,10 @@
-DeriveGamemode("base")
-
-DEFINE_BASECLASS( "gamemode_base" )
+if not game.IsDedicated() then
+	DeriveGamemode("sandbox")
+	DEFINE_BASECLASS( "gamemode_sandbox" )
+else
+	DeriveGamemode("base")
+	DEFINE_BASECLASS( "gamemode_base" )
+end
 
 include("sh_recipientfilter.lua")
 include("sh_specialaction.lua")
@@ -229,7 +233,7 @@ GM.TEAM_BLU					= 4	--blu team
 
 --TODO: a way to keep track of the commands we register in the gamemode
 
-function GM:RegisterCommand( str , ... , isdebugcommand )
+function GM:RegisterCommand( str , ... )
 
 end
 

@@ -395,7 +395,7 @@ function GM:SetupMove( ply , mv , cmd )
 		
 		local currentcamera = ply:GetObserverTarget()
 		
-		if currentcamera:GetClass() == "sm_camera" then
+		if IsValid( currentcamera ) and currentcamera:GetClass() == "sm_camera" then
 			mv:SetOrigin( currentcamera:EyePos() )
 			currentcamera:ControlCamera( ply , mv , cmd )
 		end

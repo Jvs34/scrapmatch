@@ -176,7 +176,7 @@ if SERVER then
 						value = math.Clamp( value , self.VoteData[votetype].Min , self.VoteData[votetype].Max )
 					end
 					self:SetVoteDataFloat( value )
-				elseif typ = "Entity" then
+				elseif typ == "Entity" then
 					local value = net.ReadEntity()
 					
 					--the user gave us something that is clientside only (like gibs that he can fire trace on?) or that was deleted soon before he sent the message
