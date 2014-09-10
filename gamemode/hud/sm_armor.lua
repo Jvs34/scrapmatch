@@ -22,25 +22,20 @@ function PANEL:Init()
 	
 	self.ArmorLabel = self:Add( "DLabel" )
 	self.ArmorLabel:Dock( FILL )
-	self.ArmorLabel:SetText( "100" )
+	self.ArmorLabel:SetText( "0" )
 	self.ArmorLabel:SetFont( self.Font )
 	self.ArmorLabel:SetContentAlignment( 5 )
 	self.ArmorLabel:SetTextColor( Color( 70 , 70 , 220 ) )
 	self.ArmorLabel.OriginalColor = self.ArmorLabel:GetTextColor()
-	self.LastArmor =	0
+	self.LastArmor = -1
 end
 
---DISABLED FOR NOW , this will be the default behaviour later on, but now we just need to see all the HUD elements for debugging
-
---
---[[
 function PANEL:ShouldBeVisible()
 	if IsValid( self:GetMyPlayer() ) and self:GetMyPlayer():GetArmorBattery() <= 1 then
 		return false
 	end
 	return self.BaseClass.ShouldBeVisible( self )
 end
-]]
 
 local function ArmorChangedAnimationThink( self , panel , fraction )
 	if not self.CalculatedColor then
@@ -58,12 +53,8 @@ end
 
 function PANEL:Think()
 	self.BaseClass.Think( self )
+	
 	if IsValid( self:GetMyPlayer() ) then
-		
-		if not self:GetMyPlayer():Alive() then
-			self.LastArmor = -1
-		end
-		
 		if self:GetMyPlayer():GetArmorBattery() ~= self.LastArmor then
 			
 			local val = math.Round( self:GetMyPlayer():GetArmorBattery() )
@@ -81,6 +72,8 @@ function PANEL:Think()
 			
 			self.LastArmor = self:GetMyPlayer():GetArmorBattery()
 		end
+	else
+		self.LastArmor = -1
 	end
 end
 

@@ -1,5 +1,5 @@
 --[[
-	this hud has two states, votestart and votecast 
+	this panel holds two children, votestart and votecast 
 	the votestart is used by the first player when he's deciding what to vote for, parses the options and rules from the vote controller,
 		the player is shown all the options, such as ENT.VoteTypes.ROUNDFLAGS , which then shows all the valid options the player can input , the player can still back out of this menu
 		to change his choice
