@@ -64,7 +64,7 @@ end
 
 function GM:OnLocalPlayerTakeDamage( len )
 
-	local selfdamage = tobool( net.ReadBit() )
+	local wasselfdamage = tobool( net.ReadBit() )
 	local dmg = net.ReadFloat()
 	local dmgtype = net.ReadUInt( 32 )
 	local damagepos = net.ReadVector()
@@ -77,7 +77,7 @@ function GM:OnLocalPlayerTakeDamage( len )
 	
 	if not IsValid( dmgpanel ) then return end
 	
-	dmgpanel:ReceiveDamage( selfdamage , dmg , dmgtype , damagepos )
+	dmgpanel:ReceiveDamage( wasselfdamage , dmg , dmgtype , damagepos )
 	
 end
 

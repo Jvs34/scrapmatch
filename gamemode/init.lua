@@ -127,6 +127,11 @@ end
 
 function GM:RoundStart()
 
+	local announcer = self:GetAnnouncer()
+	if IsValid( announcer ) then
+		announcer:RoundReset()
+	end
+	
 	--cleanup the whole map, ignore the entities in the cleanupfilter
 	MsgN( "Round started" )
 	self:GetGameRules():SetRoundWinner( nil )

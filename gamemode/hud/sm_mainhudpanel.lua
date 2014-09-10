@@ -57,10 +57,13 @@ end
 
 
 function PANEL:PerformLayout( w , h )
-	--self:SetSize( w , h )	--INVESTIGATE: is this causing infinite performlayouts or is it actually the docking on the gmod panel doing it?
 	
 	--perform our custom layout here based on the suggested positions of our hud elements
 	--remember that they have to be dynamically scaled , so scale them on our size ( since it should be the same as the whole screen )
+	
+	--TODO: should this even use the docking system? goddamnit
+	--		also this shouldn't be called every frame like it currently is, otherwise animations involving movement are gonna fuck up
+	
 	for i , v in pairs( self.HUDPanels ) do
 		if IsValid( v ) then
 			local w = self:GetWide() * v:GetSuggestedW()

@@ -166,7 +166,10 @@ if SERVER then
 				end
 			)
 			filter:AddPlayer( ply )
-
+			
+			--this is pretty much a better version of player_hurt, we're going to send it only to this player and to players spectating him
+			--this is used for the damage location hud , mostly to look like the one in tf2
+			
 			net.Start( "sm_damageinfo" )
 				net.WriteBit( attacker == ply )
 				net.WriteFloat( damage )
@@ -215,6 +218,13 @@ if SERVER then
 		--handle the Kill reasons here
 		ply:PlaySound( "DEATH" )
 		ply.LastAttacker = attacker
+		
+		local announcer = self:GetAnnouncer()
+		
+		if IsValid( announcer ) and IsValid( ply.LastAttacker ) and ply.LastAttacker:IsPlayer() then
+			announcer:OnPlayerKill( ply.LastAttacker , ply , dmginfo )
+		end
+		
 	end
 	
 	function GM:OnPlayerDisconnected( ply )
@@ -277,6 +287,17 @@ if SERVER then
 		end
 		return ply:Team() ~= self.TEAM_SPECTATORS
 	end
+	
+else
+
+	function GM:PrePlayerDraw( ply )
+		--TODO: render the player's multimodel here instead, then force the drawing of his weapon a
+	end
+
+	function GM:PostPlayerDraw( ply )
+	
+	end
+	
 end
 
 function GM:StartCommand( ply , cmd )

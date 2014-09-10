@@ -34,11 +34,11 @@ end
 
 --
 --[[
-function PANEL:CheckVisibility()
+function PANEL:ShouldBeVisible()
 	if IsValid( self:GetMyPlayer() ) and self:GetMyPlayer():GetArmorBattery() <= 1 then
 		return false
 	end
-	return self.BaseClass.CheckVisibility( self )
+	return self.BaseClass.ShouldBeVisible( self )
 end
 ]]
 

@@ -33,7 +33,7 @@ if SERVER then
 		},
 		[ENT.Notices.RAMPAGE] = {
 			Kills = 0,
-			KillsPercent = 1,	--he has to slay the entire enemy team
+			KillsPercent = 1,	--he has to slay an amount of players equal to their ( in case of deathmatch, his ) team size
 			SameFrame = false
 		},
 	}
@@ -52,8 +52,14 @@ if SERVER then
 else
 	ENT.Sounds = {
 		[ENT.Notices.FIRSTBLOOD] = {
-			SoundPath = "",	--internet path
+			SoundPath = "https://dl.dropboxusercontent.com/u/20140357/filessharex/announcer_1stblood_01.mp3",
 			SoundChannel = nil,	--the sound channel will be created and stored here
+			SoundType = "url",	--either "url" or "file"
+		},
+		[ENT.Notices.DOUBLEKILL] = {
+			SoundPath = "https://dl.dropboxusercontent.com/u/20140357/filessharex/announcer_kill_double_01.mp3",
+			SoundChannel = nil,	--the sound channel will be created and stored here
+			SoundType = "url",	--either "url" or "file"
 		}
 	}
 	
@@ -117,7 +123,7 @@ if SERVER then
 			Player = ply,
 		}
 		
-		self:SendMessage( message )
+		--self:SendMessage( message )
 	end
 	
 	function ENT:SendMessage( contentstab )
@@ -162,7 +168,13 @@ else
 	function ENT:CacheSounds()
 		for i , v in pairs( self.Sounds ) do
 			if not IsValid( v.SoundChannel ) then
-				sound.PlayURL( v.SoundPath , "noplay mono" , function( channel , errorid )
+				local functouse = sound.PlayURL
+				
+				if v.SoundType == "file" then
+					functouse = sound.PlayFile
+				end
+				
+				functouse( v.SoundPath , "noplay mono" , function( channel , errorid )
 					if not IsValid( channel ) then return end
 					v.SoundChannel = channel
 				end)
