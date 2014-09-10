@@ -1,4 +1,4 @@
-local VER = 2.69
+local VER = 2.6
 if MODULE_MULTIMODEL_VERSION and MODULE_MULTIMODEL_VERSION >= VER then
 	return
 end
@@ -113,6 +113,9 @@ end
 
 ----------------------------------------------------------------------------------
 
+RENDERER = ClientsideModel("models/props_junk/watermelon01.mdl", RENDERGROUP_OPAQUE)
+RENDERER:SetNoDraw(true)
+RENDERER:SetIK(false)
 
 local function DrawChild(tbl, ent, param)
 	if type(tbl) ~= "table" then return end
@@ -175,24 +178,30 @@ local function DrawChild(tbl, ent, param)
 	then
 		-- nothing
 	elseif tbl.model and tbl.model~="" then
-		
-		if not IsValid( tbl.renderer ) then
-			tbl.renderer = ClientsideModel("models/props_junk/watermelon01.mdl", RENDERGROUP_OPAQUE)
+		--[[Jvs: what I fear is that if the new model is the same as the old one, the RenderMultiply matrix
+			won't actually get flushed, so to fix it we'll first set the model to a blank one and then to the one we want
+		]]
+		RENDERER:SetModel("models/Gibs/HGIBS.mdl")
+		--[[
+			Jvs:yes, as I suspected, it actually gets cached, setting it to a different model is the only way to fix it.
+			(apparently disablematrix is not fast enough?)
+		]]
+		RENDERER:SetModel(tbl.model)
+		RENDERER:SetPos(m:GetTranslation())
+		RENDERER:SetAngles(m:GetAngles())
+		--[[Jvs:R.I.P. old method of scaling
+			RENDERER:SetModelScale(scale)
 			
-			tbl.renderer:SetNoDraw(true)
-			tbl.renderer:SetIK(false)
-		end
-
-		tbl.renderer:SetModel(tbl.model)
-		tbl.renderer:SetPos(m:GetTranslation())
-		tbl.renderer:SetAngles(m:GetAngles())
-
+			I wonder if I can reuse m instead of creating a new Matrix
+			Yes, I can reuse it, and it'll replace RENDERER:SetPos, but for some reason the angles are a bit off
+			Maybe the pitch and yaw got inverted?
+		]]
 		local mat = Matrix() 
 		mat:Scale( scale ) 
-		tbl.renderer:EnableMatrix( "RenderMultiply" , mat )
+		RENDERER:EnableMatrix( "RenderMultiply",mat) --mat )
 		
 		
-		local min, max = tbl.renderer:GetRenderBounds()
+		local min, max = RENDERER:GetRenderBounds()
 		
 		if not ent.RenderBounds[1] then
 			ent.RenderBounds[1] = min
@@ -206,7 +215,7 @@ local function DrawChild(tbl, ent, param)
 			OrderVectors(max, ent.RenderBounds[2])
 		end
 		
-		tbl.renderer:SetSkin(tbl.skin or 0)
+		RENDERER:SetSkin(tbl.skin or 0)
 		
 		local s = (ent.GetSkin and ent:GetSkin()) or 0
 		local r0, g0, b0, a0
@@ -241,7 +250,7 @@ local function DrawChild(tbl, ent, param)
 		if tbl.clipplanes then
 			clipping=render.EnableClipping(true)
 			for _,v in ipairs(tbl.clipplanes) do
-				local pos, ang = LocalToWorld(v[1], v[2]:Angle(), tbl.renderer:GetPos(), tbl.renderer:GetAngles())
+				local pos, ang = LocalToWorld(v[1], v[2]:Angle(), RENDERER:GetPos(), RENDERER:GetAngles())
 				local dir = ang:Forward()
 				
 				render.PushCustomClipPlane(dir, dir:Dot(pos))
@@ -260,11 +269,7 @@ local function DrawChild(tbl, ent, param)
 			render.UpdateRefractTexture()
 		end
 		
-		if not tbl.noshadow then
-			tbl.renderer:CreateShadow()
-		end
-		
-		tbl.renderer:DrawModel()
+		RENDERER:DrawModel()
 		
 		if tbl.reversecull then
 			render.CullMode(MATERIAL_CULLMODE_CCW)
@@ -286,7 +291,7 @@ local function DrawChild(tbl, ent, param)
 			render.SetBlend(1)
 			render.SetColorModulation(1,1,1,1)
 		end
-		tbl.renderer:DisableMatrix("RenderMultiply")
+		RENDERER:DisableMatrix("RenderMultiply")
 	elseif tbl.sprite and not param.nosprites and not param.modelonly then
 		if type(tbl.sprite)=="string" then tbl.sprite = Material(tbl.sprite) end
 		render.SetMaterial(tbl.sprite)
