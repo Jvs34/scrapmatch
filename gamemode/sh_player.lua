@@ -268,6 +268,14 @@ if SERVER then
 
 	--we can't start votes if we just joined the server!
 	function GM:CanStartVote( ply , voteentity )
+		if not IsValid( ply ) then return end
+		
+		local gamerules = self:GetGameRules()
+		if IsValid( gamerules ) then
+			if gamerules:IsRoundFlagOn( self.RoundFlags.GAMEOVER ) then
+				return false
+			end
+		end
 		return ply:TimeConnected() >= self:GetVoteController():GetVoteDuration()
 	end
 	
@@ -291,7 +299,7 @@ if SERVER then
 else
 
 	function GM:PrePlayerDraw( ply )
-		--TODO: render the player's multimodel here instead, then force the drawing of his weapon a
+		--TODO: render the player's multimodel here instead, then force the drawing of his weapon as usual
 	end
 
 	function GM:PostPlayerDraw( ply )
@@ -312,7 +320,7 @@ function GM:StartCommand( ply , cmd )
 		end
 	end
 	
-	if not IsValid( camera ) then
+	if not IsValid( ply:GetObserverTarget() ) then
 		ply:SetFOV( 0 , 0 )
 	end
 	

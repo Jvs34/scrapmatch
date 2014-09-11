@@ -61,10 +61,10 @@ function ENT:GetHighestScore()
 			if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then continue end
 			if teament:GetTeamScore() > score then
 				score = teament:GetTeamScore()
-				teamwinner = teament
+				winnerteam = teament
 			end
 		end
-	return score , teamwinner
+	return score , winnerteam
 end
 
 function ENT:GetHighestScorerOnTeam( i )

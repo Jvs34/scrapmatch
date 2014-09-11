@@ -41,7 +41,7 @@ GM.CleanupFilter = {
 }
 
 function GM:Initialize()
-	--version check maybe?
+	--create a scrapmatch folder on the server's data folder
 end
 
 function GM:InitPostEntity()
@@ -98,13 +98,12 @@ end
 
 
 function GM:VoteConcluded( voteentity , votetype , votedata )
-	if not IsValid( voteentity ) then return end	--this should never happen since we got this called from the vote entity itself!
-
+	
 	if voteentity:GetAgreeCount() > voteentity:GetDisagreeCount() then
 		ErrorNoHalt( "Vote succeeded" )
 		--TODO: apply the vote, change whatever flags it needed to
 	else
-		ErrorNoHalt( "Vote failed" )
+		ErrorNoHalt( "Vote failed, either the vote tied or not enough agrees" )
 	end
 
 	for i , v in pairs( player.GetAll() ) do
@@ -201,7 +200,8 @@ end
 function GM:GameOver()
 	--get the map that was voted previously , otherwise just use the one in mapcycle.txt
 	
-	--game.LoadNextMap( )
+	game.ConsoleCommand( "changelevel gm_construct\n" )
+	--game.LoadNextMap()
 end
 
 function GM:AddScore( ply , score )

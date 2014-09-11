@@ -3,6 +3,7 @@ AddCSLuaFile()
 if SERVER then
 	util.AddNetworkString("sm_votecontroller_startvote")
 	util.AddNetworkString("sm_votecontroller_castvote")
+	util.AddNetworkString("sm_votecontroller_endvote")
 end
 
 ENT.Type 			= "anim"
@@ -36,6 +37,7 @@ ENT.VoteData = {
 	},
 	[ENT.VoteTypes.ROUNDFLAGS] = {
 		Type = "Int",	--contains the id of the round flags we want to play with
+		FromTable = GAMEMODE.RoundFlags,	--contains the table we should show stuff from
 		Exclude = {
 			GAMEMODE.RoundFlags.INTERMISSION,
 			GAMEMODE.RoundFlags.GAMEOVER,

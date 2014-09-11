@@ -26,15 +26,15 @@ function GM:InitPostEntity()
 	--the user just fully loaded (?)
 	--show him a panel like this
 	--[[
-		Welcome to scrapmatch! the current mode is "DEATHMATCH / TEAM DEATHMATCH"
-		Collect items by walking on them, you can use two weapons at the same time with <+attack> and <+attack2>.
+		"Welcome to scrapmatch! the current mode is "DEATHMATCH / TEAM DEATHMATCH" "
+		"Collect items by walking on them, you can use two weapons at the same time with <+attack> and <+attack2>."
 		
 		<three images of a robot with default weapons using pickups and then equipping them>
 		
-		You can drop the items you've picked up with <specialactionslot1 up to 5>
-		Dropping your weapons will restore the default ones ( you cannot drop your default items ).
+		"You can drop the items you've picked up with <specialactionslot1 up to 5>"
+		"Dropping your weapons will restore the default ones ( you cannot drop your default items )."
 		
-		You can configure settings such as crosshair size, max gibs count and so on in the options menu.
+		"You can configure settings such as crosshair size, max gibs count and so on in the options menu."
 		<image of the options menu>
 	
 		<ok button> <tick never show this again>
