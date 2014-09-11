@@ -9,10 +9,11 @@ function team.SetUp() end
 function team.SetClass( id, classtable ) end
 function team.GetClass( id ) end
 
-function team.GetSpawnPoint( id ) 
+function team.GetSpawnPoint( id , ply )
 	local teament = GAMEMODE:GetTeamEnt( id )
 	
 	--TODO: actually run some avoidance logic here , copy it from the hl2:dm code in the sourcesdk2013
+	--go trough all the spawn points, if ply is valid then use his bounds on the hull traces, otherwise use the default ones
 	
 	if IsValid( teament ) then
 		return table.Random( ents.FindByClass( teament:GetTeamSpawnPoint() ) )

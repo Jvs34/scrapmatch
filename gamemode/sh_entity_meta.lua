@@ -14,7 +14,10 @@ end
 if CLIENT then
 	net.Receive("sm_predicted_sound", function( len )
 		local ent = net.ReadEntity()
+		
+		--hah, this is gonna act as the pvs culling! ( shhh , not a hack at all due to the lack of pvs functions in the Lua filter )
 		if not IsValid( ent ) then return end
+		
 		local soundstring = net.ReadString()
 		local level = net.ReadInt( 16 )
 		local pitch = net.ReadInt( 16 )
@@ -40,9 +43,9 @@ if CLIENT then
 		ent:EmitSound( soundstring , level , pitch , volume , channel )
 	end)
 	
-	function meta:EmitPredictedSound( ... )
+	function meta:EmitPredictedSound( soundstring , level , pitch , volume , channel )
 		if IsFirstTimePredicted() then
-			self:EmitSound( ... )
+			self:EmitSound( soundstring , level , pitch , volume , channel )
 		end
 	end
 else

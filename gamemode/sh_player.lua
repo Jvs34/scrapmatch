@@ -386,22 +386,23 @@ function GM:SetupMove( ply , mv , cmd )
 	
 	--TODO: also force the scoreboard on if the game is over
 	
-	if mv:KeyDown( IN_SCORE ) then
-		ply:HUDAddBits( GAMEMODE.HUDBits.HUD_SCOREBOARD )
+	local gamerules = self:GetGameRules()
+	local forcescoreboard = IsValid( gamerules ) and gamerules:IsRoundFlagOn( self.RoundFlags.GAMEOVER )
+
+	
+	if mv:KeyDown( IN_SCORE ) or forcescoreboard then
+		ply:HUDAddBits( self.HUDBits.HUD_SCOREBOARD )
 	else
-		ply:HUDRemoveBits( GAMEMODE.HUDBits.HUD_SCOREBOARD )
+		ply:HUDRemoveBits( self.HUDBits.HUD_SCOREBOARD )
 	end
 	
-	--disabled for now, this spams quite a bit
+	--TODO: handle action dropping
 	--[[
 	for i , v in pairs( self.CustomInputs ) do
 		local button = v.Value
 
 		if not button then continue end
-
-		--handle dropping special actions here! we just want to delete them during prediction, or at least remove their entity serverside
-		--and reset the DT vars containing that entity shared
-
+	
 		if bit.band( ply:GetExtraButtons() , button ) ~= 0 then
 
 			MsgN( ply:Nick().." pressed "..i )
@@ -443,7 +444,7 @@ function GM:PlayerTick( ply , mv )
 end
 
 function GM:FinishMove( ply , mv )
-	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area
+	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area (????)
 	--ply:HandleFootsteps()
 end
 

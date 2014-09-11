@@ -249,6 +249,9 @@ if SERVER then
 	
 	function ENT:OnRemove()
 		self:RemoveCvarCallbacks()
+		if not self:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
+			ErrorNoHalt( "The Game rules entity has been deleted without a gameover!!!!" )
+		end
 	end
 	
 else

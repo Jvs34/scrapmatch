@@ -13,7 +13,7 @@ TR_ID_TO_STRING = {}
 
 OUTPUT_TARGET = nil
 
-RENDERING = false
+local RENDERINGMODEL = false
 
 function Register(name, tbl)
 	if CLIENT then
@@ -98,14 +98,15 @@ end
 
 ----------------------------------------------------------------------------------
 
+--basically, this hack is here beacause EF_NODRAW prevents the shadow from being drawn,
+--so in the end we never apply EF_NODRAW , but we prevent the renderer from drawing outside of multimodel stuff
+--to achieve the same purpose, and retain the shadows functionality
 local function RenderOverride( self )
-	if not RENDERING then 
+	if not RENDERINGMODEL then 
 		self:DestroyShadow()
 		return 
 	end
 	
-	self:DestroyShadow()
-	self:CreateShadow()
 	self:DrawModel()
 end
 
@@ -191,7 +192,7 @@ local function DrawChild(tbl, ent, param)
 	then
 		-- nothing
 	elseif tbl.model and tbl.model~="" then
-		RENDERING = true
+		RENDERINGMODEL = true
 		if not IsValid( tbl.renderer ) then
 			tbl.renderer = ClientsideModel("models/props_junk/watermelon01.mdl", RENDERGROUP_OPAQUE)
 			tbl.renderer:SetIK(false)
@@ -276,6 +277,12 @@ local function DrawChild(tbl, ent, param)
 			render.UpdateRefractTexture()
 		end
 		
+		if tbl.noshadow or param.noshadow then
+			tbl.renderer:DestroyShadow()
+		else
+			tbl.renderer:CreateShadow()
+		end
+		
 		tbl.renderer:DrawModel()
 		
 		if tbl.reversecull then
@@ -298,7 +305,7 @@ local function DrawChild(tbl, ent, param)
 			render.SetBlend(1)
 			render.SetColorModulation(1,1,1,1)
 		end
-		RENDERING = false
+		RENDERINGMODEL = false
 	elseif tbl.sprite and not param.nosprites and not param.modelonly then
 		if type(tbl.sprite)=="string" then tbl.sprite = Material(tbl.sprite) end
 		render.SetMaterial(tbl.sprite)

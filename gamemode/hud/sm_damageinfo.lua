@@ -8,8 +8,10 @@ AccessorFunc(	PANEL	, "_DamageEndRadius"	,	"DamageEndRadius"	,	FORCE_NUMBER	)
 
 
 function PANEL:Init()
+	self:SetDamageTimeOnScreen( 2 )
 	self.BaseClass.Init( self )
 	self:AssociateHUDBits( GAMEMODE.HUDBits.HUD_HEALTH )
+	
 end
 
 function PANEL:ShouldBeVisible()
