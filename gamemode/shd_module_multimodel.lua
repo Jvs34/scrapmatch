@@ -13,6 +13,8 @@ TR_ID_TO_STRING = {}
 
 OUTPUT_TARGET = nil
 
+RENDERING = false
+
 function Register(name, tbl)
 	if CLIENT then
 		MODELS[name] = tbl
@@ -96,6 +98,20 @@ end
 
 ----------------------------------------------------------------------------------
 
+local function RenderOverride( self )
+	if not RENDERING then 
+		self:DestroyShadow()
+		return 
+	end
+	
+	self:DestroyShadow()
+	self:CreateShadow()
+	self:DrawModel()
+end
+
+
+----------------------------------------------------------------------------------
+
 local function DoFrameAdvanceChild(tbl, time, ent)
 	if type(tbl) ~= "table" then return end
 	
@@ -175,14 +191,14 @@ local function DrawChild(tbl, ent, param)
 	then
 		-- nothing
 	elseif tbl.model and tbl.model~="" then
-		
+		RENDERING = true
 		if not IsValid( tbl.renderer ) then
 			tbl.renderer = ClientsideModel("models/props_junk/watermelon01.mdl", RENDERGROUP_OPAQUE)
-			
-			tbl.renderer:SetNoDraw(true)
 			tbl.renderer:SetIK(false)
+			tbl.renderer.RenderOverride = RenderOverride
 		end
-
+		
+		
 		tbl.renderer:SetModel(tbl.model)
 		tbl.renderer:SetPos(m:GetTranslation())
 		tbl.renderer:SetAngles(m:GetAngles())
@@ -260,10 +276,6 @@ local function DrawChild(tbl, ent, param)
 			render.UpdateRefractTexture()
 		end
 		
-		if not tbl.noshadow then
-			tbl.renderer:CreateShadow()
-		end
-		
 		tbl.renderer:DrawModel()
 		
 		if tbl.reversecull then
@@ -286,7 +298,7 @@ local function DrawChild(tbl, ent, param)
 			render.SetBlend(1)
 			render.SetColorModulation(1,1,1,1)
 		end
-		tbl.renderer:DisableMatrix("RenderMultiply")
+		RENDERING = false
 	elseif tbl.sprite and not param.nosprites and not param.modelonly then
 		if type(tbl.sprite)=="string" then tbl.sprite = Material(tbl.sprite) end
 		render.SetMaterial(tbl.sprite)
