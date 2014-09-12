@@ -10,11 +10,16 @@ if SERVER then
 		ply:SetHasVoted( false )
 		ply:SetNextJoinTeam( CurTime() )
 		ply:SetNextRespawn( CurTime() )
+		
+		--bots can't use commands properly yet ( because ConCommand actually sends a cmd on their client to make them run it )
+		--so force them to autojoin a team
+		
 		if ply:IsBot() then
 			self:JoinTeam( ply , team.BestAutoJoinTeam() , false )
 		else
 			self:JoinTeam( ply , self.TEAM_SPECTATORS , false )
 		end
+		
 	end
 
 	function GM:PlayerSpawn( ply )
@@ -120,7 +125,13 @@ if SERVER then
 
 
 		local dmgtype = dmginfo:GetDamageType()
-
+		
+		--this damage type was set from some engine entities or by some other hidden behaviour, default it to the crush damage
+		if not self.DamageTypes[dmgtype] then
+			dmginfo:SetDamageTypeFromName( "Crush" )
+			dmgtype = dmginfo:GetDamageType()
+		end
+		
 		--battery damage reduction, also send a message to the client about the damage taken, player_hurt does that in a shitty way
 		if damageallowed and self.DamageTypes[dmgtype] then
 
@@ -452,6 +463,16 @@ function GM:PlayerTick( ply , mv )
 end
 
 function GM:FinishMove( ply , mv )
+	--damage the player if he's knee deep in water
+	if ply:WaterLevel() > 2 then
+		
+		--TODO:proper damage overtime and disable swimming
+		
+		if SERVER then
+			ply:Kill()
+		end
+		
+	end
 	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area (????)
 	--ply:HandleFootsteps()
 end
