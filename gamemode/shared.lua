@@ -358,33 +358,23 @@ local dmginfometa = FindMetaTable( "CTakeDamageInfo" )
 --used by special actions when constructing a new damage info
 --note, we don't set the actual damage type flags here , but just the index because we want an easier time at checking the damage type in EntityTakeDamage
 function dmginfometa:SetDamageTypeFromName( name )
+	CheckFunctionArguments( { name , TYPE_STRING } )
+	
 	for i,v in pairs( GAMEMODE.DamageTypes ) do
 		if name:lower() == v.Name:lower() then
 			self:SetDamageType( i )
 			return
 		end
 	end
-	Error( "Could not find damage type " .. name .. "\n")
+	
 end
 
 dmginfometa = nil
 
---receives ( argtocheck1, argtype1, argtocheck2 , argtype2 ) etc etc
+--receives ( {argtocheck1, argtype1 }, argtocheck2 , argtype2 ) etc etc
 --TODO: test this shit
 function CheckFunctionArguments( ... )
-	local skipnext = false
-	local lastval = nil
-	for i , v in pairs( {...} ) do
-		if not skipnext then
-			skipnext = true
-			lastval = v
-			continue
-		else
-			if v ~= TypeID( lastval ) then
-				error( "Received wrong type at argument #"..i , -3 )
-			end
-			skipnext = false
-			lastval = nil
-		end
+	for i , v in ipairs( {...} ) do
+		assert( v[2] == TypeID( v[1] ) , "Received wrong type at argument #"..i )
 	end
 end

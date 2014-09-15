@@ -1,6 +1,5 @@
 AddCSLuaFile()
 
-
 --[[
 	this is a glorified net message , we're going to call setupbones on the player ,
 	get the shatter percentage and then spawn as many sm_player_gibs as computed
@@ -8,80 +7,45 @@ AddCSLuaFile()
 ]]
 
 function EFFECT:Init( data )
-	local owner = data:GetEntity()
+	self.Direction = data:GetAngles()
+	self.Speed = data:GetScale()
 	
-	--the player might not be valid or simply outside of our PVS, early out
-	if not IsValid( owner ) then return end
+	self.Owner = data:GetEntity()
+	if not IsValid( self.Owner ) then return end
 	
-	local shatterperc = math.Clamp( data:GetScale() , 0 , 1 )	--clamp the percentage because stuff might do overkill damage
+	self.Owner:SetupBones()
 
 	
-	owner:SetupBones()
-	
-	
-	
-	local physbonecount = 0
-	
-	for i = 0 , owner:GetBoneCount() - 1 do
-		local physbone = owner:TranslateBoneToPhysBone( i )
-		if physbone ~= -1 then
-			physbonecount = physbonecount + 1
-		end
-	end
-	
-	--we should create these many gibs
-	
-	local bonespergib = math.floor( physbonecount * shatterperc )
-	
+	local bones = self.Owner:GetHitBoxCount( 0 ) - 1
+	local gibs = bones
+	local bonespergib = math.Round( ( self.Owner:GetHitBoxCount( 0 ) ) / gibs )
 	local currentgib = nil
-	
-	local bonecount = 0
-	
-	local gibcount = 0
-	--[[
-	for i = 0 , owner:GetBoneCount() - 1 do
-		
-		local bm = owner:GetBoneMatrix( i )
-	
-		--this bone is valid
-		if bm then
-		
-			local physbone = owner:TranslateBoneToPhysBone( i )
-			
-			--this bone doesn't have a physics bone associated to it, don't care
-			
-			if physbone == -1 then continue end
 
-			if not currentgib then
-				currentgib = EffectData()
-				currentgib:SetAttachment( 0 )
-				currentgib:SetEntity( owner )
-				bonecount = 0
-			end
-			
-			currentgib:SetAttachment( bit.bor( currentgib:GetAttachment() , 2 ^ physbone ) )
-			
-			bonecount = bonecount + 1
-			
-			if bonecount >= bonespergib then
-				
-				util.Effect( "sm_player_gib" , currentgib )
-				MsgN("CREATED GIB")
-				
-				currentgib = nil
-			end
+	local bonecount = 0
+
+	for i = 0 , bones do
+		bonecount = bonecount + 1
+		
+		if not currentgib then
+			currentgib = EffectData()
+			currentgib:SetEntity( self.Owner )
+			currentgib:SetAngles( self.Direction )
+			currentgib:SetScale( self.Speed )
+			currentgib:SetDamageType( 0 )
 			
 		end
-	
+		
+		currentgib:SetDamageType( bit.bor( currentgib:GetDamageType() , 2 ^ i ) )
+		
+		if bonecount >= bonespergib or ( i == bones and currentgib ) then
+			util.Effect( "sm_player_gib" , currentgib )
+			currentgib = nil
+			bonecount = 0
+		end
+		
 	end
-	]]
-	
 end
 
---don't care about this, just remove the entity right away
 function EFFECT:Think()
 	return false
-end
-
-function EFFECT:Render()
 end

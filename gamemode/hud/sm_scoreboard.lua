@@ -82,6 +82,7 @@ end
 function PANEL:Think()
 	if IsValid( self:GetTeam() ) then
 		self.TeamName:SetText( self:GetTeam():GetTeamName() )
+		self.TeamName:SetColor( self:GetTeam():GetTeamColor() )
 		if self:GetTeam():GetTeamRoundsWon() ~= -1 then
 			self.TeamName:SetText( self.TeamName:GetText() .. " " ..self:GetTeam():GetTeamRoundsWon()  )
 		end

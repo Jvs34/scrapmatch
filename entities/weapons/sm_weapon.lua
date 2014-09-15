@@ -8,7 +8,7 @@ SWEP.Instructions	= "Left click to shoot left action, right to shoot the right o
 SWEP.ViewModelFOV	= 54
 SWEP.ViewModelFlip	= true
 SWEP.ViewModelFlip1	= false
-SWEP.ViewModel			= "models/weapons/v_pistol.mdl"
+SWEP.ViewModel			= "models/weapons/c_pistol.mdl"
 SWEP.WorldModel		= "models/weapons/w_pistol.mdl"
 
 SWEP.Spawnable			= false

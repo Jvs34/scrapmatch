@@ -67,6 +67,21 @@ function CreateInstance(name)
 	end
 end
 
+function CleanInstance( tbl )
+	for i , v in pairs( tbl ) do
+		
+		if IsValid( v ) and type( v ) == "CSEnt" then
+			v:Remove()
+		end
+		
+		if type( v ) == "table" then
+			CleanInstance( tbl )
+		end
+		
+		tbl[ i ] = nil
+	end
+end
+
 -- When rendering a multimodel, nodes with an outputname set will write their position and angle to the output table
 -- This is useful for attaching effects to a multimodel after rendering it
 function SetOutputTarget(tbl)
@@ -109,7 +124,6 @@ local function RenderOverride( self )
 	
 	self:DrawModel()
 end
-
 
 ----------------------------------------------------------------------------------
 

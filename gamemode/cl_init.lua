@@ -91,6 +91,11 @@ function GM:OnEntityCreated( ent )
 		ent:InstallDataTable()
 		ent:SetupDataTables()
 	end
+	
+	--apply a render override to render the player model
+	if ent:GetClass() == "class C_HL2MPRagdoll" then
+	
+	end
 end
 
 --called from a net message from the server , these are probably not going to be used but it's nice to have them here
@@ -111,7 +116,7 @@ function GM:OnReloaded()
 	self:CreateHUD()
 end
 
-local meta = FindMetaTable( "CSent" )
+local meta = FindMetaTable( "CSEnt" )
 if not meta then return end
 
 function meta:__gc()

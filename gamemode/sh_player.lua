@@ -464,7 +464,7 @@ end
 
 function GM:FinishMove( ply , mv )
 	--damage the player if he's knee deep in water
-	if ply:WaterLevel() > 2 then
+	if ply:WaterLevel() > 0 and ply:Alive() and ply:GetObserverMode() == OBS_MODE_NONE then
 		
 		--TODO:proper damage overtime and disable swimming
 		

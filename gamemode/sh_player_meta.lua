@@ -220,10 +220,12 @@ meta.SoundInfos = {
 	LEFTFOOT = {
 		SoundName = "NPC_CombineS.RunFootstepLeft",			--fine for now
 		SoundChannel = CHAN_BODY,
+		SoundVolume = 0.1,
 	},
 	RIGHTFOOT = {
 		SoundName = "NPC_CombineS.RunFootstepRight",		--fine for now
 		SoundChannel = CHAN_BODY,
+		SoundVolume = 0.1,
 	},
 	FALLDAMAGE = {
 		SoundName = "Player.FallDamage",		--fine for now
@@ -244,10 +246,20 @@ function meta:PlaySound( soundtype , predicted )
 end
 
 function meta:CreateGibs( dmginfo )
-	local shatterperc = dmginfo:GetDamage() / self:GetMaxHealth()
-	
+	--local shatterperc = dmginfo:GetDamage() / self:GetMaxHealth()
+	--[[
 	local effect = EffectData()
 	effect:SetEntity( self )
 	effect:SetScale( shatterperc )
+	util.Effect( "sm_player_gib_main" , effect )
+	]]
+	
+	local dir = self:GetVelocity():GetNormal():Angle()
+	local scale = self:GetVelocity():Length()
+	
+	local effect = EffectData()
+	effect:SetEntity( self )
+	effect:SetAngles( dir )
+	effect:SetScale( scale )
 	util.Effect( "sm_player_gib_main" , effect )
 end

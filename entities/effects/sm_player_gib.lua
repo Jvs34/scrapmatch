@@ -4,33 +4,182 @@ AddCSLuaFile()
 --and use them for the physics instead of the convex meshes of the ragdoll
 --then rotate the bounds by that bone matrix angle and then construct the physics mesh we're going to use
 
-function EFFECT:Init( data )
+EFFECT.Mat = Material("models/wireframe")
 
-	self.LifeTime = CurTime() + 1	--TODO: check from the convar
-	
-	self.ConvexMesh = {}
+function EFFECT:Init( data )
+	self.Mesh = {}
+	self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+	self.BoneMask = data:GetDamageType()
+	--print( math.IntToBin( self.BoneMask ) )
+	self.Direction = data:GetAngles()
+	self.Speed = data:GetScale()
 	
 	self.Owner = data:GetEntity()
-	self.BoneMask = data:GetAttachment()	-- up to 32 bones in this mask , and these are the actual bone indexes, not the physics bones one
+	self.EyeTarget = self.Owner:GetAimVector()
+	self.Owner:SetupBones()
 	
-	--go through all the player's bones , see if that bone is in the bone mask and that bone has
-	--hitboxes
-	--if that bone has a physics bone associated and it's not in the bone mask, shrink it
-	--otherwise leave it as it is ( this is mainly for finger bones )
+	local plyang = self.Owner:EyeAngles()
+	plyang.p = 0
+	plyang.r = 0
+	
+	self:SetLOD( 0 )
+	self:DrawShadow( true )
+	self:SetModel( self.Owner:GetModel() )
+	
+	self:SetPos( self.Owner:GetPos() )
+	self:SetAngles( plyang )
+	self:SetRenderBounds( self.Owner:GetRenderBounds() )
+	
+	self.LifeTime = CurTime() + 10
+	
+	self.BoneCache = {}
+	self.PlayerColor = self.Owner:GetPlayerColor()
+	
+	
+	for i = 0 , self.Owner:GetBoneCount() -1 do
+		local bm = self.Owner:GetBoneMatrix( i )
+		if bm then
+			self.BoneCache[i] = {}
+			self.BoneCache[i].Bm = bm
+			
+			local pos , ang = WorldToLocal( bm:GetTranslation(), bm:GetAngles() , self.Owner:GetPos() , plyang )
+			bm:SetTranslation( pos )
+			bm:SetAngles( ang )
+			self.BoneCache[i].Pos = pos
+			self.BoneCache[i].Ang = ang
+		end
+	end
+	
+	for i = 0 , self.Owner:GetHitBoxCount( 0 ) - 1 do
+		local bone = self.Owner:GetHitBoxBone( i , 0 )
+		local bonebit = 2 ^ i
+		
+		if bit.band( self.BoneMask , bonebit ) == 0 then
+			self.BoneCache[bone] = nil
+		else
+			local bmin , bmax = self:GetHitBoxBounds( i , 0 )
+			
+			table.insert( self.Mesh , self:CreateBoxFromBounds( bmin , bmax , self.BoneCache[bone].Ang , self.BoneCache[bone].Pos ) )
+		end
+		
+	end
+	
+	self:AddCallback( "BuildBonePositions" , self.BuildBonePositions )
+	
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	
+	--self:PhysicsInitBox( self.Owner:GetRenderBounds() )
+	self:PhysicsInitMultiConvex( self.Mesh )
+	
+	local physobj = self:GetPhysicsObject()
+	if IsValid( physobj ) then
+		physobj:SetMass( 10 )
+		physobj:SetMaterial( "flesh" )
+		physobj:Wake()
+		physobj:SetVelocity( self.Direction:Forward() * self.Speed )
+		--just for debugging
+		self.IMesh = Mesh()
+		self.IMesh:BuildFromTriangles( physobj:GetMesh() )
+	end
 	
 end
 
-function EFFECT:Think()
+function EFFECT:CreateBoxFromBounds( minbounds , maxbounds , angle , pos )
+		local verts = {}
+		
+		
+		for i = 0 , 7 do
+			local vecPos = Vector()
+			vecPos.x  = ( bit.band( i , 0x1 ) ~=0 ) and maxbounds.x or minbounds.x
+			vecPos.y  = ( bit.band( i , 0x2 ) ~=0 ) and maxbounds.y or minbounds.y
+			vecPos.z  = ( bit.band( i , 0x4 ) ~=0 ) and maxbounds.z or minbounds.z
+			--TODO: rotate around angle
+			if angle then
+				vecPos:Rotate( angle )
+			end
+			if pos then
+				vecPos = vecPos + pos
+			end
+			table.insert( verts , vecPos )
+		end
+		
+		return verts
+	end
+
+function EFFECT:IsBoneInBitMask( boneid )
+	for i = 0 , self.Owner:GetHitBoxCount( 0 ) - 1 do
+		local bone = self.Owner:GetHitBoxBone( i , 0 )
+		local bonebit = 2 ^ i
+		
+		if bone == boneid and bit.band( self.BoneMask , bonebit ) ~= 0 then
+			return true
+		end
+	end
+end
+
+function EFFECT:PhysicsCollide( data , physobj )
+end
+
+function EFFECT:BuildBonePositions()
 	
+	self:SetEyeTarget( self.EyeTarget )	--eye flexes are broooooken, they used to work when gmod13 got released tho
 	
-	if self.LifeTime <= CurTime() then
-		return false
+	for i , v in pairs( self.BoneCache ) do
+		local mybm = self:GetBoneMatrix( i )
+		if mybm then
+			local pos , ang = LocalToWorld( v.Pos , v.Ang , self:GetPos() , self:GetAngles() )
+			v.Bm:SetTranslation( pos )
+			v.Bm:SetAngles( ang )
+			self:SetBoneMatrix( i , v.Bm )
+		end
 	end
 	
+	for i = 0 , self:GetBoneCount() - 1 do
+		--check if the bone parent of this bone
+		local bm = self:GetBoneMatrix( i )
+		if not bm then continue end
+		
+		--don't shrink it
+		if self:IsBoneInBitMask( i ) then continue end
+		
+		local boneparent = self:GetBoneParent( i )
+		
+		if boneparent and self:IsBoneInBitMask( boneparent ) then continue end
+		
+		--shrink this bone down, try to cut it off so it doesn't show on the model
+		bm:Scale( vector_origin )
+		
+		self:SetBoneMatrix( i , bm )
+	end
+	
+	--TODO: shrink all the bones that are not in the bonemask, but keep the ones that have a boneparent in the bonemask
+
+end
+
+function EFFECT:GetPlayerColor()
+	return self.PlayerColor or vector_origin
+end
+
+function EFFECT:Think()
+	if self.LifeTime < CurTime() then
+		return false
+	end
 	return true
 end
 
 function EFFECT:Render()
 	
-	self:DrawModel()
+	--self:CreateShadow()
+	--self:DrawModel()
+	render.SetMaterial( self.Mat )
+	if self.IMesh then
+		local m = Matrix()
+		m:SetTranslation( self:GetPos() )
+		m:SetAngles( self:GetAngles() )
+		cam.PushModelMatrix( m )
+			self.IMesh:Draw()
+		cam.PopModelMatrix()
+	end
 end
+
