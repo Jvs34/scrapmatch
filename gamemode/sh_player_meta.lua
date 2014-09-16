@@ -246,14 +246,6 @@ function meta:PlaySound( soundtype , predicted )
 end
 
 function meta:CreateGibs( dmginfo )
-	--local shatterperc = dmginfo:GetDamage() / self:GetMaxHealth()
-	--[[
-	local effect = EffectData()
-	effect:SetEntity( self )
-	effect:SetScale( shatterperc )
-	util.Effect( "sm_player_gib_main" , effect )
-	]]
-	
 	local dir = self:GetVelocity():GetNormal():Angle()
 	local scale = self:GetVelocity():Length()
 	
@@ -262,4 +254,26 @@ function meta:CreateGibs( dmginfo )
 	effect:SetAngles( dir )
 	effect:SetScale( scale )
 	util.Effect( "sm_player_gib_main" , effect )
+end
+
+--TODO: this function will
+--		create the necessary multimodel parts
+--		takes an options table which will either draw the necessary multimodels piece by piece
+--		or will draw the whole multimodel on another entity
+
+function meta:DrawMultiModel( options )
+	--[[
+		options can be nil
+		{
+			proxyentity = nil	--can be the ragdoll when the player dies
+			individualparts = {
+				[the actual hitbox id] = {
+					pos = Vector(),
+					ang = Angle(),
+				}
+			}
+		}
+	]]
+	
+	--there's gonna be as many multimodel parts as the player has hitboxes
 end

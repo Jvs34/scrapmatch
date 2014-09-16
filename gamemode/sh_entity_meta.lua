@@ -75,3 +75,34 @@ else
 	end
 	
 end
+
+--this is for entities that have a single multimodel , they'll go unused for a bit probably as I'll have to handle
+--this shit manually from special action entities / weapons and player pickups and other stuff
+
+--[[
+function meta:CreateMultiModel( mm_identifier )
+	if self:GetMultiModel() then return false end
+	
+	self._MultiModel = multimodel.CreateInstance( mm_identifier )
+	return self._MultiModel ~= nil
+end
+
+function meta:GetMultiModel()
+	return self._MultiModel
+end
+
+function meta:SetMultiModel( mm , shouldcleanprevious )
+	if shouldcleanprevious then
+		self:RemoveMultiModel()
+	end
+	
+	self._MultiModel = mm
+end
+
+function meta:RemoveMultiModel()
+	local mm = self:GetMultiModel()
+	if mm then
+		multimodel.CleanInstance( mm )
+	end
+end
+]]

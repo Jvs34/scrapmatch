@@ -11,12 +11,35 @@ function team.GetClass( id ) end
 
 function team.GetSpawnPoint( id , ply )
 	local teament = GAMEMODE:GetTeamEnt( id )
-	
-	--TODO: actually run some avoidance logic here , copy it from the hl2:dm code in the sourcesdk2013
-	--go trough all the spawn points, if ply is valid then use his bounds on the hull traces, otherwise use the default ones
-	
+
 	if IsValid( teament ) then
-		return table.Random( ents.FindByClass( teament:GetTeamSpawnPoint() ) )
+		--TODO: actually run some avoidance logic here , copy it from the hl2:dm code in the sourcesdk2013
+		--go trough all the spawn points, if ply is valid then use his bounds on the hull traces, otherwise use the default ones
+	
+		local foundspawnpoint = nil
+		local minb = Vector(-16, -16, 0 )
+		local maxb = Vector( 16,  16,  72 )
+		
+		for i ,v in pairs( ents.FindByClass( teament:GetSpawnPoint() ) ) do
+			
+			local tr = {}
+			tr.start = v:GetPos()
+			tr.endpos = v:GetPos() + Vector( 0 , 0 , maxb.z )
+			tr.mins = minb
+			tr.maxs = minb * -1
+			tr.mask = MASK_PLAYERSOLID
+			tr.ignoreworld = true
+			tr.filter = ply
+			
+			local trres = util.TraceHull( tr )
+			if not tr.Hit then
+				foundspawnpoint = v
+				print( "spawnpoint woo ", v )
+				break
+			end
+		end
+		
+		return foundspawnpoint or table.Random( ents.FindByClass( teament:GetTeamSpawnPoint() ) )
 	end
 	
 end
@@ -54,7 +77,7 @@ function team.GetAllTeams()
 			continue 
 		end
 		
-		if not returnedTeams[id] then returnedTeams[id] = {} end	--only happens the first time this function is called
+		returnedTeams[id] = returnedTeams[id] or {}
 		
 		returnedTeams[id].Name = teament:GetTeamName()
 		returnedTeams[id].Color = teament:GetTeamColor()
@@ -80,7 +103,7 @@ end
 function team.TotalDeaths( index )
 	local score = 0
 	for id,pl in pairs( player.GetAll() ) do
-		if (pl:Team() == index) then
+		if pl:Team() == index then
 			score = score + pl:Deaths()
 		end
 	end

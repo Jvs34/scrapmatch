@@ -94,7 +94,13 @@ function GM:OnEntityCreated( ent )
 	
 	--apply a render override to render the player model
 	if ent:GetClass() == "class C_HL2MPRagdoll" then
-	
+		--[[
+			ent.RenderOverride = function( self )
+				local owner = self:GetRagdollOwner()
+				if not IsValid( owner ) then return end
+				owner:DrawMultiModel( { proxyentity = self } )
+			end
+		]]
 	end
 end
 
@@ -116,6 +122,7 @@ function GM:OnReloaded()
 	self:CreateHUD()
 end
 
+--[[
 local meta = FindMetaTable( "CSEnt" )
 if not meta then return end
 
@@ -124,4 +131,6 @@ function meta:__gc()
 		self:Remove()
 	end
 end
+
 MsgN( "Added __gc to CSent" )
+]]

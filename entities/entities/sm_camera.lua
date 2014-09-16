@@ -6,12 +6,15 @@ ENT.Base 			= "base_entity"
 function ENT:Initialize()
 	if SERVER then
 		--set the camera to the one used on the canals laboratory during the inspect scene, the one which has a ragdoll should also have pose parameters
-		--nope, no pose paratemers, just force the deployed sequence and then set the camera angle using manipulateboneangle
+		--nope, no pose parameters, just force the deployed sequence and then set the camera angle using manipulateboneangle
 		
 		self:SetModel( "models/props_lab/labturret.mdl" )
+		self:PhysicsInitBox( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetCollisionBounds( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetSolid( SOLID_BBOX )
-		--self:SetKeyValue( "view_ofs" , "0 0 0" )	--set to whatever the eye position of the camera ends up to be
+		self:MakePhysicsObjectAShadow( false , false )
+		self:SetMoveType( MOVETYPE_CUSTOM )
+		self:SetKeyValue( "view_ofs" , "[0 0 100]" )	--set to whatever the eye position of the camera ends up to be at
 		self:SetTurnSpeed( 5 )
 		self:SetActive( true )
 		self:SetZoomLevel( 1 )
@@ -59,11 +62,15 @@ end
 
 function ENT:HandleAnimations()
 	local seq = self:LookupSequence( "aim1" )
+	
 	if seq then
 		self:SetSequence( seq )
 	end
+	
+	local ang = self:GetAimVector():Angle()
+	
 	self:ManipulateBonePosition( 0 , Vector( 0, 18 ,0 ) )
-	self:ManipulateBoneAngles( 0 , Angle( -15,0,0 ) )
+	self:ManipulateBoneAngles( 0 , Angle( -15 , 0 , 0 ) + ang )
 	
 end
 
@@ -119,7 +126,6 @@ function ENT:AutoControlCamera()
 	--do a small hull trace in front of our aim vector , if we hit an entity then we're going to track that around until we lose sight!
 	
 	if IsValid( self:GetTrackedEntity() ) then
-		
 		
 		
 		--we have a tracked entity, rotate towards its eyepos
@@ -188,7 +194,7 @@ if SERVER then
 		
 	end
 else
-	ENT.DotLightMat = Material("")
+	ENT.DotLightMat = Material("sprites/redglow1.vmt")
 	
 	function ENT:Draw()
 	
@@ -200,6 +206,11 @@ else
 		
 		if self:GetActive() then
 			--draw a blinking dot on the attachment to signal we're active
+			local dotattach = self:LookupAttachment( "" )
+			if dotattach then
+				local angpos = self:GetAttachment( dotattach )
+			end
+			
 		end
 	end
 end

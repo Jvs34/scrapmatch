@@ -1,4 +1,7 @@
-if not game.IsDedicated() then
+
+--derive from sandbox if the server is really small, this is done because I need some sandbox features
+--to develop shit ( such as multimodels )
+if game.MaxPlayers() <= 4 then
 	DeriveGamemode("sandbox")
 	DEFINE_BASECLASS( "gamemode_sandbox" )
 else
