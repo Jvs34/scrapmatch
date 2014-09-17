@@ -1,6 +1,8 @@
 
 --derive from sandbox if the server is really small, this is done because I need some sandbox features
---to develop shit ( such as multimodels )
+--to develop shit ( such as multimodels ) and no, this is not a backdoor, shut up
+--you're never going to have a deathmatch server with a player count smaller than 10 anyway, what's the point otherwise
+
 if game.MaxPlayers() <= 4 then
 	DeriveGamemode("sandbox")
 	DEFINE_BASECLASS( "gamemode_sandbox" )
@@ -19,9 +21,6 @@ include("sh_teamoverride.lua")
 
 include( "special_actions/sa_chaingun.lua" )
 include( "special_actions/sa_circularsaw.lua" )
-
-
-
 
 GM.Name 			= "Scrap Match"
 GM.Author 			= "Jvs"
@@ -53,36 +52,38 @@ if SERVER then
 	GM.ConVars["DebugMode"] =		CreateConVar( "sm_debugmode" , "0", FCVAR_SERVER_CAN_EXECUTE , "Bool;Debug mode allows to run commands such as sm_givespecialaction. Set to 0 to disable." )
 
 else
-
+	--this pretty much works like createclientconvar or whatever the fuck it's called, except we're not gonna add FCVAR_USERINFO to the ones we
+	--don't need accessible on the server
+	
 	GM.ConVars["InputScoreboardKey"] =		CreateConVar( "sm_input_scoreboard" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use the scoreboard for IN_SCORE." )
 	GM.ConVars["InputGrenadeKey"] =		CreateConVar( "sm_input_grenade" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use for IN_GRENADE1." )
 	GM.ConVars["InputActiveActionKey"] =		CreateConVar( "sm_input_activeaction" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use for IN_ATTACK3." )
 
-	GM.ConVars["MaxGibs"] =		CreateConVar( "sm_gibs_max" , "15", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The maximum amount of gibs displayed at any time. Set to -1 to disable the limit." )
-	GM.ConVars["GibsFadeOut"] =		CreateConVar( "sm_gibs_fadeouttime" , "5", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The time in seconds that gibs will stay on the ground. Set to -1 to never fade, NOT GOOD." )
-	GM.ConVars["GibsPhysics"] =		CreateConVar( "sm_gibs_physics" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether gibs should collide with each other and other clientside stuff." )
+	GM.ConVars["MaxGibs"] =		CreateConVar( "sm_gibs_max" , "15", FCVAR_ARCHIVE , "Int;The maximum amount of gibs displayed at any time. Set to -1 to disable the limit." )
+	GM.ConVars["GibsFadeOut"] =		CreateConVar( "sm_gibs_fadeouttime" , "5", FCVAR_ARCHIVE , "Float;The time in seconds that gibs will stay on the ground. Set to -1 to never fade, NOT GOOD." )
+	GM.ConVars["GibsPhysics"] =		CreateConVar( "sm_gibs_physics" , "1", FCVAR_ARCHIVE , "Bool;Whether gibs should collide with each other and other clientside stuff." )
 
 	--this is clientside because each player has its own preference
 
 	GM.ConVars["AnnouncerMute"] =		CreateConVar( "sm_announcer_mute" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Mutes the announcer" )
-	GM.ConVars["AnnouncerVolume"] =		CreateConVar( "sm_announcer_volume" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The volume the announcer should be played at" )
+	GM.ConVars["AnnouncerVolume"] =		CreateConVar( "sm_announcer_volume" , "1", FCVAR_ARCHIVE , "Float;The volume the announcer should be played at" )
 
 	--the convar index helps set that variable on the corresponding variable on the panel and the type at the start of the description helps for the conversion
 
-	GM.ConVars["CrossHairR"] =			CreateConVar( "sm_crosshair_r" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The red value of the crosshair color" )
-	GM.ConVars["CrossHairG"] =			CreateConVar( "sm_crosshair_g" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The green value of the crosshair color" )
-	GM.ConVars["CrossHairB"] =			CreateConVar( "sm_crosshair_b" , "255", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The blue value of the crosshair color" )
-	GM.ConVars["CrossHairScale"] =		CreateConVar( "sm_crosshair_scale" , "0.5", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The scale of the cursor. Set to -1 to automatically scale." )
-	GM.ConVars["CrossHairShowAmmo"] =	CreateConVar( "sm_crosshair_ammo" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to show the ammo on the left and right sides of the crosshair." )
-	GM.ConVars["CrossHairHitSoundEnabled"] =	CreateConVar( "sm_crosshair_hitsound_enabled" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Whether to enable the hitsound." )
-	GM.ConVars["CrossHairHitSoundPath"] =	CreateConVar( "sm_crosshair_hitsound_path" , "Buttons.snd10", FCVAR_ARCHIVE + FCVAR_USERINFO , "String;The hitsound to use." )
-	GM.ConVars["CrossHairHitSoundDelay"] =	CreateConVar( "sm_crosshair_hitsound_delay" , "0.1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The minimum delay before emitting another hitsound. Set to 0 for no limit." )
+	GM.ConVars["CrossHairR"] =			CreateConVar( "sm_crosshair_r" , "255", FCVAR_ARCHIVE , "Int;The red value of the crosshair color" )
+	GM.ConVars["CrossHairG"] =			CreateConVar( "sm_crosshair_g" , "255", FCVAR_ARCHIVE , "Int;The green value of the crosshair color" )
+	GM.ConVars["CrossHairB"] =			CreateConVar( "sm_crosshair_b" , "255", FCVAR_ARCHIVE , "Int;The blue value of the crosshair color" )
+	GM.ConVars["CrossHairScale"] =		CreateConVar( "sm_crosshair_scale" , "0.5", FCVAR_ARCHIVE , "Float;The scale of the cursor. Set to -1 to automatically scale." )
+	GM.ConVars["CrossHairShowAmmo"] =	CreateConVar( "sm_crosshair_ammo" , "1", FCVAR_ARCHIVE , "Bool;Whether to show the ammo on the left and right sides of the crosshair." )
+	GM.ConVars["CrossHairHitSoundEnabled"] =	CreateConVar( "sm_crosshair_hitsound_enabled" , "0", FCVAR_ARCHIVE , "Bool;Whether to enable the hitsound." )
+	GM.ConVars["CrossHairHitSoundPath"] =	CreateConVar( "sm_crosshair_hitsound_path" , "Buttons.snd10", FCVAR_ARCHIVE , "String;The hitsound to use." )
+	GM.ConVars["CrossHairHitSoundDelay"] =	CreateConVar( "sm_crosshair_hitsound_delay" , "0.1", FCVAR_ARCHIVE , "Float;The minimum delay before emitting another hitsound. Set to 0 for no limit." )
 
 
-	GM.ConVars["HUDAnimations"]	= CreateConVar( "sm_hud_animations" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Enables or disables ALL onscreen animations applied to hud, scoreboard and such." )
-	GM.ConVars["HUDRenderInScreenshots"]	= CreateConVar( "sm_hud_renderinscreenshots" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Bool;Enables or disables whether to render the HUD in screenshots." )
+	GM.ConVars["HUDAnimations"]	= CreateConVar( "sm_hud_animations" , "1", FCVAR_ARCHIVE , "Bool;Enables or disables ALL onscreen animations applied to hud, scoreboard and such." )
+	GM.ConVars["HUDRenderInScreenshots"]	= CreateConVar( "sm_hud_renderinscreenshots" , "1", FCVAR_ARCHIVE , "Bool;Enables or disables whether to render the HUD in screenshots." )
 
-	GM.ConVars["DamageTimeOnScreen"]	= CreateConVar( "sm_damageinfo_time" , "1", FCVAR_ARCHIVE + FCVAR_USERINFO , "Float;The time in seconds to how fast to decay the damage info." )
+	GM.ConVars["DamageTimeOnScreen"]	= CreateConVar( "sm_damageinfo_time" , "1", FCVAR_ARCHIVE , "Float;The time in seconds to how fast to decay the damage info." )
 
 end
 
@@ -325,23 +326,26 @@ function GM:GetCameraInSequence( ply , i )
 
 	--this is serverside only? fuck off, I want prediction on this shit FFS
 	--VINH'LL FIX IT @@@@@
-
-	if SERVER and IsValid( newcam ) then
+	
+	if IsValid( newcam ) then
 		
 		if currentcamera:GetControllingPlayer() == ply then
 			currentcamera:SetControllingPlayer( nil )
 		end
 		
-		if not IsValid( newcam:GetControllingPlayer() ) then
+		if not IsValid( newcam:GetControllingPlayer() ) and not newcam:GetAutoOnly() then
 			newcam:SetControllingPlayer( ply )
 		end
 		
-		ply:SpectateEntity( newcam )
+		if SERVER then
+			ply:SpectateEntity( newcam )
+		end
 	end
 end
 
 --TODO: MOVE THIS SHIT TO UTIL AAAAAAAAAAAAAAAAAAH
 
+--thanks vinh cunt
 local colormeta = FindMetaTable("Color")
 
 function colormeta:FromHex( hexcol )
@@ -375,7 +379,8 @@ end
 dmginfometa = nil
 
 --receives ( {argtocheck1, argtype1 }, argtocheck2 , argtype2 ) etc etc
---TODO: test this shit
+--on a second thought, this shit is lame
+
 function CheckFunctionArguments( ... )
 	for i , v in ipairs( {...} ) do
 		assert( v[2] == TypeID( v[1] ) , "Received wrong type at argument #"..i )

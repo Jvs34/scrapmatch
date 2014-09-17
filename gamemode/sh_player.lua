@@ -474,7 +474,7 @@ function GM:FinishMove( ply , mv )
 		
 	end
 	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area (????)
-	--ply:HandleFootsteps()
+	ply:HandleFootsteps()
 end
 
 function GM:PlayerDriveAnimate( ply )
@@ -550,29 +550,31 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 		ply:PlaySound( "FALLDAMAGE" )
 		ply:ViewPunchReset()
 		ply:ViewPunch( Angle( 1 * mult , 0 , 0 ) )
-		--ply:DoCustomAnimEvent( PLAYERANIMEVENT_JUMP , 0 )	--this only triggers the jump animation, not the landing one , gotta look into it
+		ply:AnimRestartGesture( GESTURE_SLOT_JUMP, ACT_LAND, true )
 	end
 	return true
 end
 
---I may end up actually using this hook due to the problems I'm having right now
---this is also temporary
-
 function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
-	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
+	--ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
 	return true
 end
 
 function GM:DoAnimationEvent( ply , event , data )
+
 	--handle the dual wielding animations of the base weapon
 	if event == PLAYERANIMEVENT_ATTACK_PRIMARY then
 		local seq = ply:LookupSequence( "range_dual_l" )
-		ply:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD , seq , 0 , true )
-		return ACT_INVALID
+		if seq then
+			ply:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD , seq , 0 , true )
+			return ACT_INVALID
+		end
 	elseif event == PLAYERANIMEVENT_ATTACK_SECONDARY then
 		local seq = ply:LookupSequence( "range_dual_r" )
-		ply:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD , seq , 0 , true )
-		return ACT_INVALID
+		if seq then
+			ply:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD , seq , 0 , true )
+			return ACT_INVALID
+		end
 	end
 
 	return self.BaseClass.DoAnimationEvent( self , ply , event , data )

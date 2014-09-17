@@ -17,6 +17,7 @@ function ENT:Initialize()
 		self:SetKeyValue( "view_ofs" , "[0 0 100]" )	--set to whatever the eye position of the camera ends up to be at
 		self:SetTurnSpeed( 5 )
 		self:SetActive( true )
+		self:SetAutoOnly( false )
 		self:SetZoomLevel( 1 )
 		self:SetAimVector( Vector( 0 , 1 , 0 ) )
 	else
@@ -31,6 +32,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Int"	, 0 , "CameraIndex" )
 	
 	self:NetworkVar( "Bool" , 0 , "Active" )					--this camera is currently active, and can be used!
+	self:NetworkVar( "Bool"	, 1 , "AutoOnly" )
 	
 	self:NetworkVar( "Entity" , 0 , "ControllingPlayer" )	--this is set for the first player spectating this entity, allows him to control it
 	self:NetworkVar( "Entity" , 1 , "TrackedEntity" )		--only for auto camera mode when there's no controlling player
@@ -150,6 +152,8 @@ function ENT:ControlCamera( ply , mv , cmd )
 	
 	--check if the player used the mouse wheel, then either increase or decrease the zoom level
 	
+	self:HandleZoomLevel( cmd:GetMouseWheel() * FrameTime() )
+	
 	--check the difference from our current aim to the player's, then clamp it 
 	self:ClampAimVectorTo( ply:GetAimVector() )
 	
@@ -165,12 +169,21 @@ function ENT:ClampAimVectorTo( destinationaimvec )
 	self:SetAimVector( destinationaimvec )
 end
 
+function ENT:HandleZoomLevel( value )
+	--the value is
+	local finalval = math.Clamp( self:GetZoomLevel() + value , 0 , 1 )
+	
+	self:SetZoomLevel( finalval )
+end
+
 function ENT:GetZoomFOV()
 	return Lerp( self:GetZoomLevel() , 90 , 50 )
 end
 
 if SERVER then
-	--TODO: map inputs
+
+	--TODO: map inputs for disabling and enabling the camera
+	--		and 
 	
 	--transmit to all the players
 	function ENT:UpdateTransmitState()

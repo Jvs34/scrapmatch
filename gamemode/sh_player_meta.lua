@@ -167,13 +167,13 @@ function meta:HandleFootsteps()
 	if not leftfootbonematrix or not rightfootbonematrix then return end
 	
 	leftfoottrace = {
-		startpos = leftfootbonematrix:GetTranslation(),
+		start		= leftfootbonematrix:GetTranslation(),
 		endpos = leftfootbonematrix:GetTranslation() - Vector( 0 , 0 , 10 ),
 		filter = self,
 	}
 	
 	rightfoottrace = {
-		startpos = rightfootbonematrix:GetTranslation(),
+		start = rightfootbonematrix:GetTranslation(),
 		endpos = rightfootbonematrix:GetTranslation() - Vector( 0 , 0 , 10 ),
 		filter = self,
 	}
@@ -183,7 +183,7 @@ function meta:HandleFootsteps()
 	
 	if leftfoottraceresult.Hit then
 		if not self:GetPlayedLeftFootstep() then
-			self:PlaySound( "LEFTFOOT" )
+			self:PlaySound( "LEFTFOOT" , true )
 			self:SetPlayedLeftFootstep( true )
 		end
 	else
@@ -192,7 +192,7 @@ function meta:HandleFootsteps()
 	
 	if rightfoottraceresult.Hit then
 		if not self:GetPlayedRightFootstep() then
-			self:PlaySound( "RIGHTFOOT" )
+			self:PlaySound( "RIGHTFOOT" , true )
 			self:SetPlayedRightFootstep( true )
 		end
 	else
@@ -249,10 +249,14 @@ function meta:CreateGibs( dmginfo )
 	local dir = self:GetVelocity():GetNormal():Angle()
 	local scale = self:GetVelocity():Length()
 	
+	local overkill = dmginfo:GetDamage() / self:GetMaxHealth()
+	
 	local effect = EffectData()
 	effect:SetEntity( self )
 	effect:SetAngles( dir )
 	effect:SetScale( scale )
+	effect:SetMagnitude( overkill )
+	
 	util.Effect( "sm_player_gib_main" , effect )
 end
 

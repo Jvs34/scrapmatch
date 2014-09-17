@@ -7,6 +7,9 @@ AddCSLuaFile()
 ]]
 
 function EFFECT:Init( data )
+	self.OverKill = data:GetMagnitude()
+	self.OverKill = math.Clamp( self.OverKill , 0.1 , 1 )
+	
 	self.Direction = data:GetAngles()
 	self.Speed = data:GetScale()
 	
@@ -17,7 +20,7 @@ function EFFECT:Init( data )
 
 	
 	local bones = self.Owner:GetHitBoxCount( 0 ) - 1
-	local gibs = bones
+	local gibs = math.Roubones * self.OverKill
 	local bonespergib = math.Round( ( self.Owner:GetHitBoxCount( 0 ) ) / gibs )
 	local currentgib = nil
 
@@ -41,6 +44,11 @@ function EFFECT:Init( data )
 			util.Effect( "sm_player_gib" , currentgib )
 			currentgib = nil
 			bonecount = 0
+		end
+		
+		--we reached the gib count, don't spawn anymore
+		if GAMEMODE.ConVars["MaxGibs"]:GetFloat() ~= 0 and GAMEMODE:GetGibCount() >= GAMEMODE.ConVars["MaxGibs"]:GetFloat() then
+			break
 		end
 		
 	end

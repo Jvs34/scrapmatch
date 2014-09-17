@@ -7,8 +7,17 @@ AddCSLuaFile()
 EFFECT.Mat = Material("models/wireframe")
 
 function EFFECT:Init( data )
+	
+	GAMEMODE:IncreaseGibCount()
+	
 	self.Mesh = {}
-	self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+	
+	if GAMEMODE.ConVars["GibsPhysics"]:GetBool() then
+		self:SetCollisionGroup( COLLISION_GROUP_NONE )
+	else
+		self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+	end
+	
 	self.BoneMask = data:GetDamageType()
 	--print( math.IntToBin( self.BoneMask ) )
 	self.Direction = data:GetAngles()
@@ -22,7 +31,8 @@ function EFFECT:Init( data )
 	plyang.p = 0
 	plyang.r = 0
 	
-	self:SetLOD( 0 )
+	self:SetLOD( 0 )	--this is gonna make gibs a bit more expensive, but technically we're never rendering this model, we just use it to setup the bones
+	
 	self:DrawShadow( true )
 	self:SetModel( self.Owner:GetModel() )
 	
@@ -30,7 +40,11 @@ function EFFECT:Init( data )
 	self:SetAngles( plyang )
 	self:SetRenderBounds( self.Owner:GetRenderBounds() )
 	
-	self.LifeTime = CurTime() + 10
+	self.LifeTime = CurTime() + GAMEMODE.ConVars["GibsFadeOut"]:GetFloat()
+	
+	if GAMEMODE.ConVars["GibsFadeOut"]:GetFloat() == -1 then
+		self.LifeTime = -1
+	end
 	
 	self.BoneCache = {}
 	self.PlayerColor = self.Owner:GetPlayerColor()
@@ -69,16 +83,15 @@ function EFFECT:Init( data )
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_VPHYSICS )
 	
-	--self:PhysicsInitBox( self.Owner:GetRenderBounds() )
 	self:PhysicsInitMultiConvex( self.Mesh )
 	
 	local physobj = self:GetPhysicsObject()
 	if IsValid( physobj ) then
-		physobj:SetMass( 10 )
-		physobj:SetMaterial( "flesh" )
+		physobj:SetMass( 5 * #self.Mesh )
+		physobj:SetMaterial( "metal" )
 		physobj:Wake()
 		physobj:SetVelocity( self.Direction:Forward() * self.Speed )
-		--just for debugging
+		--just for debugging , this will be removed when the player has a proper multimodel
 		self.IMesh = Mesh()
 		self.IMesh:BuildFromTriangles( physobj:GetMesh() )
 	end
@@ -135,6 +148,7 @@ function EFFECT:BuildBonePositions()
 		end
 	end
 	
+	--[[
 	for i = 0 , self:GetBoneCount() - 1 do
 		--check if the bone parent of this bone
 		local bm = self:GetBoneMatrix( i )
@@ -152,9 +166,7 @@ function EFFECT:BuildBonePositions()
 		
 		self:SetBoneMatrix( i , bm )
 	end
-	
-	--TODO: shrink all the bones that are not in the bonemask, but keep the ones that have a boneparent in the bonemask
-
+	]]
 end
 
 function EFFECT:GetPlayerColor()
@@ -162,16 +174,22 @@ function EFFECT:GetPlayerColor()
 end
 
 function EFFECT:Think()
-	if self.LifeTime < CurTime() then
+	
+	if not IsValid( self.Owner ) then
+		GAMEMODE:DecreaseGibCount()
 		return false
 	end
+	
+	if self.LifeTime ~= -1 and self.LifeTime < CurTime() then
+		GAMEMODE:DecreaseGibCount()
+		return false
+	end
+	
 	return true
 end
 
 function EFFECT:Render()
-	
-	--self:CreateShadow()
-	--self:DrawModel()
+	--TODO: replace this with a call to self.Owner:DrawMultiModel( options )
 	render.SetMaterial( self.Mat )
 	if self.IMesh then
 		local m = Matrix()

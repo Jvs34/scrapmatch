@@ -1,6 +1,21 @@
 include("shared.lua")
 include( "cl_hud.lua")
 
+GM.GibCount = 0
+
+function GM:IncreaseGibCount()
+	self.GibCount = self.GibCount + 1
+end
+
+function GM:DecreaseGibCount()
+	self.GibCount = self.GibCount - 1
+	if self.GibCount < 0 then self.GibCount = 0 end
+end
+
+function GM:GetGibCount()
+	return self.GibCount
+end
+
 function GM:Initialize()
 
 	self:CreateHUD()
@@ -18,9 +33,8 @@ function GM:Initialize()
 	end
 
 	gameevent.Listen( "player_hurt" )	--hit confirmation on players
+	
 end
-
-
 
 function GM:InitPostEntity()
 	--the user just fully loaded (?)
