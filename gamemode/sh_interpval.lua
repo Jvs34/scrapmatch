@@ -104,6 +104,13 @@ function interpvalmeta:InterpolateBool( currentvalue , oldvalue )
 end
 
 function interpvalmeta:InterpolateNumber( currentvalue , oldvalue )
+	local deltatime = self:GetTime() - self.LastUpdate
+	--based on this delta time increase this value
+	
+	local frac = 0
+	
+	--math.Approach( oldvalue , currentvalue, number amount )
+	
 	--[[
 		self:HasFlag( INTERP_ROUNDDOWN )
 		

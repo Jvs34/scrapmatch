@@ -21,7 +21,7 @@ SWEP.Primary.Ammo			= -1
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
-SWEP.Secondary.Automatic		= true
+SWEP.Secondary.Automatic	= true
 SWEP.Secondary.Ammo			= -1
 
 if CLIENT then
