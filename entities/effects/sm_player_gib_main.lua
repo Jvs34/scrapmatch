@@ -20,7 +20,7 @@ function EFFECT:Init( data )
 
 	
 	local bones = self.Owner:GetHitBoxCount( 0 ) - 1
-	local gibs = math.Roubones * self.OverKill
+	local gibs = bones * self.OverKill
 	local bonespergib = math.Round( ( self.Owner:GetHitBoxCount( 0 ) ) / gibs )
 	local currentgib = nil
 

@@ -9,8 +9,8 @@ function ENT:Initialize()
 		--nope, no pose parameters, just force the deployed sequence and then set the camera angle using manipulateboneangle
 		
 		self:SetModel( "models/props_lab/labturret.mdl" )
-		self:PhysicsInitBox( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
-		self:SetCollisionBounds( Vector( -16 , 16 , 0 ) , Vector( 16 , 16 , 32 ) )
+		self:PhysicsInitBox( Vector( -16 , -16 , 0 ) , Vector( 16 , 16 , 32 ) )
+		self:SetCollisionBounds( Vector( -16 , -16 , 0 ) , Vector( 16 , 16 , 32 ) )
 		self:SetSolid( SOLID_BBOX )
 		self:MakePhysicsObjectAShadow( false , false )
 		self:SetMoveType( MOVETYPE_CUSTOM )
@@ -63,7 +63,7 @@ function ENT:HandleTurningSound( moving )
 end
 
 function ENT:HandleAnimations()
-	local seq = self:LookupSequence( "aim1" )
+	local seq = self:LookupSequence( "aim2" )
 	
 	if seq then
 		self:SetSequence( seq )
@@ -71,9 +71,13 @@ function ENT:HandleAnimations()
 	
 	local ang = self:GetAimVector():Angle()
 	
-	self:ManipulateBonePosition( 0 , Vector( 0, 18 ,0 ) )
-	self:ManipulateBoneAngles( 0 , Angle( -15 , 0 , 0 ) + ang )
+	self:ManipulateBonePosition( 0 , Vector( -40, 18 , 20 ) )
+	self:ManipulateBoneAngles( 0 , Angle( -15 , 0 , 0 ) )
 	
+	self:ManipulateBoneScale( 1, Vector( 1,1,1 ) * 0 )
+	self:ManipulateBoneAngles( 11, Angle( 10,0,00 ) )
+	
+	--the actual camera itself is bone 5
 end
 
 function ENT:Think()

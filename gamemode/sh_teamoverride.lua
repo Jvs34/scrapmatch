@@ -20,7 +20,7 @@ function team.GetSpawnPoint( id , ply )
 		local minb = Vector(-16, -16, 0 )
 		local maxb = Vector( 16,  16,  72 )
 		
-		for i ,v in pairs( ents.FindByClass( teament:GetSpawnPoint() ) ) do
+		for i ,v in pairs( ents.FindByClass( teament:GetTeamSpawnPoint() ) ) do
 			
 			local tr = {}
 			tr.start = v:GetPos()
