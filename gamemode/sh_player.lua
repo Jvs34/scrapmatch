@@ -102,6 +102,50 @@ if SERVER then
 		
 	end
 	
+	function GM:PlayerHandleBattery( ply , dmginfo , dmginfotab , damage , currentbattery )
+		local armorefficiency = dmginfotab.ArmorEfficiency	--hopefully this is a single damage type
+		
+		
+		if self.ConVars["ArmorMode"]:GetInt() == 1 then
+			--halo style behaviour, the shield is pretty much a second health bar
+			
+			local armordamage = damage * ( 1 + armorefficiency )
+			
+			currentbattery = currentbattery - armordamage
+			
+			if currentbattery >= 0 then
+				--the armor absorbed all of the damage
+				damage = 0
+			else
+				--the armor can't absorb this damage, make it leak on the health
+				--remove the armor efficiency from this damage before applying it to the health
+				damage = math.abs( currentbattery ) / ( 1 + armorefficiency )
+				currentbattery = 0
+			end
+			
+		else
+			--default behaviour for armro mode 0 or others which are not taken into account yet
+			local damagedrained = damage * ( 1 - armorefficiency )		--damage to apply to health normally
+			local batterydrained = damage * armorefficiency					--damage to apply to armor normally
+
+			damage = damagedrained
+			currentbattery = currentbattery - batterydrained
+			
+			--the armor couldn't absorb all of it , make it leak onto health damage now
+			if currentbattery < 0 then
+				damage = damage + math.abs( currentbattery )
+				currentbattery = 0
+			end
+		end
+		
+		--clamp negative damage or damage that is never supposed to damage health, such as shock drain
+		if damage <= 0 or dmginfotab.NoDamageToHealth then
+			damage = 0
+		end
+			
+		return damage , currentbattery
+	end
+	
 	function GM:PlayerTakeDamage( ply , dmginfo )
 		local attacker = dmginfo:GetAttacker()
 
@@ -134,30 +178,14 @@ if SERVER then
 		
 		--battery damage reduction, also send a message to the client about the damage taken, player_hurt does that in a shitty way
 		if damageallowed and self.DamageTypes[dmgtype] then
-
-			local armorefficiency = self.DamageTypes[dmgtype].ArmorEfficiency	--hopefully this is a single damage type
 			local currentbattery = ply:GetArmorBattery()
-
-			local initialdamage = dmginfo:GetDamage()
-
 			local damage = dmginfo:GetDamage()
 			
-			local damagedrained = damage * ( 1 - armorefficiency )		--damage to apply to health normally
-			local batterydrained = damage * armorefficiency					--damage to apply to armor normally
-
-			damage = damagedrained
-			currentbattery = currentbattery - batterydrained
+			local cb, dmg = gamemode.Call( "PlayerHandleBattery" , ply , dmginfo , self.DamageTypes[dmgtype] , damage, currentbattery )
 			
-			--the armor couldn't absorb all of it , make it leak onto health damage now
-			if currentbattery < 0 then
-				damage = damage + math.abs( currentbattery )
-				currentbattery = 0
-			end
-			
-			--clamp negative damage or damage that is never supposed to damage health, such as shock drain
-			
-			if damage <= 0 or self.DamageTypes[dmgtype].NoDamageToHealth then
-				damage = 0
+			if cb and dmg then
+				currentbattery = cb
+				damage = dmg
 			end
 			
 			dmginfo:SetDamage( damage )
@@ -491,7 +519,8 @@ function GM:PlayerPostThink( ply , mv )
 			local canrecharge = math.floor( ply:GetArmorBattery() ) % quarter ~= 0
 
 			--super shield case, allow recharging with no quarter limit
-			if ply:GetMaxArmorBattery() > 100 then
+			--also recharge this if the armor is in "halo" mode
+			if ply:GetMaxArmorBattery() > 100 or self.ConVars["ArmorMode"]:GetInt() == 1 then
 				canrecharge = true
 			end
 
