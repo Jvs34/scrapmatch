@@ -109,7 +109,7 @@ if SERVER then
 		if self.ConVars["ArmorMode"]:GetInt() == 1 then
 			--halo style behaviour, the shield is pretty much a second health bar
 			
-			local armordamage = damage * ( 1 + armorefficiency )
+			local armordamage = damage * armorefficiency
 			
 			currentbattery = currentbattery - armordamage
 			
@@ -119,12 +119,12 @@ if SERVER then
 			else
 				--the armor can't absorb this damage, make it leak on the health
 				--remove the armor efficiency from this damage before applying it to the health
-				damage = math.abs( currentbattery ) / ( 1 + armorefficiency )
+				damage = math.abs( currentbattery ) / armorefficiency
 				currentbattery = 0
 			end
 			
 		else
-			--default behaviour for armro mode 0 or others which are not taken into account yet
+			--default behaviour for armor mode 0 or others which are not taken into account yet
 			local damagedrained = damage * ( 1 - armorefficiency )		--damage to apply to health normally
 			local batterydrained = damage * armorefficiency					--damage to apply to armor normally
 

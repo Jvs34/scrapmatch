@@ -241,11 +241,14 @@ GM.TEAM_BLU					= 4	--blu team
 --TODO: a way to keep track of the commands we register in the gamemode
 
 function GM:RegisterCommand( str , ... )
-
+	self.ConCommands[str] = true
+	concommand.Add( str , ... )
 end
 
 --this is called even before GM:Initialize() , plus we don't initialize the teams the normal way, so buzz off
-function GM:CreateTeams() end
+function GM:CreateTeams()
+
+end
 
 function GM:GetGameRules()
 	if self.GameRules and self.GameRules.dt then return self.GameRules end
@@ -263,7 +266,7 @@ function GM:GetGameRules()
 end
 
 function GM:GetVoteController()
-	if self.VoteController then return self.VoteController end
+	if self.VoteController and self.VoteController.dt then return self.VoteController end
 
 	for i,v in pairs( ents.FindByClass( "sm_votecontroller" ) ) do
 		if IsValid( v ) then
@@ -276,7 +279,7 @@ function GM:GetVoteController()
 end
 
 function GM:GetAnnouncer()
-	if self.Announcer then return self.Announcer end
+	if self.Announcer and self.Announcer.dt then return self.Announcer end
 
 	for i,v in pairs( ents.FindByClass( "sm_announcer" ) ) do
 		if IsValid( v ) then
@@ -314,7 +317,7 @@ function GM:GetCameraInSequence( ply , i )
 	if i then
 		index = index + i
 	else
-		index = math.random( i , self:GetGameRules():GetCameraCount() )
+		index = math.random( 1 , self:GetGameRules():GetCameraCount() )
 	end
 	
 	if index < 1 then
@@ -346,6 +349,15 @@ function GM:GetCameraInSequence( ply , i )
 	end
 end
 
+
+if CLIENT then
+	GM:RegisterCommand("sm_reportbug", function(ply,command,args)
+
+	end,function() end, "Opens the steam overlay to report a bug." , FCVAR_CLIENTCMD_CAN_EXECUTE )
+else
+
+end
+
 --TODO: MOVE THIS SHIT TO UTIL AAAAAAAAAAAAAAAAAAH
 
 --thanks vinh cunt
@@ -361,14 +373,11 @@ function colormeta:ToHex()
 	return bit.bor(bit.bor(bit.lshift(self.r, 16), bit.lshift(self.g, 8)), self.b)
 end
 
-colormeta = nil
-
 local dmginfometa = FindMetaTable( "CTakeDamageInfo" )
 
 --used by special actions when constructing a new damage info
 --note, we don't set the actual damage type flags here , but just the index because we want an easier time at checking the damage type in EntityTakeDamage
 function dmginfometa:SetDamageTypeFromName( name )
-	CheckFunctionArguments( { name , TYPE_STRING } )
 	
 	for i,v in pairs( GAMEMODE.DamageTypes ) do
 		if name:lower() == v.Name:lower() then
@@ -377,15 +386,4 @@ function dmginfometa:SetDamageTypeFromName( name )
 		end
 	end
 	
-end
-
-dmginfometa = nil
-
---receives ( {argtocheck1, argtype1 }, argtocheck2 , argtype2 ) etc etc
---on a second thought, this shit is lame
-
-function CheckFunctionArguments( ... )
-	for i , v in ipairs( {...} ) do
-		assert( v[2] == TypeID( v[1] ) , "Received wrong type at argument #"..i )
-	end
 end

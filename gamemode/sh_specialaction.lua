@@ -14,15 +14,15 @@
 	I added newsa:GetEntity() , and removed the whole ( entity , owner , ... ) kind of bullshit, to get the owner you have to go through newsa:GetEntity()
 ]]
 
-IN_ATTACK3 = 2 ^ 25		-- Garry forgot to put this one in, considering tf2 brought this in, it's relatively new
+IN_ATTACK3		= 2 ^ 25		-- Garry forgot to put this one in, considering tf2 brought this in, it's relatively new
 IN_SA_ACTIVE	= 2 ^ 26	--we've got more space up to 31
 
 --these are unused, they'll be renamed later on when they'll be actually used for something
-IN_SA_CUSTOM1 = 2 ^ 27
-IN_SA_CUSTOM2 = 2 ^ 28
-IN_SA_CUSTOM3 = 2 ^ 29
-IN_SA_CUSTOM4 = 2 ^ 30
-IN_SA_CUSTOM5 = 2 ^ 31
+IN_SA_CUSTOM1	= 2 ^ 27
+IN_SA_CUSTOM2	= 2 ^ 28
+IN_SA_CUSTOM3	= 2 ^ 29
+IN_SA_CUSTOM4	= 2 ^ 30
+IN_SA_CUSTOM5	= 2 ^ 31
 
 if not SA then
 	SA = {}
@@ -355,7 +355,7 @@ if SERVER then
 		
 	end
 	
-	concommand.Add("sm_givesa", function(ply,command,args)
+	GM:RegisterCommand("sm_givesa", function(ply,command,args)
 		if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
 		
 		if not IsValid(ply) or not ply:Alive() then return end
@@ -374,7 +374,7 @@ if SERVER then
 	return rettbl
 	end, nil, FCVAR_REPLICATED )
 
-	concommand.Add("sm_removeallsa", function(ply,command,args)
+	GM:RegisterCommand("sm_removeallsa", function(ply,command,args)
 		if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
 		
 		if not IsValid(ply) then return end

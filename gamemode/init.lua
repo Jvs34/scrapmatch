@@ -313,7 +313,7 @@ function GM:EntityTakeDamage( ent , info )
 
 end
 
-concommand.Add("sm_jointeam", function(ply,command,args)
+GM:RegisterCommand("sm_jointeam", function(ply,command,args)
 	if not IsValid( ply ) then return end
 
 	local teamn = tonumber( args[1] )
@@ -326,10 +326,12 @@ concommand.Add("sm_jointeam", function(ply,command,args)
 	--GAMEMODE:JoinTeam( ply , teamn , true )
 end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <teamid>" , 0 )
 
-concommand.Add("sm_takedamage", function(ply,command,args)
+GM:RegisterCommand("sm_takedamage", function(ply,command,args)
 	if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
 	if not IsValid( ply ) then return end
 	local dmgname = args[1]
+	
+	if not dmgname then return end
 	
 	ply:SetHealth( 100 )
 	ply:SetArmorBattery( 100 )
@@ -360,7 +362,7 @@ function( command , args )
 	return rettbl
 end, "Testing command, take 100 damage from the inputted damage type. Usage sm_takedamage Crush", 0 )
 
-concommand.Add("sm_endround",
+GM:RegisterCommand("sm_endround",
 function(ply,command,args)
 	local rules = GAMEMODE:GetGameRules()
 	if not IsValid( rules ) then return end
@@ -369,7 +371,7 @@ end,
 function( command , args )
 end, "Forces the current round to end.", FCVAR_SERVER_CAN_EXECUTE )
 
-concommand.Add("sm_gameover", function(ply,command,args)
+GM:RegisterCommand("sm_gameover", function(ply,command,args)
 	local rules = GAMEMODE:GetGameRules()
 	if not IsValid( rules ) then return end
 
