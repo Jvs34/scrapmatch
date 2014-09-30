@@ -17,8 +17,8 @@ function team.GetSpawnPoint( id , ply )
 		--go trough all the spawn points, if ply is valid then use his bounds on the hull traces, otherwise use the default ones
 	
 		local foundspawnpoint = nil
-		local minb = Vector(-16, -16, 0 )
-		local maxb = Vector( 16,  16,  72 )
+		local minb = Vector( -16 , -16 , 0 )
+		local maxb = Vector( 16 ,  16 ,  72 )
 		
 		for i ,v in pairs( ents.FindByClass( teament:GetTeamSpawnPoint() ) ) do
 			
@@ -34,7 +34,6 @@ function team.GetSpawnPoint( id , ply )
 			local trres = util.TraceHull( tr )
 			if not tr.Hit then
 				foundspawnpoint = v
-				print( "spawnpoint woo ", v )
 				break
 			end
 		end
@@ -71,18 +70,14 @@ function team.GetAllTeams()
 		local teament = GAMEMODE:GetTeamEnt( id )
 		
 		if not IsValid( teament ) then
-			if returnedTeams[id] then
-				returnedTeams[id] = nil
-			end
-			continue 
+			returnedTeams[id] = nil
+		else 
+			returnedTeams[id] = returnedTeams[id] or {}
+			returnedTeams[id].Name = teament:GetTeamName()
+			returnedTeams[id].Color = teament:GetTeamColor()
+			returnedTeams[id].Score = teament:GetTeamScore()
+			returnedTeams[id].Joinable = teament:GetTeamDisabled()
 		end
-		
-		returnedTeams[id] = returnedTeams[id] or {}
-		
-		returnedTeams[id].Name = teament:GetTeamName()
-		returnedTeams[id].Color = teament:GetTeamColor()
-		returnedTeams[id].Score = teament:GetTeamScore()
-		returnedTeams[id].Joinable = teament:GetTeamDisabled()
 	end
 	
 	return returnedTeams
@@ -129,7 +124,7 @@ function team.GetPlayers( index )
 
 	for id,pl in pairs( player.GetAll() ) do
 		if IsValid( pl ) and pl:Team() == index then
-			table.insert(TeamPlayers, pl)
+			table.insert( TeamPlayers , pl )
 		end
 	end
 	return TeamPlayers
@@ -200,7 +195,7 @@ function team.BestAutoJoinTeam()
 		if IsValid( teament ) and id ~= GAMEMODE.TEAM_SPECTATORS and not teament:GetTeamDisabled() then
 
 			local PlayerCount = team.NumPlayers( id )
-			if PlayerCount < SmallestPlayers or (PlayerCount == SmallestPlayers and id < SmallestTeam ) then
+			if PlayerCount < SmallestPlayers or ( PlayerCount == SmallestPlayers and id < SmallestTeam ) then
 				SmallestPlayers = PlayerCount
 				SmallestTeam = id
 			end

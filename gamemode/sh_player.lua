@@ -153,17 +153,25 @@ if SERVER then
 		return damage , currentbattery
 	end
 	
-	function GM:PlayerTakeDamage( ply , dmginfo )
+	function GM:PlayerTakeDamage( ply , dmginfo )	
+		local gamerules = self:GetGameRules()
+		
 		local attacker = dmginfo:GetAttacker()
 
 		local damageallowed = true	--we always take damage from ourselves
 
 		-- and from other players , if they're on my own team then ask if that friendly fire can pass on
 		if IsValid( attacker ) and attacker:IsPlayer() and attacker ~= ply then
+			
 			if attacker:Team() == ply:Team() then
 				local teament = self:GetTeamEnt( ply:Team() )
 				if IsValid( teament ) then
 					damageallowed = teament:GetTeamFriendlyFire()
+				end
+				
+				--intermissions always trigger friendly fire regardless
+				if IsValid( gamerules ) and gamerules:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION ) then
+					damageallowed = true
 				end
 			end
 
@@ -220,6 +228,7 @@ if SERVER then
 				net.WriteVector( dmginfo:GetDamagePosition() )	--send the damage position so the client knows where it was attacked from and can show the damage marker
 			net.Send( filter() )
 			
+			--only play the pain sound if there's actually some damage going trough
 			if damage > 0 then
 				ply:PlaySound( "PAIN" )
 			end

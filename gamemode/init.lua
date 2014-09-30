@@ -167,6 +167,9 @@ function GM:RoundStart()
 		else
 			v:Spawn()
 		end
+		
+		v:SetFrags( 0 )
+		v:SetDeaths( 0 )
 	end
 	
 	--scramble the teams if we had the flag previously set
@@ -271,7 +274,7 @@ function GM:JoinTeam( ply , id , fromcommand )
 
 	ply:SetNextJoinTeam( CurTime() + 0.1 )	--just so people don't spam the join team command and expect to get away with it
 
-	if id == ply:Team() then return false end	--you wot
+	if id == ply:Team() then return false end
 
 	local teament = self:GetTeamEnt( id )
 
@@ -290,9 +293,9 @@ function GM:JoinTeam( ply , id , fromcommand )
 	ply:SetTeam( teament:GetTeamID() )
 
 	if ply:Alive() then
-		if fromcommand then	--I asked this!
+		if fromcommand then
 			ply:Kill()
-		else							--I never asked for this!
+		else
 			ply:Spawn()
 		end
 	end

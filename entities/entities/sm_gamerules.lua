@@ -4,7 +4,7 @@ ENT.Type 			= "anim"
 ENT.Base 			= "base_entity"
 
 if SERVER then
-	util.AddNetworkString("sm_gamerules_roundupdate")
+	util.AddNetworkString( "sm_gamerules_roundupdate" )
 end
 
 function ENT:Initialize()
@@ -124,15 +124,10 @@ if SERVER then
 	
 	function ENT:RemoveCvarCallbacks()
 		for i , cvar_obj in pairs( GAMEMODE.ConVars ) do
-		
 			if self["Get"..i] and self["Set"..i] then
-				
 				cvars.RemoveChangeCallback( cvar_obj:GetName() , "Callback:"..i )
-				
 			end
-			
 		end
-	
 	end
 	
 	function ENT:GetCvarID( other_cvar_obj )
@@ -180,13 +175,11 @@ if SERVER then
 		
 		--we don't check if roundduration is -1 here because intermissions always have a round duration
 		if self:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION ) and self:GetRoundTime() <= CurTime() then
-			
 			if self:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
 				self:GameOver()
 			else
 				self:StartRound()
 			end
-			
 			return
 		end
 		
@@ -249,9 +242,6 @@ if SERVER then
 	
 	function ENT:OnRemove()
 		self:RemoveCvarCallbacks()
-		if not self:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
-			ErrorNoHalt( "The Game rules entity has been deleted without a gameover!!!!" )
-		end
 	end
 	
 else
