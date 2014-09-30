@@ -167,7 +167,7 @@ function meta:HandleFootsteps()
 	if not leftfootbonematrix or not rightfootbonematrix then return end
 	
 	leftfoottrace = {
-		start		= leftfootbonematrix:GetTranslation(),
+		start = leftfootbonematrix:GetTranslation(),
 		endpos = leftfootbonematrix:GetTranslation() - Vector( 0 , 0 , 10 ),
 		filter = self,
 	}

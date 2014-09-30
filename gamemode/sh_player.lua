@@ -40,10 +40,12 @@ if SERVER then
 		ply:SetMaxArmorBattery( 100 )				--let the gamerules define the max armor too?
 		if self.ConVars["ArmorMode"]:GetInt() == 1 then
 			ply:SetArmorBattery( ply:GetMaxArmorBattery() )
+			ply:SetBatteryRechargeTime( 3 )
 		else
 			ply:SetArmorBattery( 0 )					--let the gamerules decide how much battery to spawn him with?
+			ply:SetBatteryRechargeTime( 10 )
 		end
-		ply:SetBatteryRechargeTime( 10 )
+		
 		ply:SetNextBatteryRecharge( CurTime() + engine.TickInterval() )
 		ply:SetPlayedLeftFootstep( false )
 		ply:SetPlayedRightFootstep( false )
@@ -473,7 +475,7 @@ function GM:SetupMove( ply , mv , cmd )
 
 	end
 	]]
-
+	
 	--handle the player looking around cameras
 	if not ply:Alive() or ply:Team() == self.TEAM_SPECTATORS then
 		
