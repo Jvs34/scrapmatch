@@ -37,13 +37,17 @@ if SERVER then
 		ply:SetLastDamageTaken( CurTime() )
 		ply:RemoveSuit()								--we don't need the HEV suit, this will disable HL2 hud and zoom
 																--we still have to disable some HUD elements ourselves , like the damage taken one
-		ply:SetArmorBattery( 0 )					--let the gamerules decide how much battery to spawn him with?
-		ply:SetMaxArmorBattery( 100 )
+		ply:SetMaxArmorBattery( 100 )				--let the gamerules define the max armor too?
+		if self.ConVars["ArmorMode"]:GetInt() == 1 then
+			ply:SetArmorBattery( ply:GetMaxArmorBattery() )
+		else
+			ply:SetArmorBattery( 0 )					--let the gamerules decide how much battery to spawn him with?
+		end
 		ply:SetBatteryRechargeTime( 10 )
 		ply:SetNextBatteryRecharge( CurTime() + engine.TickInterval() )
 		ply:SetPlayedLeftFootstep( false )
 		ply:SetPlayedRightFootstep( false )
-		ply:SetModel("models/player/breen.mdl")		--base model
+		ply:SetModel( "models/player/breen.mdl" )		--base model
 		ply:SetBloodColor( DONT_BLEED )
 		ply:StripAmmo()
 		ply:StripWeapons()
@@ -52,14 +56,14 @@ if SERVER then
 
 		if ply:Team() ~= self.TEAM_SPECTATORS then
 			SA:CreateController( ply )
-			local wep = ply:Give("sm_weapon")
+			local wep = ply:Give( "sm_weapon" )
 			if IsValid( wep ) then
 				ply:GiveSpecialAction( "sa_circularsaw" )
 				ply:GiveSpecialAction( "sa_chaingun" )
 			end
 			ply:PlaySound( "SPAWN" )
 		else
-			ply:HUDRemoveBits( bit.bor( GAMEMODE.HUDBits.HUD_HEALTH ,GAMEMODE.HUDBits.HUD_ARMOR , GAMEMODE.HUDBits.HUD_AMMO , GAMEMODE.HUDBits.HUD_CROSSHAIR ) )
+			ply:HUDRemoveBits( bit.bor( GAMEMODE.HUDBits.HUD_HEALTH , GAMEMODE.HUDBits.HUD_ARMOR , GAMEMODE.HUDBits.HUD_AMMO , GAMEMODE.HUDBits.HUD_CROSSHAIR ) )
 		end
 
 		if IsValid( gamerules ) then
@@ -84,7 +88,6 @@ if SERVER then
 	end
 	
 	--we don't care about the default source engine behaviour , make the player respawn at its own position, we'll do the rest in PlayerSpawn
-	
 	function GM:PlayerSelectSpawn( ply )
 		return ply
 	end
@@ -103,30 +106,31 @@ if SERVER then
 	end
 	
 	function GM:PlayerHandleBattery( ply , dmginfo , dmginfotab , damage , currentbattery )
-		local armorefficiency = dmginfotab.ArmorEfficiency	--hopefully this is a single damage type
-		
+		local armorefficiency = dmginfotab.ArmorEfficiency
 		
 		if self.ConVars["ArmorMode"]:GetInt() == 1 then
 			--halo style behaviour, the shield is pretty much a second health bar
+			local oldbattery = currentbattery
 			
 			local armordamage = damage * armorefficiency
 			
 			currentbattery = currentbattery - armordamage
 			
+			
 			if currentbattery >= 0 then
 				--the armor absorbed all of the damage
 				damage = 0
 			else
-				--the armor can't absorb this damage, make it leak on the health
-				--remove the armor efficiency from this damage before applying it to the health
-				damage = math.abs( currentbattery ) / armorefficiency
-				currentbattery = 0
+				--the armor got depleted due to this shot, but still don't damage health
+				if oldbattery > 0 then
+					damage = 0	--damage = math.abs( currentbattery ) / armorefficiency
+				end
 			end
 			
 		else
 			--default behaviour for armor mode 0 or others which are not taken into account yet
 			local damagedrained = damage * ( 1 - armorefficiency )		--damage to apply to health normally
-			local batterydrained = damage * armorefficiency					--damage to apply to armor normally
+			local batterydrained = damage * armorefficiency				--damage to apply to armor normally
 
 			damage = damagedrained
 			currentbattery = currentbattery - batterydrained
@@ -134,13 +138,16 @@ if SERVER then
 			--the armor couldn't absorb all of it , make it leak onto health damage now
 			if currentbattery < 0 then
 				damage = damage + math.abs( currentbattery )
-				currentbattery = 0
 			end
 		end
 		
 		--clamp negative damage or damage that is never supposed to damage health, such as shock drain
 		if damage <= 0 or dmginfotab.NoDamageToHealth then
 			damage = 0
+		end
+		
+		if currentbattery < 0 then
+			currentbattery = 0
 		end
 			
 		return damage , currentbattery
@@ -152,7 +159,6 @@ if SERVER then
 		local damageallowed = true	--we always take damage from ourselves
 
 		-- and from other players , if they're on my own team then ask if that friendly fire can pass on
-
 		if IsValid( attacker ) and attacker:IsPlayer() and attacker ~= ply then
 			if attacker:Team() == ply:Team() then
 				local teament = self:GetTeamEnt( ply:Team() )
@@ -166,15 +172,13 @@ if SERVER then
 				ply.LastAttacker = attacker
 			end
 		end
-
-
-		local dmgtype = dmginfo:GetDamageType()
 		
 		--this damage type was set from some engine entities or by some other hidden behaviour, default it to the crush damage
-		if not self.DamageTypes[dmgtype] then
+		if not self.DamageTypes[dmginfo:GetDamageType()] then
 			dmginfo:SetDamageTypeFromName( "Crush" )
-			dmgtype = dmginfo:GetDamageType()
 		end
+		
+		local dmgtype = dmginfo:GetDamageType()
 		
 		--battery damage reduction, also send a message to the client about the damage taken, player_hurt does that in a shitty way
 		if damageallowed and self.DamageTypes[dmgtype] then
@@ -212,11 +216,13 @@ if SERVER then
 			net.Start( "sm_damageinfo" )
 				net.WriteBit( attacker == ply )
 				net.WriteFloat( damage )
-				net.WriteUInt( dmgtype , 32 )	--we send the pre converted damage type because it's easier to index on the client, plus we don't care about the other ones
+				net.WriteUInt( dmgtype , 32 )	--we send the pre converted damage type because it's easier to index, plus we don't care about the other flags
 				net.WriteVector( dmginfo:GetDamagePosition() )	--send the damage position so the client knows where it was attacked from and can show the damage marker
 			net.Send( filter() )
 			
-			ply:PlaySound( "PAIN" )
+			if damage > 0 then
+				ply:PlaySound( "PAIN" )
+			end
 		end
 
 		--returning true here avoids the player from actually taking the damage
