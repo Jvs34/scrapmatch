@@ -38,6 +38,9 @@ function SWEP:SetupDataTables()
 	self:NetworkVar( "Int" , 0 , "MaxClip1" )
 	self:NetworkVar( "Int" , 1 , "MaxClip2" )
 	
+	self:NetworkVar( "Entity" , 0 , "OldWeapon0" )
+	self:NetworkVar( "Entity" , 1 , "OldWeapon1" )
+	
 	self:NetworkVar( "Float" , 0 , "DisabledTime" )
 end
 
@@ -60,6 +63,7 @@ end
 --we do this hacky stuff because we want to remain compatible with the normal hud stuff, plus it actually makes sense
 
 function SWEP:Clip( i )
+	i = i + 1
 	return self["Clip"..i] and self["Clip"..i]( self ) or nil
 end
 
@@ -83,7 +87,6 @@ function SWEP:SetMaxClip( i , count )
 end
 
 function SWEP:OnRemove()
-
 end
 
 function SWEP:GetActionEntity( slot )
@@ -94,6 +97,12 @@ function SWEP:GetActionEntity( slot )
 	if not IsValid( controller ) then return end
 
 	return controller:GetActionEntity( slot )
+end
+
+function SWEP:GetOldWeapon( slot )
+	if self["GetOldWeapon"..slot] then
+		return self["GetOldWeapon"..slot]( self )
+	end
 end
 
 function SWEP:CanRunAction( actionentity , actionstring )
@@ -117,8 +126,8 @@ function SWEP:PrimaryAttack()
 	local ent = self:GetActionEntity( SA.Slots.LEFT_WEAPON )
 	if IsValid( ent ) then
 		if ent:GetNextAction() < CurTime() then
-			ent:DoSpecialAction( "Attack" , self:GetOwner():GetViewModel( 0 ) )
-			self:SendVMAnim( self:GetOwner():GetViewModel( 0 ) , "fire" , 1 )
+			ent:DoSpecialAction( "Attack" )
+			self:SendVMAnim( SA.Slots.LEFT_WEAPON , "fire" , 1 )
 			self:GetOwner():DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_PRIMARY , 0 )
 		end
 	end
@@ -129,7 +138,7 @@ function SWEP:SecondaryAttack()
 	if IsValid( ent ) then
 		if ent:GetNextAction() < CurTime() then
 			ent:DoSpecialAction( "Attack" , self:GetOwner():GetViewModel( 1 ) )
-			self:SendVMAnim( self:GetOwner():GetViewModel( 1 ) , "fire" , 1 )
+			self:SendVMAnim( SA.Slots.RIGHT_WEAPON , "fire" , 1 )
 			self:GetOwner():DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_SECONDARY , 0 )
 		end
 	end
@@ -155,7 +164,8 @@ function SWEP:Think()
 	end
 end
 
-function SWEP:SendVMAnim( vm , seqstr , rate )
+function SWEP:SendVMAnim( slot , seqstr , rate )
+	local vm = self:GetOwner():GetViewModel( slot )
 	if IsValid( vm ) then
 		local seq=vm:LookupSequence( seqstr )
 		vm:SendViewModelMatchingSequence( seq )
@@ -173,13 +183,13 @@ end
 
 function SWEP:Deploy()
 	if IsValid( self:GetOwner() ) then
-		for i = 0 , 1 do
+		for i = SA.Slots.LEFT_WEAPON , SA.Slots.RIGHT_WEAPON do
 			local vm = self:GetOwner():GetViewModel( i )
 			if IsValid( vm ) then
 				--sets up the viewmodel to be used on this weapon, this is needed
 				vm:SetNoDraw( false )
 				vm:SetWeaponModel( self.ViewModel , self )
-				self:SendVMAnim( vm , "draw" )
+				self:SendVMAnim( i , "draw" )
 			end
 		end
 
@@ -189,11 +199,8 @@ end
 
 function SWEP:Holster()
 	if IsValid( self:GetOwner() ) then
-		for i = 0 , 1 do
-			local vm = self:GetOwner():GetViewModel( i )
-			if IsValid( vm ) then
-				self:SendVMAnim( vm , "holster" )
-			end
+		for i = SA.Slots.LEFT_WEAPON , SA.Slots.RIGHT_WEAPON do
+			self:SendVMAnim( i , "holster" )
 		end
 	end
 	return true

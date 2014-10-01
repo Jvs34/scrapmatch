@@ -210,6 +210,15 @@ if SERVER then
 				damage = dmg
 			end
 			
+			--any damage done to health will instagib the user
+			--in case of the halo armor mode the user needs to have no armor for this to apply
+			
+			if gamerules:IsRoundFlagOn( self.RoundFlags.INSTAGIB ) then
+				if damage > 0 then
+					damage = ply:Health()
+				end
+			end
+			
 			dmginfo:SetDamage( damage )
 			dmginfo:SetDamageType( self.DamageTypes[dmgtype].Flags )
 			ply:SetArmorBattery( currentbattery )

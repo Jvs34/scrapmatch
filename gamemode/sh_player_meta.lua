@@ -291,7 +291,7 @@ function meta:HandleActionDrop()
 		if not button then continue end
 	
 		if bit.band( self:GetExtraButtons() , button ) ~= 0 then
-			
+			--retrieve the slot from this custom input
 			MsgN( self:Nick().." pressed "..i )
 
 		end
