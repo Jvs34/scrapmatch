@@ -137,7 +137,6 @@ function meta:GetTeamEnt()
 	return GAMEMODE:GetTeamEnt( self:Team() )
 end
 
---unused for now, there's a fuckup on EmitSound when changing PVS for some reason, I guess GM:Move isn't the best hook for this?
 function meta:HandleFootsteps()
 	if not self:Alive() then return end
 	if self:GetObserverMode() ~= OBS_MODE_NONE then return end

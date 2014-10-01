@@ -155,7 +155,15 @@ if SERVER then
 		return damage , currentbattery
 	end
 	
-	function GM:PlayerTakeDamage( ply , dmginfo )	
+	function GM:PlayerTakeDamage( ply , dmginfo )
+		
+		--if I'm spectating, I don't give a shit about damage and all the checks below, it shouldn't pass up here anyway
+		--but you never know
+		
+		if ply:GetObserverMode() ~= OBS_MODE_NONE then
+			return true
+		end
+		
 		local gamerules = self:GetGameRules()
 		
 		local attacker = dmginfo:GetAttacker()
