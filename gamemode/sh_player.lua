@@ -468,21 +468,7 @@ function GM:SetupMove( ply , mv , cmd )
 		ply:HUDRemoveBits( self.HUDBits.HUD_SCOREBOARD )
 	end
 	
-	--TODO: handle action dropping
-	--[[
-	for i , v in pairs( self.CustomInputs ) do
-		local button = v.Value
-
-		if not button then continue end
-	
-		if bit.band( ply:GetExtraButtons() , button ) ~= 0 then
-
-			MsgN( ply:Nick().." pressed "..i )
-
-		end
-
-	end
-	]]
+	ply:HandleActionDrop()
 	
 	--handle the player looking around cameras
 	if not ply:Alive() or ply:Team() == self.TEAM_SPECTATORS then

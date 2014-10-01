@@ -54,6 +54,8 @@ if SERVER then
 		
 		self:SetHealth( math.Clamp( curhealth + maxhealth * percent , 1 , maxhealth ) )
 		
+		--still undecided on this 
+		
 		local controller = SA:GetController( self )
 		
 		if IsValid( controller ) then
@@ -279,4 +281,21 @@ function meta:DrawMultiModel( options )
 	]]
 	
 	--there's gonna be as many multimodel parts as the player has hitboxes
+end
+
+function meta:HandleActionDrop()
+	
+	for i , v in pairs( self.CustomInputs ) do
+		local button = v.Value
+
+		if not button then continue end
+	
+		if bit.band( self:GetExtraButtons() , button ) ~= 0 then
+			
+			MsgN( self:Nick().." pressed "..i )
+
+		end
+
+	end
+	
 end
