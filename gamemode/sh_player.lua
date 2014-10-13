@@ -111,7 +111,7 @@ if SERVER then
 		local armorefficiency = dmginfotab.ArmorEfficiency
 		
 		if self.ConVars["ArmorMode"]:GetInt() == 1 then
-			--halo style behaviour, the shield is pretty much a second health bar
+			--borderlands style behaviour, the shield is pretty much a second health bar
 			local oldbattery = currentbattery
 			
 			local armordamage = damage * armorefficiency
@@ -211,7 +211,7 @@ if SERVER then
 			end
 			
 			--any damage done to health will instagib the user
-			--in case of the halo armor mode the user needs to have no armor for this to apply
+			--in case of the borderlands armor mode the user needs to have no armor for this to apply
 			
 			if gamerules:IsRoundFlagOn( self.RoundFlags.INSTAGIB ) then
 				if damage > 0 then
@@ -539,7 +539,7 @@ function GM:PlayerPostThink( ply , mv )
 			local canrecharge = math.floor( ply:GetArmorBattery() ) % quarter ~= 0
 
 			--super shield case, allow recharging with no quarter limit
-			--also recharge this if the armor is in "halo" mode
+			--also recharge this if the armor is in "borderlands" mode
 			if ply:GetMaxArmorBattery() > 100 or self.ConVars["ArmorMode"]:GetInt() == 1 then
 				canrecharge = true
 			end

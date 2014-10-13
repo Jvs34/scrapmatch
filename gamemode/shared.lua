@@ -39,7 +39,7 @@ GM.ConCommands	= {}
 if SERVER then
 
 	--the convar index helps set that variable on the corresponding networkvar on the gamerules entity and the type at the start of the description helps for the conversion
-	GM.ConVars["ArmorMode"] =		CreateConVar( "sm_armormode" , "0", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;The current armor mode, 0 for default behaviour, 1 for halo style." )
+	GM.ConVars["ArmorMode"] =		CreateConVar( "sm_armormode" , "0", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;The current armor mode, 0 for default behaviour, 1 for borderlands style." )
 	
 	
 	GM.ConVars["NextMap"] =	CreateConVar( "sm_nextmap" , "gm_construct", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "String;The map to switch to when the game is over , leave blank to just reload the current one or to load one from the mapcycle." )
