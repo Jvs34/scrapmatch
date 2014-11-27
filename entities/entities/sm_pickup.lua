@@ -210,7 +210,7 @@ if SERVER then
 	
 	function ENT:AcceptInput( inputName, activator, called, data )
 	
-		if key == "SetRespawnTime" then
+		if inputName == "SetRespawnTime" then
 			local respawntime = tonumber( data )
 			if respawntime then
 				self:SetRespawnTime( respawntime )
