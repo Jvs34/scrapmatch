@@ -285,7 +285,7 @@ end
 
 function meta:HandleActionDrop()
 	
-	for i , v in pairs( self.CustomInputs ) do
+	for i , v in pairs( GAMEMODE.CustomInputs ) do
 		local button = v.Value
 
 		if not button then continue end

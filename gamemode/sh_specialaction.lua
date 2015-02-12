@@ -355,39 +355,40 @@ if SERVER then
 		
 	end
 	
-	GM:RegisterCommand("sm_givesa", function(ply,command,args)
-		if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
-		
-		if not IsValid(ply) or not ply:Alive() then return end
-		
-		GiveSpecialAction( ply , args )
-	end,
-	function( command , args )
-	args = args:Trim():lower()
+	hook.Add( "Initialize" , "ScrapMatch Add SA commands" , function()
+		GAMEMODE:RegisterCommand("sm_givesa", function(ply,command,args)
+			if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
+			
+			if not IsValid(ply) or not ply:Alive() then return end
+			
+			GiveSpecialAction( ply , args )
+		end,
+		function( command , args )
+		args = args:Trim():lower()
 
-	local rettbl = {}
-	for i , v in pairs( SA.salist ) do
-		if #args <= 0 or string.find( v:GetClass():lower() , args ) then
-			table.insert( rettbl , command.." "..v:GetClass() )
+		local rettbl = {}
+		for i , v in pairs( SA.salist ) do
+			if #args <= 0 or string.find( v:GetClass():lower() , args ) then
+				table.insert( rettbl , command.." "..v:GetClass() )
+			end
 		end
-	end
-	return rettbl
-	end, nil, FCVAR_REPLICATED )
+		return rettbl
+		end, nil, FCVAR_REPLICATED )
 
-	GM:RegisterCommand("sm_removeallsa", function(ply,command,args)
-		if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
+		GAMEMODE:RegisterCommand("sm_removeallsa", function(ply,command,args)
+			if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
+			
+			if not IsValid(ply) then return end
+			
+			if IsValid( SA:GetController( ply ) ) then
+				SA:GetController( ply ):RemoveAllSA()
+			end
+			
+		end,
+		function()
 		
-		if not IsValid(ply) then return end
-		
-		if IsValid( SA:GetController( ply ) ) then
-			SA:GetController( ply ):RemoveAllSA()
-		end
-		
-	end,
-	function()
-	
-	end, nil, FCVAR_REPLICATED )
-	
+		end, nil, FCVAR_REPLICATED )
+	end )
 else
 	
 

@@ -42,6 +42,85 @@ GM.CleanupFilter = {
 
 function GM:Initialize()
 	--create a scrapmatch folder on the server's data folder
+	self:RegisterCommand("sm_jointeam", function(ply,command,args)
+		if not IsValid( ply ) then 
+			return 
+		end
+
+		local teament = Entity( tonumber( args[1] ) )
+		
+		if not IsValid( teament ) or teament:GetClass() ~= "sm_team" then
+			return
+		end
+
+		gamemode.Call( "JoinTeam" , ply , teament , true )
+	end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <team entindex>" , 0 )
+
+	self:RegisterCommand("sm_takedamage", function( ply , command , args )
+		if not GAMEMODE.ConVars["DebugMode"]:GetBool() or not IsValid( ply ) then 
+			return 
+		end
+		
+		local dmgname = args[1]
+		
+		if not dmgname then 
+			return 
+		end
+		
+		ply:SetHealth( 100 )
+		ply:SetArmorBattery( 100 )
+		
+		local dmginfo = DamageInfo()
+		dmginfo:SetDamage( 100 )
+		dmginfo:SetDamageTypeFromName( dmgname )
+		if not dmginfo:IsDamageType( DMG_PREVENT_PHYSICS_FORCE ) then
+			dmginfo:SetDamageForce( Vector( 0 , 0 , 600 ) )
+		else
+			dmginfo:SetDamageForce( vector_origin )
+		end
+		dmginfo:SetDamagePosition( ply:WorldSpaceCenter() )
+		dmginfo:SetAttacker( ply )
+		dmginfo:SetInflictor( ply )
+
+		ply:TakeDamageInfo( dmginfo )
+	end,
+	function( command , args )
+		args = args:Trim():lower()
+
+		local rettbl = {}
+		for i , v in pairs( GAMEMODE.DamageTypes ) do
+			if #args <= 0 or string.find( v.Name:lower() , args ) then
+				table.insert( rettbl , command.." "..v.Name )
+			end
+		end
+		return rettbl
+	end, "Testing command, take 100 damage from the inputted damage type. Usage sm_takedamage Crush", 0 )
+
+	self:RegisterCommand("sm_endround",
+	function( ply , command , args )
+		local rules = GAMEMODE:GetGameRules()
+		if not IsValid( rules ) then return end
+		rules:GoToIntermission()
+	end,
+	function( command , args )
+	end, "Forces the current round to end.", FCVAR_SERVER_CAN_EXECUTE )
+
+	self:RegisterCommand("sm_gameover", function(ply,command,args)
+		local rules = GAMEMODE:GetGameRules()
+		
+		if not IsValid( rules ) then
+			return
+		end
+
+		--lame ass duplicated code!!!!!
+
+		if rules:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
+			return
+		end
+
+		rules:ToggleRoundFlag( GAMEMODE.RoundFlags.GAMEOVER )
+		rules:GoToIntermission( GAMEMODE:GetVoteController():GetVoteDuration() * 1.5 )
+	end,function() end, "Forces the game to be over.", FCVAR_SERVER_CAN_EXECUTE )
 end
 
 function GM:InitPostEntity()
@@ -340,83 +419,3 @@ function GM:EntityTakeDamage( ent , info )
 	end
 
 end
-
-GM:RegisterCommand("sm_jointeam", function(ply,command,args)
-	if not IsValid( ply ) then 
-		return 
-	end
-
-	local teament = Entity( tonumber( args[1] ) )
-	
-	if not IsValid( teament ) or teament:GetClass() ~= "sm_team" then
-		return
-	end
-
-	gamemode.Call( "JoinTeam" , ply , teament , true )
-end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <team entindex>" , 0 )
-
-GM:RegisterCommand("sm_takedamage", function( ply , command , args )
-	if not GAMEMODE.ConVars["DebugMode"]:GetBool() or not IsValid( ply ) then 
-		return 
-	end
-	
-	local dmgname = args[1]
-	
-	if not dmgname then 
-		return 
-	end
-	
-	ply:SetHealth( 100 )
-	ply:SetArmorBattery( 100 )
-	
-	local dmginfo = DamageInfo()
-	dmginfo:SetDamage( 100 )
-	dmginfo:SetDamageTypeFromName( dmgname )
-	if not dmginfo:IsDamageType( DMG_PREVENT_PHYSICS_FORCE ) then
-		dmginfo:SetDamageForce( Vector( 0 , 0 , 600 ) )
-	else
-		dmginfo:SetDamageForce( vector_origin )
-	end
-	dmginfo:SetDamagePosition( ply:WorldSpaceCenter() )
-	dmginfo:SetAttacker( ply )
-	dmginfo:SetInflictor( ply )
-
-	ply:TakeDamageInfo( dmginfo )
-end,
-function( command , args )
-	args = args:Trim():lower()
-
-	local rettbl = {}
-	for i , v in pairs( GAMEMODE.DamageTypes ) do
-		if #args <= 0 or string.find( v.Name:lower() , args ) then
-			table.insert( rettbl , command.." "..v.Name )
-		end
-	end
-	return rettbl
-end, "Testing command, take 100 damage from the inputted damage type. Usage sm_takedamage Crush", 0 )
-
-GM:RegisterCommand("sm_endround",
-function( ply , command , args )
-	local rules = GAMEMODE:GetGameRules()
-	if not IsValid( rules ) then return end
-	rules:GoToIntermission()
-end,
-function( command , args )
-end, "Forces the current round to end.", FCVAR_SERVER_CAN_EXECUTE )
-
-GM:RegisterCommand("sm_gameover", function(ply,command,args)
-	local rules = GAMEMODE:GetGameRules()
-	
-	if not IsValid( rules ) then
-		return
-	end
-
-	--lame ass duplicated code!!!!!
-
-	if rules:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
-		return
-	end
-
-	rules:ToggleRoundFlag( GAMEMODE.RoundFlags.GAMEOVER )
-	rules:GoToIntermission( GAMEMODE:GetVoteController():GetVoteDuration() * 1.5 )
-end,function() end, "Forces the game to be over.", FCVAR_SERVER_CAN_EXECUTE )
