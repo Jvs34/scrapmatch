@@ -52,7 +52,7 @@ if SERVER then
 	GM.ConVars["RoundFlags"] =		CreateConVar( "sm_roundflags" , "0", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;The current round flags which will be modified with a clientside GUI. Set to 0 to disable." )
 	GM.ConVars["RespawnTime"] =		CreateConVar( "sm_respawntime" , "2", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Float;The respawn time in seconds that a player can spawn after." )
 
-	GM.ConVars["DebugMode"] =		CreateConVar( "sm_debugmode" , "0", FCVAR_SERVER_CAN_EXECUTE , "Bool;Debug mode allows to run commands such as sm_givespecialaction. Set to 0 to disable." )
+	GM.ConVars["DebugMode"] =		CreateConVar( "sm_debugmode" , "0", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Bool;Debug mode allows to run commands such as sm_givespecialaction. Set to 0 to disable." )
 
 else
 	--this pretty much works like createclientconvar or whatever the fuck it's called, except we're not gonna add FCVAR_USERINFO to the ones we
@@ -197,6 +197,7 @@ GM.DamageTypes = {
 
 
 GM.HUDBits = {
+	HUD_ALLBITS = 0,				--calculated afterwards
 	HUD_HEALTH = 2 ^ 0,				--health , always shown unless dead or spectating
 	HUD_ARMOR	= 2 ^ 1,				--armor , always shown with health unless armor is 0
 	HUD_AMMO	= 2 ^ 2,					--same rules as health
@@ -207,14 +208,11 @@ GM.HUDBits = {
 	HUD_PLAYERINFO	= 2 ^ 7,			--always set to be shown , but only actually shown when the player is looking at a player or that player killed us
 }
 
-local totalbits = 0
 for i , v in pairs( GM.HUDBits ) do
-	totalbits = bit.bor( totalbits , v )
+	if i ~= "HUD_ALLBITS" then
+		GM.HUDBits.HUD_ALLBITS = bit.bor( GM.HUDBits.HUD_ALLBITS , v )
+	end
 end
-
-GM.HUDBits.HUD_ALLBITS = totalbits
-
-totalbits = nil
 
 GM.PlayerStatus = {
 	FROZEN_MOVEMENT 	= 2 ^ 0,
@@ -229,13 +227,6 @@ GM.PlayerStatus = {
 	you can safely increase this without adding a tied GM.TEAM_ enum, you'll need to create the team yourself with that ID during GM:InitPostEntity()
 ]]
 GM.MAX_TEAMS = 4
-
---TODO: find a better way for this , this is still too hardcoded for my likings
---eventually we're going to remove the RED and BLU names and make them more generic like TEAM_1 etc
-GM.TEAM_SPECTATORS			= 1	--used for players still connecting or spectating
-GM.TEAM_DEATHMATCH			= 2	--deathmatch team, friendly fire allowed
-GM.TEAM_RED					= 3	--red team
-GM.TEAM_BLU					= 4	--blu team
 
 --TODO: a way to keep track of the commands we register in the gamemode
 

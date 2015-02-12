@@ -15,9 +15,9 @@ if SERVER then
 		--so force them to autojoin a team
 		
 		if ply:IsBot() then
-			self:JoinTeam( ply , team.BestAutoJoinTeam() , false )
+			self:JoinTeam( ply , team.BestAutoJoinTeam( true ) , false )
 		else
-			self:JoinTeam( ply , self.TEAM_SPECTATORS , false )
+			self:JoinTeam( ply , nil , false )
 		end
 		
 	end
@@ -56,7 +56,7 @@ if SERVER then
 
 		SA:RemoveController( ply )
 
-		if ply:Team() ~= self.TEAM_SPECTATORS then
+		if IsValid( teament ) and not teament:GetTeamSpectators() then
 			SA:CreateController( ply )
 			local wep = ply:Give( "sm_weapon" )
 			if IsValid( wep ) then
@@ -75,7 +75,7 @@ if SERVER then
 		end
 
 		--TEMPORARY , later on we'll make the player control cameras
-		if IsValid(teament) and teament:GetTeamID() == self.TEAM_SPECTATORS then
+		if IsValid( teament ) and teament:GetTeamSpectators() then
 			ply:Spectate( OBS_MODE_ROAMING )
 			--TODO:Replace this with self:PlayerSpectateCameras( ply )
 		else
@@ -269,15 +269,13 @@ if SERVER then
 		ply:StripWeapons()
 		SA:RemoveController( ply )
 
-		if ply:Team() ~= self.TEAM_SPECTATORS then
-			if bit.band( dmginfo:GetDamageType() , DMG_ALWAYSGIB ) ~= 0 then
-				ply:CreateGibs( dmginfo )	--create the gibs and supply it with the damage info, so the gibs can behave differently depending on the damage
-			else
-				ply:CreateRagdoll()				--we might override this at some point but it's ok for now
-			end
-			ply:AddDeaths( 1 )
+		if bit.band( dmginfo:GetDamageType() , DMG_ALWAYSGIB ) ~= 0 then
+			ply:CreateGibs( dmginfo )	--create the gibs and supply it with the damage info, so the gibs can behave differently depending on the damage
+		else
+			ply:CreateRagdoll()				--we might override this at some point but it's ok for now
 		end
-
+		ply:AddDeaths( 1 )
+	
 		ply:SetNextRespawn( CurTime() + rules:GetRespawnTime() )
 	
 
@@ -365,10 +363,18 @@ if SERVER then
 	--TODO: can't suicide if we're using the Plan B
 	
 	function GM:CanPlayerSuicide( ply )
+		
+		local teament = self:GetTeamEnt( ply:Team() )
+		
 		if ply:HasStatus( self.PlayerStatus.PLANB ) then
 			return false
 		end
-		return ply:Team() ~= self.TEAM_SPECTATORS
+		
+		if IsValid( teament ) then
+			return not teament:GetTeamSpectators()
+		end
+		
+		return true
 	end
 	
 else
@@ -471,7 +477,8 @@ function GM:SetupMove( ply , mv , cmd )
 	
 	local gamerules = self:GetGameRules()
 	local forcescoreboard = IsValid( gamerules ) and gamerules:IsRoundFlagOn( self.RoundFlags.GAMEOVER )
-
+	
+	local teament = self:GetTeamEnt( ply:Team() )
 	
 	if mv:KeyDown( IN_SCORE ) or forcescoreboard then
 		ply:HUDAddBits( self.HUDBits.HUD_SCOREBOARD )
@@ -482,7 +489,7 @@ function GM:SetupMove( ply , mv , cmd )
 	ply:HandleActionDrop()
 	
 	--handle the player looking around cameras
-	if not ply:Alive() or ply:Team() == self.TEAM_SPECTATORS then
+	if not ply:Alive() or ( IsValid( teament ) and teament:GetTeamSpectators() )then
 		
 		local currentcamera = ply:GetObserverTarget()
 		
@@ -575,10 +582,15 @@ end
 
 function GM:CanPlayerRespawn( ply )
 	local rules = self:GetGameRules()
+	local teament = self:GetTeamEnt( ply:Team() )
 	
-	if ply:Team() == GAMEMODE.TEAM_SPECTATORS then return true end	--this might get exploited I think
+	if IsValid( teament ) and teament:GetTeamSpectators() then 
+		return true 
+	end	--this might get exploited I think
 	
-	if IsValid( rules ) and ( rules:IsRoundFlagOn( self.RoundFlags.LASTMANSTANDING ) or rules:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION )  ) then return false end
+	if IsValid( rules ) and ( rules:IsRoundFlagOn( self.RoundFlags.LASTMANSTANDING ) or rules:IsRoundFlagOn( GAMEMODE.RoundFlags.INTERMISSION )  ) then
+		return false
+	end
 
 	return ply:GetNextRespawn() <= CurTime()
 end

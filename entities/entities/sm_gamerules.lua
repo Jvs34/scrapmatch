@@ -11,6 +11,7 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetNoDraw( true )
 		self:SetName( self:GetClass() )
+		self:SetFirstTeam( 0 )
 	end
 end
 
@@ -27,6 +28,7 @@ function ENT:SetupDataTables()
 	
 	self:NetworkVar( "Int" , 6 , "MovementSpeed" )
 	self:NetworkVar( "Int" , 7 , "CameraCount" )
+	self:NetworkVar( "Int" , 8 , "FirstTeam" )
 	
 	self:NetworkVar( "Float" , 0 , "RoundTime" )		--set at the start of the round, CurTime() + self:GetRoundDuration(), 
 	self:NetworkVar( "Float" , 1 , "RespawnTime" )	--respawn time in seconds ( eg 2 ) for the player to respawn after dying
@@ -58,7 +60,7 @@ function ENT:GetHighestScore()
 	local winnerteam = nil
 		for i = 1 , GAMEMODE.MAX_TEAMS do
 			local teament = self:GetTeamEntity( i )
-			if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then continue end
+			if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamSpectators() then continue end
 			if teament:GetTeamScore() > score then
 				score = teament:GetTeamScore()
 				winnerteam = teament
@@ -71,16 +73,29 @@ function ENT:GetHighestScorerOnTeam( i )
 
 	local teament = self:GetTeamEntity( i )
 	
-	if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamID() == GAMEMODE.TEAM_SPECTATORS then return end
+	if not IsValid(teament) or teament:GetTeamDisabled() or teament:GetTeamSpectators() then return end
 	
 	return teament:GetTeamMVP()
 end
 
 if SERVER then
 
-	function ENT:CreateTeamEntity( i , name , disabled , spawnpoint , color )
+	function ENT:CreateTeamEntity( name , disabled , spawnpoint , color )
+		local i = self:GetFirstTeam()
+		
+		if i >= GAMEMODE.MAX_TEAMS then
+			ErrorNoHalt( "Too many teams!" )
+			return
+		end
+		
+		self:SetFirstTeam( i + 1 )
+		
 		local teament = ents.Create( "sm_team" )
-		if not IsValid( teament ) then return end
+		
+		if not IsValid( teament ) then 
+			return
+		end
+		
 		teament:SetTeamID( i )
 		teament:SetTeamName( name or "Team "..i )
 		teament:SetTeamDisabled( false )

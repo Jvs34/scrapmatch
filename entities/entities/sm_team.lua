@@ -19,6 +19,8 @@ function ENT:SetupDataTables()
 	
 	self:NetworkVar( "Bool"		, 0 , "TeamFriendlyFire" )		--whether this team allows friendly fire
 	self:NetworkVar( "Bool"		, 1 , "TeamDisabled" )
+	self:NetworkVar( "Bool"		, 2 , "TeamSpectators" )			--spectators are always a special case
+	self:NetworkVar( "Bool"		, 3 , "TeamDeathmatch" )			--spectators are always a special case
 	
 	self:NetworkVar( "String" 	, 0 , "TeamName" )
 	self:NetworkVar( "String"	, 1 , "TeamSpawnPoint" )

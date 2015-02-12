@@ -68,16 +68,18 @@ function GM:InitPostEntity()
 	votecontroller:Spawn()
 
 	--setup the team entities
-	local spectators = rules:CreateTeamEntity( self.TEAM_SPECTATORS , "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
+	local spectators = rules:CreateTeamEntity( "Spectators" , false , "worldspawn" , Color( 80 , 80 , 80 ) )
+	spectators:SetTeamSpectators( true )
 	spectators:SetTeamRoundsWon( -1 )
 	
-	local deathmatch = rules:CreateTeamEntity( self.TEAM_DEATHMATCH , "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
+	local deathmatch = rules:CreateTeamEntity( "Deathmatch" , false , nil , Color( 120 , 255 , 120 ) )
+	deathmatch:SetTeamDeathmatch( true )
 	deathmatch:SetTeamFriendlyFire( true )
 	
-	local red = rules:CreateTeamEntity( self.TEAM_RED , "Red" , false , nil , Color( 255 , 120 , 120 ) )
+	local red = rules:CreateTeamEntity( "Red" , false , nil , Color( 255 , 120 , 120 ) )
 	red:SetTeamFriendlyFire( false )
 	
-	local blu = rules:CreateTeamEntity( self.TEAM_BLU , "Blu" , false , nil , Color( 120 , 120 , 255 ) )
+	local blu = rules:CreateTeamEntity( "Blu" , false , nil , Color( 120 , 120 , 255 ) )
 	blu:SetTeamFriendlyFire( false )
 	--configure your custom teams here
 	
@@ -87,7 +89,7 @@ function GM:InitPostEntity()
 			local teament = self:GetTeamEnt( i )
 			if IsValid( teament ) then
 				local col = teament:GetTeamColor()
-				MsgC( col, teament:GetTeamID() .. ": " , col , teament:GetTeamName() , col , "\n" )
+				MsgC( col, "[" .. teament:EntIndex() .. "]" .. teament:GetTeamID() .. ": " , col , teament:GetTeamName() , col , "\n" )
 			end
 		end
 	end
@@ -149,13 +151,13 @@ function GM:RoundStart()
 
 		if not IsValid( teament ) then continue end
 
-		if teament:GetTeamID() == self.TEAM_SPECTATORS then 
+		if teament:GetTeamSpectators() then 
 			continue 
 		end
 
 		teament:SetTeamScore( 0 )
 
-		if teament:GetTeamID() == self.TEAM_DEATHMATCH then
+		if teament:GetTeamDeathmatch() then
 			teament:SetTeamDisabled( self:GetGameRules():GetGameType() ~= self.GameTypes.DEATHMATCH )
 		else
 			teament:SetTeamDisabled( self:GetGameRules():GetGameType() == self.GameTypes.DEATHMATCH )
@@ -168,7 +170,7 @@ function GM:RoundStart()
 	for i , v in pairs( player.GetAll() ) do
 		local teament = self:GetTeamEnt( v:Team() )
 		if not IsValid( teament ) or teament:GetTeamDisabled() then
-			self:JoinTeam( v , team.BestAutoJoinTeam() , false )
+			self:JoinTeam( v , team.BestAutoJoinTeam( true ) , false )
 		else
 			v:Spawn()
 		end
@@ -222,7 +224,7 @@ function GM:AddScore( ply , score )
 	if not IsValid( teament ) then return end
 
 
-	if teament:GetTeamID() == self.TEAM_DEATHMATCH then
+	if teament:GetTeamDeathmatch() then
 		score = math.Clamp( ply:Frags() + score , 0 , math.huge )
 		ply:SetFrags( score )
 	else
@@ -244,16 +246,22 @@ end
 ]]
 
 function GM:ScrambleTeams()
-	if self:GetGameRules():GetGameType() ~= self.GameTypes.TEAM_DEATHMATCH then return false end
+	if self:GetGameRules():GetGameType() ~= self.GameTypes.TEAM_DEATHMATCH then 
+		return false
+	end
 
 	local plys = {}
 
 	--loop through all the players that are not spectators , add them to the table and then force them to spectate
 	
-	for i,v in pairs( player.GetAll() ) do
-		if IsValid( v ) and v:Team() ~= self.TEAM_SPECTATORS then	--don't add spectators to scramble list , they'll join when they want to
-			table.insert( plys , v )
-			self:JoinTeam( v , self.TEAM_SPECTATORS , false )
+	for i , v in pairs( player.GetAll() ) do
+		if IsValid( v ) then	--don't add spectators to scramble list , they'll join when they want to
+			local teament = self:GetTeamEnt( v:Team() )
+			
+			if IsValid( teament ) and not teament:GetTeamSpectators() then
+				table.insert( plys , v )
+				self:JoinTeam( v , nil , false )
+			end
 		end
 	end
 
@@ -265,14 +273,14 @@ function GM:ScrambleTeams()
 
 	--now make each one join the smallest team
 	for i , ply in pairs( plys ) do
-		self:JoinTeam( ply , team.BestAutoJoinTeam() , false )
+		self:JoinTeam( ply , team.BestAutoJoinTeam( true ) , false )
 	end
 
 	return true
 end
 
-function GM:JoinTeam( ply , id , fromcommand )
-
+function GM:JoinTeam( ply , teament , fromcommand )
+	
 	--check if the player doesn't have a team join cooldown, game logic skips this check
 
 	if ply:GetNextJoinTeam() > CurTime() and fromcommand then
@@ -280,14 +288,24 @@ function GM:JoinTeam( ply , id , fromcommand )
 	end
 
 	ply:SetNextJoinTeam( CurTime() + 0.1 )	--just so people don't spam the join team command and expect to get away with it
-
-	if id == ply:Team() then return false end
-
-	local teament = self:GetTeamEnt( id )
+	
+	--teament NULL / nil means that we're joining spectators
+	if not IsValid( teament ) then
+		for i = 0 , self.MAX_TEAMS do
+			local te = self:GetTeamEnt( i )
+			if IsValid( te ) and te:GetTeamSpectators() then
+				teament = te
+			end
+		end
+	end
+	
+	if not IsValid( teament ) or teament:GetTeamID() == ply:Team() then 
+		return false 
+	end
 
 	--check if that team is actually valid or disabled
 
-	if not IsValid( teament ) or teament:GetTeamDisabled() then
+	if teament:GetTeamDisabled() then
 		if not fromcommand then	--don't show this message if the invalid team was set from the game logic, it probably tried to autobalance this
 			ErrorNoHalt( tostring( ply ) .. " tried to join an invalid or disabled team!" )
 		end
@@ -328,15 +346,14 @@ GM:RegisterCommand("sm_jointeam", function(ply,command,args)
 		return 
 	end
 
-	local teamn = tonumber( args[1] )
-
-	if not teamn or teamn < 1 or teamn > GAMEMODE.MAX_TEAMS then
+	local teament = Entity( tonumber( args[1] ) )
+	
+	if not IsValid( teament ) or teament:GetClass() ~= "sm_team" then
 		return
 	end
 
-	gamemode.Call( "JoinTeam" , ply , teamn , true )
-	--GAMEMODE:JoinTeam( ply , teamn , true )
-end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <teamid>" , 0 )
+	gamemode.Call( "JoinTeam" , ply , teament , true )
+end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <team entindex>" , 0 )
 
 GM:RegisterCommand("sm_takedamage", function( ply , command , args )
 	if not GAMEMODE.ConVars["DebugMode"]:GetBool() or not IsValid( ply ) then 
