@@ -82,11 +82,13 @@ function GM:InitPostEntity()
 	--configure your custom teams here
 	
 	--debugging shit
-	for i = 1 , self.MAX_TEAMS do
-		local teament = self:GetTeamEnt( i )
-		if IsValid( teament ) then
-			local col = teament:GetTeamColor()
-			MsgC( col, teament:GetTeamID() .. ": " , col , teament:GetTeamName() , col , "\n" )
+	if self.ConVars["DebugMode"]:GetBool() then
+		for i = 1 , self.MAX_TEAMS do
+			local teament = self:GetTeamEnt( i )
+			if IsValid( teament ) then
+				local col = teament:GetTeamColor()
+				MsgC( col, teament:GetTeamID() .. ": " , col , teament:GetTeamName() , col , "\n" )
+			end
 		end
 	end
 
@@ -132,7 +134,10 @@ function GM:RoundStart()
 	end
 	
 	--cleanup the whole map, ignore the entities in the cleanupfilter
-	MsgN( "Round started" )
+	if self.ConVars["DebugMode"]:GetBool() then
+		MsgN( "Round started" )
+	end
+	
 	self:GetGameRules():SetRoundWinner( nil )
 	game.CleanUpMap( true , self.CleanupFilter )
 
@@ -194,7 +199,9 @@ function GM:RoundEnd()
 	if self:GetGameRules():IsRoundFlagOn( self.RoundFlags.GAMEOVER ) then
 		--force a changelevel vote here
 		self:GetVoteController():ResetVote() --TOO BAD, FUCK YOUR IN PROGRESS VOTE IF YOU HAD ANY
-		MsgN( "Game Over after intermission" )
+		if self.ConVars["DebugMode"]:GetBool() then
+			MsgN( "Game Over after intermission" )
+		end
 	end
 
 end
@@ -304,7 +311,7 @@ function GM:JoinTeam( ply , id , fromcommand )
 	return true
 end
 
---relay this damage to sh_player.lua
+--always override the damage calculation and relay this damage to sh_player.lua
 
 function GM:EntityTakeDamage( ent , info )
 
@@ -317,7 +324,9 @@ function GM:EntityTakeDamage( ent , info )
 end
 
 GM:RegisterCommand("sm_jointeam", function(ply,command,args)
-	if not IsValid( ply ) then return end
+	if not IsValid( ply ) then 
+		return 
+	end
 
 	local teamn = tonumber( args[1] )
 
@@ -329,12 +338,16 @@ GM:RegisterCommand("sm_jointeam", function(ply,command,args)
 	--GAMEMODE:JoinTeam( ply , teamn , true )
 end,function() end, "Makes the player using this command join a team. Usage sm_jointeam <teamid>" , 0 )
 
-GM:RegisterCommand("sm_takedamage", function(ply,command,args)
-	if not GAMEMODE.ConVars["DebugMode"]:GetBool() then return end
-	if not IsValid( ply ) then return end
+GM:RegisterCommand("sm_takedamage", function( ply , command , args )
+	if not GAMEMODE.ConVars["DebugMode"]:GetBool() or not IsValid( ply ) then 
+		return 
+	end
+	
 	local dmgname = args[1]
 	
-	if not dmgname then return end
+	if not dmgname then 
+		return 
+	end
 	
 	ply:SetHealth( 100 )
 	ply:SetArmorBattery( 100 )
@@ -366,7 +379,7 @@ function( command , args )
 end, "Testing command, take 100 damage from the inputted damage type. Usage sm_takedamage Crush", 0 )
 
 GM:RegisterCommand("sm_endround",
-function(ply,command,args)
+function( ply , command , args )
 	local rules = GAMEMODE:GetGameRules()
 	if not IsValid( rules ) then return end
 	rules:GoToIntermission()
@@ -376,11 +389,16 @@ end, "Forces the current round to end.", FCVAR_SERVER_CAN_EXECUTE )
 
 GM:RegisterCommand("sm_gameover", function(ply,command,args)
 	local rules = GAMEMODE:GetGameRules()
-	if not IsValid( rules ) then return end
+	
+	if not IsValid( rules ) then
+		return
+	end
 
 	--lame ass duplicated code!!!!!
 
-	if rules:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then return end
+	if rules:IsRoundFlagOn( GAMEMODE.RoundFlags.GAMEOVER ) then
+		return
+	end
 
 	rules:ToggleRoundFlag( GAMEMODE.RoundFlags.GAMEOVER )
 	rules:GoToIntermission( GAMEMODE:GetVoteController():GetVoteDuration() * 1.5 )

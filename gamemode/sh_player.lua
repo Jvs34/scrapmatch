@@ -228,7 +228,9 @@ if SERVER then
 			local filter = LuaRecipientFilter()
 			filter:AddPlayersByCallback( 
 				function( self , v )
-					if ply == v then return false end
+					if ply == v then 
+						return false 
+					end
 					
 					if v:GetObserverTarget() == ply then
 						return true

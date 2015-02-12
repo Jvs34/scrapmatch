@@ -135,16 +135,3 @@ end
 function GM:OnReloaded()
 	self:CreateHUD()
 end
-
---[[
-local meta = FindMetaTable( "CSEnt" )
-if not meta then return end
-
-function meta:__gc()
-	if IsValid( self ) then
-		self:Remove()
-	end
-end
-
-MsgN( "Added __gc to CSent" )
-]]

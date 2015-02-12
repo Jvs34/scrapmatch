@@ -42,7 +42,7 @@ if SERVER then
 	GM.ConVars["ArmorMode"] =		CreateConVar( "sm_armormode" , "0", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;The current armor mode, 0 for default behaviour, 1 for borderlands style." )
 	
 	
-	GM.ConVars["NextMap"] =	CreateConVar( "sm_nextmap" , "gm_construct", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "String;The map to switch to when the game is over , leave blank to just reload the current one or to load one from the mapcycle." )
+	GM.ConVars["NextMap"] =			CreateConVar( "sm_nextmap" , "gm_construct", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "String;The map to switch to when the game is over , leave blank to just reload the current one or to load one from the mapcycle." )
 	
 	GM.ConVars["MovementSpeed"] =	CreateConVar( "sm_movementspeed" , "400", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;The base movement speed the players start with as they spawn." )
 	GM.ConVars["MaxScore"] =		CreateConVar( "sm_maxscore" , "100", FCVAR_SERVER_CAN_EXECUTE + FCVAR_ARCHIVE , "Int;Maximum score to end the round at. Set to -1 to disable." )
@@ -122,7 +122,6 @@ for index , value in pairs( SA.Slots ) do
 		local cv = nil
 
 		if CLIENT then
-			--MsgN("Created convar sm_input_drop_"..index:lower())
 			cv = CreateConVar( "sm_input_drop_"..index:lower() , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key to use for this input." )
 		end
 
@@ -352,7 +351,8 @@ end
 
 if CLIENT then
 	GM:RegisterCommand("sm_reportbug", function(ply,command,args)
-
+		local url = Format( GAMEMODE.WorkshopLinkForum , GAMEMODE.WorkshopID , GAMEMODE.WorkshopBugThread )
+		gui.OpenURL( url )
 	end,function() end, "Opens the steam overlay to report a bug." , FCVAR_CLIENTCMD_CAN_EXECUTE )
 else
 
