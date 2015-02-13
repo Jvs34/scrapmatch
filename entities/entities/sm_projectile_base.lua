@@ -14,6 +14,7 @@ function ENT:Initialize()
 			self:SetMaxBounds( Vector( 16 , 16 , 16 ) )
 		end
 		
+		self:SetMoveType( MOVETYPE_VPHYSICS )
 		self:PhysicsInitBox( self:GetMinBounds() , self:GetMaxBounds() )
 		self:SetCollisionBounds( self:GetMinBounds() , self:GetMaxBounds() )
 		
@@ -37,7 +38,9 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Think()
-	if self:IsEFlagSet( EFL_KILLME ) then return end
+	if self:IsEFlagSet( EFL_KILLME ) then
+		return
+	end
 	
 	if SERVER then
 		if self:GetLifeTime() ~= -1 then

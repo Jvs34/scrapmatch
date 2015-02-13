@@ -58,6 +58,8 @@ else
 	--this pretty much works like createclientconvar or whatever the fuck it's called, except we're not gonna add FCVAR_USERINFO to the ones we
 	--don't need accessible on the server
 	
+	GM.ConVars["ShowConnectMOTD"]	= CreateConVar( "sm_motd_showconnect" , "1", FCVAR_ARCHIVE , "Bool;Whether to show the motd / help screen on server join." )
+	
 	GM.ConVars["InputScoreboardKey"] =		CreateConVar( "sm_input_scoreboard" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use the scoreboard for IN_SCORE." )
 	GM.ConVars["InputGrenadeKey"] =		CreateConVar( "sm_input_grenade" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use for IN_GRENADE1." )
 	GM.ConVars["InputActiveActionKey"] =		CreateConVar( "sm_input_activeaction" , "0", FCVAR_ARCHIVE + FCVAR_USERINFO , "Int;The key number to use for IN_ATTACK3." )
@@ -85,9 +87,10 @@ else
 
 	GM.ConVars["HUDAnimations"]	= CreateConVar( "sm_hud_animations" , "1", FCVAR_ARCHIVE , "Bool;Enables or disables ALL onscreen animations applied to hud, scoreboard and such." )
 	GM.ConVars["HUDRenderInScreenshots"]	= CreateConVar( "sm_hud_renderinscreenshots" , "1", FCVAR_ARCHIVE , "Bool;Enables or disables whether to render the HUD in screenshots." )
-
+	
 	GM.ConVars["DamageTimeOnScreen"]	= CreateConVar( "sm_damageinfo_time" , "1", FCVAR_ARCHIVE , "Float;The time in seconds to how fast to decay the damage info." )
-
+	
+	
 end
 
 GM.RoundFlags = {
