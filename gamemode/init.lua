@@ -126,6 +126,8 @@ end
 function GM:InitPostEntity()
 
 	--these entities are never going to be deleted, so it's safe to create them in InitPostEntity
+	
+	--camera test, this will be removed once we have maps with actual cameras
 	local camera = ents.Create( "sm_camera" )
 	camera:SetPos( vector_origin )
 	camera:SetActive( true )
@@ -176,9 +178,7 @@ function GM:InitPostEntity()
 	--this forces an intermission check and starts the round right away
 	rules:GoToIntermission( 1 , true )
 
-
 end
-
 
 function GM:VoteConcluded( voteentity , votetype , votedata )
 	

@@ -12,7 +12,6 @@ ENT.Notices = {
 	UNSTOPPABLE	= 2 ^ 5,
 	RAMPAGE		= 2 ^ 6,
 	RAGEQUIT	= 2 ^ 7,
-	
 }
 
 if SERVER then
@@ -108,15 +107,25 @@ if SERVER then
 
 	--called from OnPlayerDisconnected , we keep track of the attacker so we can track ragequits
 	function ENT:OnPlayerRagequit( ply , attacker )
-		if ply:IsBot() then return end	--bots will be added/removed at anytime, so don't spam shit when they leave
+	
+		--bots will be added/removed at anytime, so don't spam shit when they leave
+		if ply:IsBot() then 
+			return 
+		end
 		
-		if not IsValid( attacker ) or not attacker:IsPlayer() then return end
+		if not IsValid( attacker ) or not attacker:IsPlayer() then 
+			return 
+		end
 		
 		--the ragequit must be real! it's only considered a ragequit if that attacker had a spree which would've been worth recording
 		
-		if not self.PlayerInfo[attacker:UserID()] then return end
+		if not self.PlayerInfo[attacker:UserID()] then 
+			return 
+		end
 		
-		if self.PlayerInfo[attacker:UserID()].Flags < self.Notices.FIRSTBLOOD then return end
+		if self.PlayerInfo[attacker:UserID()].Flags < self.Notices.FIRSTBLOOD then 
+			return 
+		end
 		
 		local message = {
 			Notice = self.Notices.RAGEQUIT,
@@ -127,6 +136,11 @@ if SERVER then
 	end
 	
 	function ENT:SendMessage( contentstab )
+	
+		if not contentstab or not IsValid( contentstab.Player ) or not contentstab.Notice then
+			return
+		end
+		
 		--[[
 			{
 				Notices = the notice
@@ -175,7 +189,11 @@ else
 				end
 				
 				functouse( v.SoundPath , "noplay mono" , function( channel , errorid )
-					if not IsValid( channel ) then return end
+					
+					if not IsValid( channel ) then 
+						return 
+					end
+					
 					v.SoundChannel = channel
 				end)
 			end
