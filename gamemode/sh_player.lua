@@ -200,10 +200,12 @@ if SERVER then
 		
 		--battery damage reduction, also send a message to the client about the damage taken, player_hurt does that in a shitty way
 		if damageallowed and self.DamageTypes[dmgtype] then
+			
 			local currentbattery = ply:GetArmorBattery()
 			local damage = dmginfo:GetDamage()
 			
-			local cb, dmg = gamemode.Call( "PlayerHandleBattery" , ply , dmginfo , self.DamageTypes[dmgtype] , damage, currentbattery )
+			local dmg , cb = gamemode.Call( "PlayerHandleBattery" , ply , dmginfo , self.DamageTypes[dmgtype] , damage, currentbattery )
+			
 			
 			if cb and dmg then
 				currentbattery = cb
@@ -222,6 +224,7 @@ if SERVER then
 			dmginfo:SetDamage( damage )
 			dmginfo:SetDamageType( self.DamageTypes[dmgtype].Flags )
 			ply:SetArmorBattery( currentbattery )
+			ply:SetLastDamageTaken( CurTime() )
 			
 			--we don't need to actually send a message to the attacker for hit sounds, we're gonna handle that with player_hurt
 			--go trough all the players that are spectating this player and send this message
@@ -530,8 +533,9 @@ function GM:FinishMove( ply , mv )
 		end
 		
 	end
+	
 	--there's currently a bug with this , where the sound gets cut if you go outside of the main pvs area (????)
-	ply:HandleFootsteps()
+	--ply:HandleFootsteps()
 end
 
 function GM:PlayerDriveAnimate( ply )
@@ -619,7 +623,7 @@ function GM:OnPlayerHitGround( ply , inwater , onfloater , speed )
 end
 
 function GM:PlayerFootstep( ply , pos , foot , sound , volume, filter )
-	--ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
+	ply:PlaySound( ( foot == 0 ) and "LEFTFOOT" or "RIGHTFOOT" , true )
 	return true
 end
 

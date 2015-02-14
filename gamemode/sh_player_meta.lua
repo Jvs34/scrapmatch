@@ -143,6 +143,7 @@ function meta:HandleFootsteps()
 	if not self:Alive() then return end
 	if self:GetObserverMode() ~= OBS_MODE_NONE then return end
 	
+	
 	if CLIENT then
 		if self == LocalPlayer() and not self:ShouldDrawLocalPlayer() then
 			self:SetupBones()
@@ -199,6 +200,7 @@ function meta:HandleFootsteps()
 	else
 		self:SetPlayedRightFootstep( false )
 	end
+	
 end
 
 meta.SoundInfos = {
