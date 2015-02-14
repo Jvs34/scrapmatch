@@ -65,7 +65,7 @@ function recipientmeta:AddPlayer( ply )
 		if v == ply then return false end
 	end
 
-	if IsValid( self.PredictingPlayer ) and not IsFirstTimePredicted() then
+	if IsValid( self.PredictingPlayer ) and IsFirstTimePredicted() then
 		if ply == self.PredictingPlayer then
 			return false
 		end
