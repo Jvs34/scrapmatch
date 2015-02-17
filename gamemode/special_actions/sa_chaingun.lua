@@ -29,11 +29,11 @@ function newsa:Attack( viewmodel )
 		local dmg = DamageInfo()
 		dmg:SetAttacker( self:GetEntity():GetOwner() )
 		dmg:SetInflictor( self:GetEntity() )
-		dmg:SetDamage( 10 + util.SharedRandom("sa_circularsaw",2,10) )
+		dmg:SetDamage( 10 + util.SharedRandom( self:GetClass() , 2 , 10 ) )
 
 		dmg:SetDamageForce( self:GetEntity():GetOwner():GetAimVector() * dmg:GetDamage() * 500 )
 
-		dmg:SetDamagePosition(tr.HitPos)
+		dmg:SetDamagePosition( tr.HitPos )
 		dmg:SetDamageTypeFromName( "Bullet" )
 		
 		if tr.Entity then
